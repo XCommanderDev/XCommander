@@ -82,16 +82,29 @@ final class PickerOverlay {
         panel.hidesOnDeactivate = false
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
 
+        // `.popover` rather than `.hudWindow`, plus an opaque backing colour.
+        //
+        // A heavily translucent panel takes its contrast from whatever is behind it, and
+        // what is behind this one is Xcode — whose theme is independent of the system
+        // appearance. In light mode over a dark editor the result was a grey haze with an
+        // invisible breadcrumb. Backing the material with the window colour makes the
+        // contrast a property of the panel rather than of the window under it, while the
+        // material still supplies the blur at the edges.
         let blur = NSVisualEffectView()
-        blur.material = .hudWindow
+        blur.material = .popover
         blur.blendingMode = .behindWindow
         blur.state = .active
         blur.wantsLayer = true
         blur.layer?.cornerRadius = 12
         blur.layer?.masksToBounds = true
 
+        let backing = PanelBackingView()
+        backing.autoresizingMask = [.width, .height]
+        blur.addSubview(backing)
+
         let content = PickerView()
-        blur.addSubview(content)
+        backing.frame = blur.bounds
+        blur.addSubview(content, positioned: .above, relativeTo: backing)
         panel.contentView = blur
         window = panel
         view = content
@@ -110,6 +123,7 @@ final class PickerView: NSView {
     private let rowHeight: CGFloat = 28
     private let badgeSize: CGFloat = 17
     private let badgeGap: CGFloat = 10
+    private let columnGap: CGFloat = 16
     private let titleFont = NSFont.systemFont(ofSize: 11, weight: .semibold)
     private let badgeFont = NSFont.systemFont(ofSize: 9.5, weight: .bold)
     private let queryFont = NSFont.systemFont(ofSize: 17)
@@ -248,13 +262,26 @@ final class PickerView: NSView {
                 title.addAttributes([.font: matchFont, .foregroundColor: palette.match],
                                     range: NSRange(location: start, length: length))
             }
-            title.draw(at: NSPoint(x: textX, y: y))
-
-            if let detail = row.item.detail {
-                let d = NSAttributedString(string: detail, attributes: [
+            // Measure the detail first, then give the title whatever is left. Drawing the
+            // title unbounded lets a long line run underneath the file column, and the two
+            // overlap into an unreadable smear.
+            let detail = row.item.detail.map {
+                NSAttributedString(string: $0, attributes: [
                     .font: detailFont, .foregroundColor: palette.detail,
                 ])
-                d.draw(at: NSPoint(x: bounds.width - padding - d.size().width, y: y + 2))
+            }
+            let detailWidth = detail.map { $0.size().width + columnGap } ?? 0
+            let available = max(40, bounds.width - padding - textX - detailWidth)
+
+            let truncation = NSMutableParagraphStyle()
+            truncation.lineBreakMode = .byTruncatingTail
+            title.addAttribute(.paragraphStyle, value: truncation,
+                               range: NSRange(location: 0, length: title.length))
+            title.draw(with: NSRect(x: textX, y: y, width: available, height: rowHeight),
+                       options: [.usesLineFragmentOrigin])
+
+            if let detail {
+                detail.draw(at: NSPoint(x: bounds.width - padding - detail.size().width, y: y + 2))
             }
             y += rowHeight
         }

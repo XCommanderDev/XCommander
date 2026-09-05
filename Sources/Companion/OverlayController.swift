@@ -115,16 +115,29 @@ final class OverlayController {
         // full-screen Xcode, which an ordinary floating window will not do.
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
 
+        // `.popover` rather than `.hudWindow`, plus an opaque backing colour.
+        //
+        // A heavily translucent panel takes its contrast from whatever is behind it, and
+        // what is behind this one is Xcode — whose theme is independent of the system
+        // appearance. In light mode over a dark editor the result was a grey haze with an
+        // invisible breadcrumb. Backing the material with the window colour makes the
+        // contrast a property of the panel rather than of the window under it, while the
+        // material still supplies the blur at the edges.
         let blur = NSVisualEffectView()
-        blur.material = .hudWindow
+        blur.material = .popover
         blur.blendingMode = .behindWindow
         blur.state = .active
         blur.wantsLayer = true
         blur.layer?.cornerRadius = 12
         blur.layer?.masksToBounds = true
 
+        let backing = PanelBackingView()
+        backing.autoresizingMask = [.width, .height]
+        blur.addSubview(backing)
+
         let content = WhichKeyView()
-        blur.addSubview(content)
+        backing.frame = blur.bounds
+        blur.addSubview(content, positioned: .above, relativeTo: backing)
         panel.contentView = blur
 
         self.window = panel
@@ -182,7 +195,7 @@ final class WhichKeyView: NSView {
     override func draw(_ dirtyRect: NSRect) {
         let breadcrumb = NSAttributedString(string: panel.breadcrumb, attributes: [
             .font: NSFont.monospacedSystemFont(ofSize: 12, weight: .bold),
-            .foregroundColor: NSColor.secondaryLabelColor,
+            .foregroundColor: NSColor.labelColor,
         ])
         breadcrumb.draw(at: NSPoint(x: padding, y: padding))
 
