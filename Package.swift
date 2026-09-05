@@ -12,6 +12,7 @@ let package = Package(
     platforms: [.macOS(.v14)],
     products: [
         .library(name: "CompanionCore", targets: ["CompanionCore"]),
+        .library(name: "CIndexStore", targets: ["CIndexStore"]),
         .executable(name: "Companion", targets: ["Companion"]),
     ],
     targets: [

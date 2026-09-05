@@ -1,0 +1,39 @@
+name: Autographe for Xcode
+options:
+  bundleIdPrefix: com.wassimans
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    DEVELOPMENT_TEAM: D3XY49J59H
+    CODE_SIGN_STYLE: Automatic
+    SWIFT_VERSION: "6.0"
+    ENABLE_HARDENED_RUNTIME: YES
+packages:
+  CompanionCore:
+    path: .
+targets:
+  Autographe for Xcode:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources/Companion
+    dependencies:
+      - package: CompanionCore
+        product: CompanionCore
+      - package: CompanionCore
+        product: CIndexStore
+    info:
+      path: Sources/Companion/Info.plist
+      properties:
+        CFBundleName: Autographe for Xcode
+        CFBundleIdentifier: com.wassimans.AutographeForXcode
+        LSMinimumSystemVersion: "14.0"
+        NSPrincipalClass: NSApplication
+        # A menu-bar app: no Dock icon, no app switcher entry.
+        LSUIElement: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.wassimans.AutographeForXcode
+        INFOPLIST_KEY_NSHumanReadableCopyright: ""
