@@ -50,7 +50,8 @@ final class DocumentHistory {
             let url = URL(fileURLWithPath: visit.path)
             return PickerItem(id: "file:" + visit.path,
                               title: url.lastPathComponent,
-                              detail: url.deletingLastPathComponent().lastPathComponent)
+                              detail: url.deletingLastPathComponent().lastPathComponent,
+                              icon: .buffer)
         }
     }
 

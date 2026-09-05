@@ -5,6 +5,8 @@ import Foundation
 public enum CompanionStatus: Hashable, Sendable {
     /// No Accessibility permission. Nothing works and the user must be told why.
     case needsAccessibility
+    /// Switched off from the menu. Deliberate, so it says so rather than looking broken.
+    case disabled
     /// Another app holds secure input, so the tap receives nothing, system-wide.
     /// Detectable only by polling — there is no notification. See `SPIKE-REPORT.md`.
     case pausedBySecureInput
@@ -15,8 +17,10 @@ public enum CompanionStatus: Hashable, Sendable {
 
     public static func derive(hasAccessibility: Bool,
                               secureInputActive: Bool,
-                              xcodeFrontmost: Bool) -> CompanionStatus {
+                              xcodeFrontmost: Bool,
+                              enabled: Bool = true) -> CompanionStatus {
         if !hasAccessibility { return .needsAccessibility }
+        if !enabled { return .disabled }
         if secureInputActive { return .pausedBySecureInput }
         return xcodeFrontmost ? .armed : .idle
     }
@@ -24,7 +28,8 @@ public enum CompanionStatus: Hashable, Sendable {
     /// The menu bar title. Short, because it sits next to the clock.
     public var menuBarSymbol: String {
         switch self {
-        case .needsAccessibility: "exclamationmark.triangle"
+        case .needsAccessibility: "exclamationmark.triangle.fill"
+        case .disabled: "keyboard.badge.ellipsis"
         case .pausedBySecureInput: "lock.fill"
         case .idle: "keyboard"
         case .armed: "keyboard.fill"
@@ -35,6 +40,8 @@ public enum CompanionStatus: Hashable, Sendable {
         switch self {
         case .needsAccessibility:
             "Accessibility permission is needed to see the leader key."
+        case .disabled:
+            "Leader key disabled."
         case .pausedBySecureInput:
             "Paused — another app has secure input enabled."
         case .idle:

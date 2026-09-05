@@ -14,6 +14,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var picker: PickerOverlay!
     private var tap: EventTap!
     private var menuBar: MenuBarController!
+    private let settings = SettingsWindow()
 
     /// Exactly one of these is active at a time. The keymap session drives the which-key
     /// panel; a picker, once open, takes every key until it is chosen or cancelled.
@@ -67,6 +68,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menuBar.onQuit = { NSApp.terminate(nil) }
         menuBar.onReloadMenus = { [weak self] in self?.context.refreshMenuIndex() }
         menuBar.onOpenAccessibilitySettings = { Self.openAccessibilitySettings() }
+        menuBar.onToggleEnabled = { [weak self] in
+            SettingsWindow.isEnabled.toggle()
+            self?.applySettings()
+        }
+        menuBar.onShowSettings = { [weak self] in self?.settings.show() }
+        settings.onChange = { [weak self] in self?.applySettings() }
 
         tap = EventTap(
             handler: { [weak self] keyCode, flags in
@@ -77,6 +84,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
 
         observeFrontmostApplication()
+        applySettings()
         xcodeIsFrontmost = context.isFrontmost
         requestAccessibilityThenStart()
     }
@@ -84,6 +92,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - the keystroke path
 
     private func handleKey(keyCode: CGKeyCode, flags: CGEventFlags) -> Bool {
+        // Switched off from the menu: every key passes straight through, so the app is
+        // inert rather than merely quiet.
+        guard SettingsWindow.isEnabled else { return false }
         guard xcodeIsFrontmost else { return false }
         guard let event = EventBridge.keyEvent(keyCode: keyCode, flags: flags) else { return false }
 
@@ -202,7 +213,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let items: [PickerItem]
         switch kind {
         case .commands:      items = commandItems()
-        case .destinations:  items = menuItems(under: ["Product", "Destination"])
+        case .destinations:  items = menuItems(under: ["Product", "Destination"], icon: .destination)
         case .schemes:       items = menuItems(under: ["Product", "Scheme"])
         case .themes:        items = menuItems(under: ["Editor", "Theme"])
         case .syntaxColoring: items = menuItems(under: ["Editor", "Syntax Coloring"])
@@ -301,8 +312,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         open.replaceRows(ranked.prefix(300).map { entry in
             let symbol = entry.item
             return PickerItem(id: "symbol:\(symbol.path):\(symbol.line)",
-                              title: "\(symbol.kind.label)  \(symbol.name)",
-                              detail: symbol.location(relativeTo: searchRoot?.path))
+                              title: symbol.name,
+                              detail: symbol.location(relativeTo: searchRoot?.path),
+                              icon: .symbol(symbol.kind))
         })
         activePicker = open
         picker.update(open)
@@ -318,7 +330,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                            // The line itself is the row, because that is what you are
                            // scanning for; the file and line sit on the right.
                            title: match.text.trimmingCharacters(in: .whitespaces),
-                           detail: match.location(relativeTo: root.path))
+                           detail: match.location(relativeTo: root.path),
+                           icon: .searchHit)
             })
             self.activePicker = session
             self.picker.update(session)
@@ -344,7 +357,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             return PickerItem(id: command.id,
                               title: isMenu ? command.searchText : command.title,
                               detail: binding,
-                              matchText: "\(command.title) \(command.searchText)")
+                              matchText: "\(command.title) \(command.searchText)",
+                              icon: .forAction(command.action))
         }
         let known = Set(registry.all.compactMap { $0.menuPath?.joined(separator: " > ") })
         for entry in context.allMenuItems() {
@@ -353,17 +367,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             items.append(PickerItem(id: "menu:" + entry.path.joined(separator: "\u{1}"),
                                     title: path,
                                     detail: entry.shortcut?.display,
-                                    isEnabled: entry.isEnabled))
+                                    isEnabled: entry.isEnabled,
+                                    icon: .menuItem))
         }
         return items
     }
 
-    private func menuItems(under prefix: [String]) -> [PickerItem] {
+    private func menuItems(under prefix: [String], icon: RowIcon = .menuItem) -> [PickerItem] {
         context.menuItems(under: prefix).map { entry in
             PickerItem(id: "menu:" + entry.path.joined(separator: "\u{1}"),
                        title: entry.path.last ?? "",
                        detail: entry.shortcut?.display,
-                       isEnabled: entry.isEnabled)
+                       isEnabled: entry.isEnabled,
+                       icon: icon)
         }
     }
 
@@ -441,10 +457,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    /// Push the stored settings into the parts that use them.
+    private func applySettings() {
+        whichKey.delay = SettingsWindow.overlayDelay
+        menuBar.setEnabled(SettingsWindow.isEnabled)
+        if !SettingsWindow.isEnabled { abandonEverything() }
+        updateStatus()
+    }
+
     private func updateStatus() {
         let status = CompanionStatus.derive(hasAccessibility: hasAccessibility,
                                             secureInputActive: tap.secureInputActive,
-                                            xcodeFrontmost: xcodeIsFrontmost)
+                                            xcodeFrontmost: xcodeIsFrontmost,
+                                            enabled: SettingsWindow.isEnabled)
         if status != menuBar.status {
             log.notice("status -> \(String(describing: status), privacy: .public)")
         }

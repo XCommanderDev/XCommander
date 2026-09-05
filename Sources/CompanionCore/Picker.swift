@@ -15,14 +15,17 @@ public struct PickerItem: Hashable, Sendable, Identifiable {
     /// Greyed and unselectable. Xcode's menus are context-dependent, so a command offered
     /// a moment ago can be unavailable now.
     public let isEnabled: Bool
+    /// The badge at the left of the row. Nil draws no badge and no indent.
+    public let icon: RowIcon?
 
     public init(id: String, title: String, detail: String? = nil,
-                isEnabled: Bool = true, matchText: String? = nil) {
+                isEnabled: Bool = true, matchText: String? = nil, icon: RowIcon? = nil) {
         self.id = id
         self.title = title
         self.detail = detail
         self.isEnabled = isEnabled
         self.matchText = matchText ?? title
+        self.icon = icon
     }
 }
 

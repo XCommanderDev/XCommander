@@ -106,8 +106,12 @@ final class PickerView: NSView {
     override var isFlipped: Bool { true }
 
     private let padding: CGFloat = 16
-    private let queryHeight: CGFloat = 40
-    private let rowHeight: CGFloat = 26
+    private let queryHeight: CGFloat = 42
+    private let rowHeight: CGFloat = 28
+    private let badgeSize: CGFloat = 17
+    private let badgeGap: CGFloat = 10
+    private let titleFont = NSFont.systemFont(ofSize: 11, weight: .semibold)
+    private let badgeFont = NSFont.systemFont(ofSize: 9.5, weight: .bold)
     private let queryFont = NSFont.systemFont(ofSize: 17)
     private let rowFont = NSFont.systemFont(ofSize: 13)
     private let matchFont = NSFont.systemFont(ofSize: 13, weight: .bold)
@@ -122,6 +126,23 @@ final class PickerView: NSView {
     /// livelier than an available one. And the unmatched part of a title stays at full
     /// label colour rather than dropping to secondary, so the highlight marks the match
     /// instead of the rest of the row receding.
+    /// The one place a named tint becomes a colour.
+    ///
+    /// System colours rather than literals, so every one of these adapts to light and dark
+    /// and to the user's accent colour without a second palette.
+    private static func colour(for tint: IconTint) -> NSColor {
+        switch tint {
+        case .purple: .systemPurple
+        case .blue:   .systemBlue
+        case .teal:   .systemTeal
+        case .green:  .systemGreen
+        case .orange: .systemOrange
+        case .pink:   .systemPink
+        case .grey:   .secondaryLabelColor
+        case .accent: .controlAccentColor
+        }
+    }
+
     private struct RowPalette {
         let text: NSColor
         let match: NSColor
@@ -147,9 +168,12 @@ final class PickerView: NSView {
         guard let session else { return }
 
         // Title, then the query line with our own caret.
-        NSAttributedString(string: session.title, attributes: [
-            .font: NSFont.monospacedSystemFont(ofSize: 11, weight: .semibold),
-            .foregroundColor: NSColor.tertiaryLabelColor,
+        // Upper-cased and at secondary rather than tertiary: at 11pt a tertiary label on a
+        // HUD material is legible in a mock-up and invisible on a real screen.
+        NSAttributedString(string: session.title.uppercased(), attributes: [
+            .font: titleFont,
+            .foregroundColor: NSColor.secondaryLabelColor,
+            .kern: 0.6,
         ]).draw(at: NSPoint(x: padding, y: padding - 4))
 
         let query = NSAttributedString(string: session.query, attributes: [
@@ -165,7 +189,7 @@ final class PickerView: NSView {
 
         if session.query.isEmpty {
             NSAttributedString(string: "type to filter", attributes: [
-                .font: queryFont, .foregroundColor: NSColor.quaternaryLabelColor,
+                .font: queryFont, .foregroundColor: NSColor.tertiaryLabelColor,
             ]).draw(at: NSPoint(x: caretX + 8, y: queryY))
         }
 
@@ -192,6 +216,25 @@ final class PickerView: NSView {
                 NSBezierPath(roundedRect: band, xRadius: 6, yRadius: 6).fill()
             }
 
+            // The badge: a rounded square with a letter, the shape Xcode uses in its own
+            // completion list, tinted by what the row is.
+            var textX = padding
+            if let icon = row.item.icon {
+                let box = NSRect(x: padding, y: y - 1, width: badgeSize, height: badgeSize)
+                let tint = Self.colour(for: icon.tint)
+                let enabled = row.item.isEnabled
+                tint.withAlphaComponent(enabled ? 0.22 : 0.10).setFill()
+                NSBezierPath(roundedRect: box, xRadius: 4, yRadius: 4).fill()
+                let glyph = NSAttributedString(string: icon.glyph, attributes: [
+                    .font: badgeFont,
+                    .foregroundColor: enabled ? tint : tint.withAlphaComponent(0.45),
+                ])
+                let size = glyph.size()
+                glyph.draw(at: NSPoint(x: box.midX - size.width / 2,
+                                       y: box.midY - size.height / 2))
+                textX = padding + badgeSize + badgeGap
+            }
+
             let title = NSMutableAttributedString(string: row.item.title, attributes: [
                 .font: rowFont, .foregroundColor: palette.text,
             ])
@@ -205,7 +248,7 @@ final class PickerView: NSView {
                 title.addAttributes([.font: matchFont, .foregroundColor: palette.match],
                                     range: NSRange(location: start, length: length))
             }
-            title.draw(at: NSPoint(x: padding, y: y))
+            title.draw(at: NSPoint(x: textX, y: y))
 
             if let detail = row.item.detail {
                 let d = NSAttributedString(string: detail, attributes: [
@@ -218,13 +261,13 @@ final class PickerView: NSView {
 
         if session.rows.isEmpty {
             NSAttributedString(string: "no matches", attributes: [
-                .font: rowFont, .foregroundColor: NSColor.tertiaryLabelColor,
+                .font: rowFont, .foregroundColor: NSColor.secondaryLabelColor,
             ]).draw(at: NSPoint(x: padding, y: padding + queryHeight + 8))
         }
 
         // A count, so a long list does not feel bottomless.
         let count = NSAttributedString(string: "\(session.rows.count)", attributes: [
-            .font: detailFont, .foregroundColor: NSColor.quaternaryLabelColor,
+            .font: detailFont, .foregroundColor: NSColor.tertiaryLabelColor,
         ])
         count.draw(at: NSPoint(x: bounds.width - padding - count.size().width, y: padding - 4))
     }

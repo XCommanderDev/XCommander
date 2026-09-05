@@ -12,6 +12,10 @@ final class MenuBarController {
     var onQuit: (() -> Void)?
     var onReloadMenus: (() -> Void)?
     var onOpenAccessibilitySettings: (() -> Void)?
+    var onToggleEnabled: (() -> Void)?
+    var onShowSettings: (() -> Void)?
+
+    private let enabledEntry = NSMenuItem(title: "Enable Leader Key", action: nil, keyEquivalent: "")
 
     private(set) var status: CompanionStatus = .idle
 
@@ -21,6 +25,16 @@ final class MenuBarController {
         statusEntry.isEnabled = false
         menu.addItem(statusEntry)
         menu.addItem(.separator())
+
+        enabledEntry.action = #selector(toggleEnabled)
+        enabledEntry.target = self
+        menu.addItem(enabledEntry)
+        menu.addItem(.separator())
+
+        let settings = NSMenuItem(title: "Settings…", action: #selector(showSettings),
+                                  keyEquivalent: ",")
+        settings.target = self
+        menu.addItem(settings)
 
         let permissions = NSMenuItem(title: "Open Accessibility Settings…",
                                      action: #selector(openSettings), keyEquivalent: "")
@@ -50,6 +64,15 @@ final class MenuBarController {
         statusEntry.title = status.explanation
     }
 
+    /// Reflect the on/off state in the menu, so the item reads as a switch rather than a
+    /// command whose effect you have to remember.
+    func setEnabled(_ enabled: Bool) {
+        enabledEntry.title = enabled ? "Disable Leader Key" : "Enable Leader Key"
+        enabledEntry.state = enabled ? .on : .off
+    }
+
+    @objc private func toggleEnabled() { onToggleEnabled?() }
+    @objc private func showSettings() { onShowSettings?() }
     @objc private func quit() { onQuit?() }
     @objc private func reload() { onReloadMenus?() }
     @objc private func openSettings() { onOpenAccessibilitySettings?() }

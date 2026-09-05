@@ -120,6 +120,12 @@ struct DefaultKeymapTests {
                                        xcodeFrontmost: false) == .idle)
         #expect(CompanionStatus.derive(hasAccessibility: true, secureInputActive: false,
                                        xcodeFrontmost: true) == .armed)
+        // Switched off from the menu, but permission still outranks it: a disabled app
+        // that also lacks permission should say the thing the user must fix.
+        #expect(CompanionStatus.derive(hasAccessibility: true, secureInputActive: false,
+                                       xcodeFrontmost: true, enabled: false) == .disabled)
+        #expect(CompanionStatus.derive(hasAccessibility: false, secureInputActive: false,
+                                       xcodeFrontmost: true, enabled: false) == .needsAccessibility)
     }
 
     /// Every text transform should be both bound and registered: they are the features

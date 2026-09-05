@@ -116,7 +116,8 @@ final class FileIndex {
             .map { file in
                 PickerItem(id: "file:" + file.url.path,
                            title: file.relative,
-                           detail: file.url.deletingLastPathComponent().lastPathComponent)
+                           detail: file.url.deletingLastPathComponent().lastPathComponent,
+                           icon: .file)
             }
     }
 
