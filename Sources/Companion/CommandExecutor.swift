@@ -21,6 +21,8 @@ final class CommandExecutor {
     enum Result: Equatable {
         case posted(KeyEvent)      // tier 1
         case pressed([String])     // tier 2
+        case transformed(Int)      // characters written back
+        case opensPicker(PickerKind)
         case handledInternally(String)
         case unavailable(String)   // and why, for the log and the menu bar
     }
@@ -44,6 +46,13 @@ final class CommandExecutor {
             onCompanionCommand?(id)
             return .handledInternally(id)
 
+        case .picker(let kind):
+            // The app owns pickers, because only it can supply their rows.
+            return .opensPicker(kind)
+
+        case .transform(let transform):
+            return apply(transform)
+
         case .shortcut(let key):
             return post(key) ? .posted(key) : .unavailable("could not post \(key.display)")
 
@@ -64,6 +73,26 @@ final class CommandExecutor {
                 ? .pressed(path)
                 : .unavailable("could not press \(path.joined(separator: " > "))")
         }
+    }
+
+    /// Rewrite the editor's selection.
+    ///
+    /// With nothing selected, the current line is selected first — which is what every
+    /// editor does, and what makes `align` or `join` useful without a mouse. Xcode's own
+    /// undo reverts the write, so `⌘Z` takes it back.
+    private func apply(_ transform: TextTransform) -> Result {
+        guard context.selectCurrentLineIfEmpty() else {
+            return .unavailable("no source editor is focused")
+        }
+        guard let selection = context.selectedText(), !selection.isEmpty else {
+            return .unavailable("nothing to transform")
+        }
+        let result = transform.apply(to: selection)
+        guard result != selection else { return .transformed(0) }
+        guard context.replaceSelection(with: result) else {
+            return .unavailable("could not write to the editor")
+        }
+        return .transformed(result.count)
     }
 
     /// Post a synthetic keystroke.

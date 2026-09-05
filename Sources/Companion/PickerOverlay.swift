@@ -1,0 +1,191 @@
+import AppKit
+import CompanionCore
+
+/// The picker window: a query line and a ranked list, centred over Xcode.
+///
+/// **It never becomes the key window.** A normal picker takes focus, which makes Xcode dim
+/// and — the part that actually matters — leaves the editor's selection stale, so a picker
+/// entry that transforms the selection has nothing to transform. Because we own the event
+/// tap, keystrokes reach this list *before* Xcode sees them, and Xcode never learns it
+/// stopped being typed into.
+///
+/// The cost is that we draw our own field and caret and handle every editing key by hand.
+/// `PickerSession` in Core does that part, and is tested without a screen.
+@MainActor
+final class PickerOverlay {
+
+    private let context: XcodeContext
+    private var window: NSPanel?
+    private var view: PickerView?
+
+    init(context: XcodeContext) {
+        self.context = context
+    }
+
+    var isVisible: Bool { window?.isVisible ?? false }
+
+    func present(_ session: PickerSession) {
+        ensureWindow()
+        view?.session = session
+        view?.needsDisplay = true
+        reposition()
+        window?.orderFrontRegardless()
+    }
+
+    func update(_ session: PickerSession) {
+        guard isVisible else { return }
+        view?.session = session
+        view?.needsDisplay = true
+    }
+
+    func dismiss() {
+        window?.orderOut(nil)
+    }
+
+    /// Centred horizontally on Xcode's window and pinned near its top, the way Open Quickly
+    /// and every other command palette sits. Falls back to the screen if Xcode will not say.
+    private func reposition() {
+        guard let window else { return }
+        let width: CGFloat = 720
+        let height: CGFloat = 380
+        let target: NSRect
+        if let ax = context.focusedWindowFrame() {
+            let primaryTop = NSScreen.screens.first?.frame.maxY ?? 0
+            let cocoa = NSRect(x: ax.minX, y: primaryTop - ax.minY - ax.height,
+                               width: ax.width, height: ax.height)
+            target = cocoa
+        } else {
+            target = NSScreen.main?.visibleFrame ?? .zero
+        }
+        let x = target.midX - width / 2
+        let y = target.maxY - height - 120
+        window.setFrame(NSRect(x: x, y: y, width: width, height: height), display: true)
+        view?.frame = window.contentView?.bounds ?? .zero
+    }
+
+    private func ensureWindow() {
+        guard window == nil else { return }
+        let panel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 720, height: 380),
+                            styleMask: [.borderless, .nonactivatingPanel],
+                            backing: .buffered, defer: false)
+        panel.isOpaque = false
+        panel.backgroundColor = .clear
+        panel.hasShadow = true
+        panel.level = .floating
+        panel.ignoresMouseEvents = true
+        panel.hidesOnDeactivate = false
+        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
+
+        let blur = NSVisualEffectView()
+        blur.material = .hudWindow
+        blur.blendingMode = .behindWindow
+        blur.state = .active
+        blur.wantsLayer = true
+        blur.layer?.cornerRadius = 12
+        blur.layer?.masksToBounds = true
+
+        let content = PickerView()
+        blur.addSubview(content)
+        panel.contentView = blur
+        window = panel
+        view = content
+    }
+}
+
+@MainActor
+final class PickerView: NSView {
+
+    var session: PickerSession?
+
+    override var isFlipped: Bool { true }
+
+    private let padding: CGFloat = 16
+    private let queryHeight: CGFloat = 40
+    private let rowHeight: CGFloat = 26
+    private let queryFont = NSFont.systemFont(ofSize: 17)
+    private let rowFont = NSFont.systemFont(ofSize: 13)
+    private let matchFont = NSFont.boldSystemFont(ofSize: 13)
+    private let detailFont = NSFont.monospacedSystemFont(ofSize: 11, weight: .regular)
+
+    var visibleRowCount: Int { Int((bounds.height - padding * 2 - queryHeight) / rowHeight) }
+
+    override func draw(_ dirtyRect: NSRect) {
+        guard let session else { return }
+
+        // Title, then the query line with our own caret.
+        NSAttributedString(string: session.title, attributes: [
+            .font: NSFont.monospacedSystemFont(ofSize: 11, weight: .semibold),
+            .foregroundColor: NSColor.tertiaryLabelColor,
+        ]).draw(at: NSPoint(x: padding, y: padding - 4))
+
+        let query = NSAttributedString(string: session.query, attributes: [
+            .font: queryFont, .foregroundColor: NSColor.labelColor,
+        ])
+        let queryY = padding + 12
+        query.draw(at: NSPoint(x: padding, y: queryY))
+
+        // A drawn caret, because there is no real text field here to blink one for us.
+        let caretX = padding + query.size().width + 1
+        NSColor.controlAccentColor.setFill()
+        NSRect(x: caretX, y: queryY + 2, width: 2, height: queryFont.pointSize + 2).fill()
+
+        if session.query.isEmpty {
+            NSAttributedString(string: "type to filter", attributes: [
+                .font: queryFont, .foregroundColor: NSColor.quaternaryLabelColor,
+            ]).draw(at: NSPoint(x: caretX + 8, y: queryY))
+        }
+
+        NSColor.separatorColor.setFill()
+        NSRect(x: 0, y: padding + queryHeight, width: bounds.width, height: 1).fill()
+
+        // Scroll the window of rows so the selection is always shown.
+        let capacity = max(1, visibleRowCount)
+        let first = max(0, min(session.selection - capacity / 2, max(0, session.rows.count - capacity)))
+        let slice = session.rows.dropFirst(first).prefix(capacity)
+
+        var y = padding + queryHeight + 6
+        for (offset, row) in slice.enumerated() {
+            let index = first + offset
+            let isSelected = index == session.selection
+
+            if isSelected {
+                NSColor.controlAccentColor.withAlphaComponent(0.25).setFill()
+                NSRect(x: 6, y: y - 3, width: bounds.width - 12, height: rowHeight).fill()
+            }
+
+            let base: NSColor = row.item.isEnabled
+                ? (isSelected ? .labelColor : .secondaryLabelColor)
+                : .tertiaryLabelColor
+            let title = NSMutableAttributedString(string: row.item.title, attributes: [
+                .font: rowFont, .foregroundColor: base,
+            ])
+            // Bold the characters the query matched, which is most of what makes a fuzzy
+            // list readable at a glance.
+            for i in row.matched where i < row.item.title.count {
+                title.addAttributes([.font: matchFont, .foregroundColor: NSColor.controlAccentColor],
+                                    range: NSRange(location: i, length: 1))
+            }
+            title.draw(at: NSPoint(x: padding, y: y))
+
+            if let detail = row.item.detail {
+                let d = NSAttributedString(string: detail, attributes: [
+                    .font: detailFont, .foregroundColor: NSColor.tertiaryLabelColor,
+                ])
+                d.draw(at: NSPoint(x: bounds.width - padding - d.size().width, y: y + 2))
+            }
+            y += rowHeight
+        }
+
+        if session.rows.isEmpty {
+            NSAttributedString(string: "no matches", attributes: [
+                .font: rowFont, .foregroundColor: NSColor.tertiaryLabelColor,
+            ]).draw(at: NSPoint(x: padding, y: padding + queryHeight + 8))
+        }
+
+        // A count, so a long list does not feel bottomless.
+        let count = NSAttributedString(string: "\(session.rows.count)", attributes: [
+            .font: detailFont, .foregroundColor: NSColor.quaternaryLabelColor,
+        ])
+        count.draw(at: NSPoint(x: bounds.width - padding - count.size().width, y: padding - 4))
+    }
+}

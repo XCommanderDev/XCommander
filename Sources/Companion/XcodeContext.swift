@@ -16,6 +16,20 @@ protocol XcodeContext {
     @discardableResult func press(_ item: MenuItemInfo) -> Bool
     /// Re-read the menu bar. Expensive (~750 ms), so it is explicit rather than automatic.
     func refreshMenuIndex()
+    /// Every menu item Xcode currently offers, for the command palette.
+    func allMenuItems() -> [MenuItemInfo]
+    /// Every indexed menu item under a prefix, for the menu-slice pickers.
+    /// `Product > Destination` alone is 80 items with 3 shortcuts.
+    func menuItems(under prefix: [String]) -> [MenuItemInfo]
+    /// The file open in the focused editor, from the window's `AXDocument`.
+    func documentURL() -> URL?
+    /// The selected text, or nil when there is no editor focused.
+    func selectedText() -> String?
+    /// Replace the selection. Xcode's own undo reverts this.
+    @discardableResult func replaceSelection(with text: String) -> Bool
+    /// Grow an empty selection to cover the whole line, so a transform with nothing
+    /// selected acts on the line the cursor is in — which is what every editor does.
+    @discardableResult func selectCurrentLineIfEmpty() -> Bool
 }
 
 struct MenuItemInfo {
@@ -83,9 +97,105 @@ final class AccessibilityXcodeContext: XcodeContext {
         return CGRect(origin: origin, size: size)
     }
 
+    /// Look a menu item up by path.
+    ///
+    /// Exact match first, then a **prefix match on the last component**. Some of Xcode's
+    /// menu titles carry the current context: `File > Close “main.swift”` names the open
+    /// file, so no static path can ever match it. A command that wants such an item names
+    /// the stable part (`Close “`) and relies on this fallback. Exact always wins, so this
+    /// cannot hijack a path that really exists.
     func menuItem(at path: [String]) -> MenuItemInfo? {
         if index.isEmpty { refreshMenuIndex() }
-        return index[path]
+        if let exact = index[path] { return exact }
+        guard let wanted = path.last, path.count >= 2 else { return nil }
+        let parent = Array(path.dropLast())
+        let candidates = index.values.filter {
+            $0.path.count == path.count
+                && Array($0.path.dropLast()) == parent
+                && ($0.path.last ?? "").hasPrefix(wanted)
+        }
+        // Deterministic when more than one matches, rather than whichever the dictionary
+        // happened to yield first.
+        return candidates.min { $0.path.last! < $1.path.last! }
+    }
+
+    func allMenuItems() -> [MenuItemInfo] {
+        if index.isEmpty { refreshMenuIndex() }
+        // The Apple menu is the system's, not Xcode's, and nobody reaches for "About This
+        // Mac" from a code editor's command palette.
+        return index.values
+            .filter { $0.path.first != "Apple" }
+            .sorted { $0.path.joined() < $1.path.joined() }
+    }
+
+    func menuItems(under prefix: [String]) -> [MenuItemInfo] {
+        if index.isEmpty { refreshMenuIndex() }
+        return index.values
+            .filter { $0.path.count == prefix.count + 1 && Array($0.path.prefix(prefix.count)) == prefix }
+            .sorted { $0.path.last! < $1.path.last! }
+    }
+
+    func documentURL() -> URL? {
+        guard let app = appElement() else { return nil }
+        var win: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(app, kAXFocusedWindowAttribute as CFString, &win) == .success,
+              CFGetTypeID(win!) == AXUIElementGetTypeID() else { return nil }
+        guard let path = Self.string(win as! AXUIElement, kAXDocumentAttribute) else { return nil }
+        return URL(string: path) ?? URL(fileURLWithPath: path)
+    }
+
+    // MARK: - the editor's text
+
+    /// Xcode's source editor is an `AXTextArea` whose `AXValue`, `AXSelectedText` and
+    /// `AXSelectedTextRange` are all settable. That is what lets us do text transforms with
+    /// no Source Editor Extension — which is just as well, since Xcode 26 appears not to
+    /// load those any more.
+    private func focusedTextArea() -> AXUIElement? {
+        guard let app = appElement() else { return nil }
+        var focused: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(app, kAXFocusedUIElementAttribute as CFString, &focused) == .success,
+              CFGetTypeID(focused!) == AXUIElementGetTypeID() else { return nil }
+        let element = focused as! AXUIElement
+        guard Self.string(element, kAXRoleAttribute) == "AXTextArea" else { return nil }
+        return element
+    }
+
+    func selectedText() -> String? {
+        guard let editor = focusedTextArea() else { return nil }
+        return Self.string(editor, kAXSelectedTextAttribute)
+    }
+
+    @discardableResult
+    func replaceSelection(with text: String) -> Bool {
+        guard let editor = focusedTextArea() else { return false }
+        return AXUIElementSetAttributeValue(editor, kAXSelectedTextAttribute as CFString,
+                                            text as CFTypeRef) == .success
+    }
+
+    @discardableResult
+    func selectCurrentLineIfEmpty() -> Bool {
+        guard let editor = focusedTextArea() else { return false }
+        var rangeRef: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(editor, kAXSelectedTextRangeAttribute as CFString,
+                                            &rangeRef) == .success else { return false }
+        var range = CFRange()
+        AXValueGetValue(rangeRef as! AXValue, .cfRange, &range)
+        guard range.length == 0 else { return true }
+        guard let value = Self.string(editor, kAXValueAttribute) else { return false }
+
+        // Work in UTF-16, because that is what an AX range counts.
+        let units = Array(value.utf16)
+        let caret = min(max(range.location, 0), units.count)
+        var start = caret
+        while start > 0, units[start - 1] != 10 { start -= 1 }
+        var end = caret
+        while end < units.count, units[end] != 10 { end += 1 }
+        guard end > start else { return false }
+
+        var line = CFRange(location: start, length: end - start)
+        guard let lineValue = AXValueCreate(.cfRange, &line) else { return false }
+        return AXUIElementSetAttributeValue(editor, kAXSelectedTextRangeAttribute as CFString,
+                                            lineValue) == .success
     }
 
     @discardableResult

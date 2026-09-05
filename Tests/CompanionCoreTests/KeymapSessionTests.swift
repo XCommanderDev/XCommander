@@ -9,20 +9,21 @@ struct KeymapSessionTests {
     private let leader = KeyEvent(.space, [.shift])
 
     private func session() throws -> KeymapSession {
+        var registry = CommandRegistry()
+        registry.register(.menu("make.build", "build", ["Product", "Build"]))
+        registry.register(Command(id: "quit", title: "quit", action: .companion("quit")))
+
         var map = Keymap()
-        let titles: [[KeyEvent]: String] = [[KeyEvent("b")]: "build"]
-        try map.bind([KeyEvent("b"), KeyEvent("b")],
-                     to: .menu("build.build", "build", ["Product", "Build"]),
-                     groupTitles: titles)
-        try map.bind([KeyEvent("q")],
-                     to: Command(id: "quit", title: "quit", action: .companion("quit")))
-        return KeymapSession(leader: leader, keymap: map)
+        let titles: [[KeyEvent]: String] = [[KeyEvent("m")]: "make"]
+        try map.bind([KeyEvent("m"), KeyEvent("m")], to: "make.build", groupTitles: titles)
+        try map.bind([KeyEvent("q")], to: "quit")
+        return KeymapSession(leader: leader, keymap: map, registry: registry)
     }
 
     @Test("keys are passed through until the leader is pressed")
     func idlePassesThrough() throws {
         var s = try session()
-        #expect(s.press(KeyEvent("b")) == .passThrough)
+        #expect(s.press(KeyEvent("m")) == .passThrough)
         #expect(s.press(KeyEvent("x", [.command])) == .passThrough)
         #expect(s.isActive == false)
     }
@@ -36,29 +37,29 @@ struct KeymapSessionTests {
         }
         #expect(outcome.swallowsKey)
         #expect(panel.breadcrumb == "⇧SPC")
-        #expect(panel.rows.map(\.key) == ["b", "q"])
+        #expect(panel.rows.map(\.key) == ["m", "q"])
     }
 
     @Test("a group key refines the panel and extends the breadcrumb")
     func groupRefines() throws {
         var s = try session()
         _ = s.press(leader)
-        guard case .awaiting(let panel) = s.press(KeyEvent("b")) else {
+        guard case .awaiting(let panel) = s.press(KeyEvent("m")) else {
             Issue.record("expected awaiting"); return
         }
-        #expect(panel.breadcrumb == "⇧SPC b")
-        #expect(panel.rows.map(\.key) == ["b"])
+        #expect(panel.breadcrumb == "⇧SPC m")
+        #expect(panel.rows.map(\.key) == ["m"])
     }
 
     @Test("a leaf fires the command and ends the session")
     func fires() throws {
         var s = try session()
         _ = s.press(leader)
-        _ = s.press(KeyEvent("b"))
-        guard case .fired(let command) = s.press(KeyEvent("b")) else {
+        _ = s.press(KeyEvent("m"))
+        guard case .fired(let id) = s.press(KeyEvent("m")) else {
             Issue.record("expected fired"); return
         }
-        #expect(command.id == "build.build")
+        #expect(id == "make.build")
         #expect(s.isActive == false)
         #expect(s.pending.isEmpty)
     }
@@ -67,10 +68,10 @@ struct KeymapSessionTests {
     func firesFromRoot() throws {
         var s = try session()
         _ = s.press(leader)
-        guard case .fired(let c) = s.press(KeyEvent("q")) else {
+        guard case .fired(let id) = s.press(KeyEvent("q")) else {
             Issue.record("expected fired"); return
         }
-        #expect(c.id == "quit")
+        #expect(id == "quit")
     }
 
     /// The one binding a modal system must never make conditional.
@@ -82,7 +83,7 @@ struct KeymapSessionTests {
         #expect(s.isActive == false)
 
         _ = s.press(leader)
-        _ = s.press(KeyEvent("b"))
+        _ = s.press(KeyEvent("m"))
         #expect(s.press(.escape) == .cancelled(reason: .escape))
         #expect(s.isActive == false)
     }
@@ -103,7 +104,7 @@ struct KeymapSessionTests {
     func leaderRestarts() throws {
         var s = try session()
         _ = s.press(leader)
-        _ = s.press(KeyEvent("b"))
+        _ = s.press(KeyEvent("m"))
         guard case .awaiting(let panel) = s.press(leader) else {
             Issue.record("expected awaiting"); return
         }
@@ -118,10 +119,10 @@ struct KeymapSessionTests {
         #expect(s.abandon() == nil)
 
         _ = s.press(leader)
-        _ = s.press(KeyEvent("b"))
+        _ = s.press(KeyEvent("m"))
         #expect(s.abandon() == .cancelled(reason: .abandoned))
         #expect(s.isActive == false)
-        #expect(s.press(KeyEvent("b")) == .passThrough)
+        #expect(s.press(KeyEvent("m")) == .passThrough)
     }
 
     @Test("after firing, the next key is passed through again")

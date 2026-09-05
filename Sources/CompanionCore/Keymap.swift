@@ -2,12 +2,14 @@ import Foundation
 
 /// A node in the keymap trie: either a command or a group of further keys, never both.
 ///
-/// That rule is what keeps the engine timeout-free. If `b` could be *both* a command and
-/// a prefix, pressing it would mean waiting to see whether another key follows, and the
-/// wait is the thing that makes an editor feel slow. Forbidding the ambiguity means every
-/// press is decided the instant it arrives.
+/// That rule is what keeps the engine timeout-free. If `b` could be both a command and a
+/// prefix, pressing it would mean waiting to see whether another key follows, and the wait
+/// is the thing that makes an editor feel slow.
+///
+/// Leaves hold a **command id**, not a command. Register in the `CommandRegistry` first,
+/// then bind by id — binding whole commands is how you end up with two copies that drift.
 public indirect enum KeymapEntry: Hashable, Sendable {
-    case command(Command)
+    case command(String)
     case group(title: String, children: [KeyEvent: KeymapEntry])
 
     public var isGroup: Bool {
@@ -17,49 +19,36 @@ public indirect enum KeymapEntry: Hashable, Sendable {
 }
 
 public enum KeymapError: Error, Equatable, CustomStringConvertible {
-    /// A sequence would have to pass *through* a leaf command to reach its target.
     case commandInThePath(prefix: String, existing: String)
-    /// A sequence ends on a key that is already a group.
     case groupWhereCommandExpected(prefix: String, group: String)
-    /// Two commands claim the same sequence.
     case duplicate(prefix: String, existing: String)
     case emptySequence
 
     public var description: String {
         switch self {
-        case .commandInThePath(let p, let e):
-            "\(p) cannot be a prefix: it is already the command '\(e)'"
-        case .groupWhereCommandExpected(let p, let g):
-            "\(p) is already the group '\(g)', so it cannot also be a command"
-        case .duplicate(let p, let e):
-            "\(p) is already bound to '\(e)'"
-        case .emptySequence:
-            "a binding needs at least one key"
+        case .commandInThePath(let p, let e): "\(p) cannot be a prefix: it is already '\(e)'"
+        case .groupWhereCommandExpected(let p, let g): "\(p) is already the group '\(g)'"
+        case .duplicate(let p, let e): "\(p) is already bound to '\(e)'"
+        case .emptySequence: "a binding needs at least one key"
         }
     }
 }
 
-/// The trie itself, plus the walk.
 public struct Keymap: Hashable, Sendable {
     public private(set) var children: [KeyEvent: KeymapEntry] = [:]
-    /// Titles for prefixes, e.g. ["b"] -> "build". Set as a side effect of binding.
     private var groupTitles: [[KeyEvent]: String] = [:]
 
     public init() {}
 
-    /// Bind a sequence to a command, creating any intermediate groups.
-    ///
-    /// `groupTitles` names the prefixes so the which-key panel can say `+build` rather
-    /// than the key on its own. A prefix with no registered title falls back to its key.
-    public mutating func bind(_ sequence: [KeyEvent], to command: Command,
+    public mutating func bind(_ sequence: [KeyEvent], to commandID: String,
                               groupTitles titles: [[KeyEvent]: String] = [:]) throws {
         guard !sequence.isEmpty else { throw KeymapError.emptySequence }
         for (path, title) in titles { groupTitles[path] = title }
-        children = try Self.insert(sequence, command, into: children,
+        children = try Self.insert(sequence, commandID, into: children,
                                    path: [], titles: groupTitles)
     }
 
-    private static func insert(_ sequence: [KeyEvent], _ command: Command,
+    private static func insert(_ sequence: [KeyEvent], _ commandID: String,
                                into children: [KeyEvent: KeymapEntry],
                                path: [KeyEvent],
                                titles: [[KeyEvent]: String]) throws -> [KeyEvent: KeymapEntry] {
@@ -73,9 +62,9 @@ public struct Keymap: Hashable, Sendable {
             case .some(.group(let title, _)):
                 throw KeymapError.groupWhereCommandExpected(prefix: label, group: title)
             case .some(.command(let existing)):
-                throw KeymapError.duplicate(prefix: label, existing: existing.title)
+                throw KeymapError.duplicate(prefix: label, existing: existing)
             case nil:
-                children[head] = .command(command)
+                children[head] = .command(commandID)
             }
             return children
         }
@@ -83,20 +72,19 @@ public struct Keymap: Hashable, Sendable {
         let rest = Array(sequence.dropFirst())
         switch children[head] {
         case .some(.command(let existing)):
-            throw KeymapError.commandInThePath(prefix: label, existing: existing.title)
+            throw KeymapError.commandInThePath(prefix: label, existing: existing)
         case .some(.group(let title, let grandchildren)):
             children[head] = .group(title: title,
-                                    children: try insert(rest, command, into: grandchildren,
+                                    children: try insert(rest, commandID, into: grandchildren,
                                                          path: here, titles: titles))
         case nil:
             children[head] = .group(title: titles[here] ?? head.display,
-                                    children: try insert(rest, command, into: [:],
+                                    children: try insert(rest, commandID, into: [:],
                                                          path: here, titles: titles))
         }
         return children
     }
 
-    /// Follow a sequence from the root. Returns nil if it leaves the trie.
     public func entry(at sequence: [KeyEvent]) -> KeymapEntry? {
         var current: KeymapEntry? = nil
         var level = children
@@ -108,8 +96,10 @@ public struct Keymap: Hashable, Sendable {
         return current
     }
 
-    /// The rows a which-key panel should show for a prefix (empty prefix = the root).
-    public func rows(at sequence: [KeyEvent]) -> [WhichKeyRow] {
+    /// The rows a which-key panel shows for a prefix. Titles come from the registry, which
+    /// is what keeps the panel and the palette describing commands the same way.
+    public func rows(at sequence: [KeyEvent], in registry: CommandRegistry,
+                     shortcut: (Command) -> String? = { _ in nil }) -> [WhichKeyRow] {
         let level: [KeyEvent: KeymapEntry]
         if sequence.isEmpty {
             level = children
@@ -118,14 +108,37 @@ public struct Keymap: Hashable, Sendable {
         } else {
             return []
         }
-        return level.map { key, entry in
+        return level.compactMap { key, entry -> WhichKeyRow? in
             switch entry {
-            case .command(let c):
-                WhichKeyRow(key: key.display, title: c.title, isGroup: false,
-                            shortcut: c.shortcutDisplay, menuPath: c.menuPath)
+            case .command(let id):
+                guard let command = registry.command(id: id) else {
+                    // A binding to an unregistered id is a programming error, but a missing
+                    // row is better than a crash in front of the user.
+                    return WhichKeyRow(key: key.display, title: "?\(id)", isGroup: false)
+                }
+                return WhichKeyRow(key: key.display, title: command.title, isGroup: false,
+                                   shortcut: shortcut(command), menuPath: command.menuPath)
             case .group(let title, _):
-                WhichKeyRow(key: key.display, title: title, isGroup: true, shortcut: nil)
+                return WhichKeyRow(key: key.display, title: title, isGroup: true)
             }
         }.sorted()
+    }
+
+    /// Where a command lives in the tree, for the palette's binding column. The palette
+    /// showing `⇧SPC m m` next to "Product > Build" is what makes it teach the keymap
+    /// rather than compete with it.
+    public func binding(for commandID: String) -> [KeyEvent]? {
+        func search(_ level: [KeyEvent: KeymapEntry], _ prefix: [KeyEvent]) -> [KeyEvent]? {
+            for (key, entry) in level {
+                switch entry {
+                case .command(let id) where id == commandID: return prefix + [key]
+                case .group(_, let kids):
+                    if let hit = search(kids, prefix + [key]) { return hit }
+                default: continue
+                }
+            }
+            return nil
+        }
+        return search(children, [])
     }
 }

@@ -7,7 +7,8 @@ public enum SessionOutcome: Hashable, Sendable {
     /// A sequence started or advanced. Swallow the key; show this panel after the delay.
     case awaiting(WhichKeyPanel)
     /// Swallow the key and run this.
-    case fired(Command)
+    /// The id of the command to run. The app looks it up in the registry.
+    case fired(String)
     /// Swallow the key and hide the panel. `Esc`, or a key that is not in the current node.
     case cancelled(reason: CancelReason)
 
@@ -35,13 +36,18 @@ public enum CancelReason: Hashable, Sendable {
 public struct KeymapSession: Sendable {
     public let leader: KeyEvent
     public private(set) var keymap: Keymap
+    public private(set) var registry: CommandRegistry
+    /// Supplies each command's live Xcode shortcut for the panel's dimmed right column.
+    /// A closure because it depends on the running Xcode, which Core knows nothing about.
+    public var shortcutProvider: @Sendable (Command) -> String? = { _ in nil }
     /// The keys pressed since the leader. Empty while idle.
     public private(set) var pending: [KeyEvent] = []
     public private(set) var isActive = false
 
-    public init(leader: KeyEvent, keymap: Keymap) {
+    public init(leader: KeyEvent, keymap: Keymap, registry: CommandRegistry) {
         self.leader = leader
         self.keymap = keymap
+        self.registry = registry
     }
 
     /// The breadcrumb shown in the panel: the leader plus everything pressed since.
@@ -54,7 +60,7 @@ public struct KeymapSession: Sendable {
             guard event == leader else { return .passThrough }
             isActive = true
             pending = []
-            return .awaiting(WhichKeyPanel(breadcrumb: breadcrumb, rows: keymap.rows(at: [])))
+            return .awaiting(WhichKeyPanel(breadcrumb: breadcrumb, rows: rows(at: [])))
         }
 
         // Universal Esc. Works from any depth, which is the one binding a modal system
@@ -68,18 +74,18 @@ public struct KeymapSession: Sendable {
         // cancelling. Cheaper than Esc-then-leader, and it is what the muscle expects.
         if event == leader {
             pending = []
-            return .awaiting(WhichKeyPanel(breadcrumb: breadcrumb, rows: keymap.rows(at: [])))
+            return .awaiting(WhichKeyPanel(breadcrumb: breadcrumb, rows: rows(at: [])))
         }
 
         let candidate = pending + [event]
         switch keymap.entry(at: candidate) {
-        case .some(.command(let command)):
+        case .some(.command(let commandID)):
             reset()
-            return .fired(command)
+            return .fired(commandID)
         case .some(.group):
             pending = candidate
             return .awaiting(WhichKeyPanel(breadcrumb: breadcrumb,
-                                           rows: keymap.rows(at: pending)))
+                                           rows: rows(at: pending)))
         case .none:
             reset()
             return .cancelled(reason: .unbound(event))
@@ -92,6 +98,10 @@ public struct KeymapSession: Sendable {
         guard isActive else { return nil }
         reset()
         return .cancelled(reason: .abandoned)
+    }
+
+    private func rows(at sequence: [KeyEvent]) -> [WhichKeyRow] {
+        keymap.rows(at: sequence, in: registry, shortcut: shortcutProvider)
     }
 
     private mutating func reset() {

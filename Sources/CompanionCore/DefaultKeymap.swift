@@ -1,109 +1,362 @@
 import Foundation
 
-/// The keymap the app ships with.
+/// The keymap the app ships with, and the registry behind it.
 ///
-/// Commands are named by **menu path**, not by a hardcoded shortcut. That is deliberate.
-/// Xcode reports its own shortcuts as characters in the user's current keyboard layout, so
-/// `Product > Stop` is `⌘.` on QWERTY and `⌘;` on French AZERTY — the same physical key,
-/// a different character. A table of hardcoded characters would be wrong for half the
-/// world on day one. Instead the app reads Xcode's real menu bar once at startup and
-/// learns what each path is actually bound to; see `MenuIndex`.
+/// **Mnemonics follow Doom Emacs** wherever Doom has an equivalent, because muscle memory
+/// transferring is the entire point of the product. The one deliberate deviation is
+/// `SPC m` for build/run/test: Doom has nothing worth copying there (`SPC p c` is
+/// project-compile), and in Xcode this is the most-used group in the product, so it earns
+/// a short home. `m` is for "make".
 ///
-/// It also means the keymap follows the user: if they have rebound something in Xcode, we
-/// fire their binding, not the factory one.
+/// Commands are named by **menu path**, never by a hardcoded shortcut. Xcode reports its
+/// shortcuts as characters in the user's current keyboard layout, so a hardcoded table
+/// would be wrong on any layout but the author's. Every path below was read off a real
+/// Xcode 26.6 menu bar with a source editor focused, including the curly quotes in
+/// `Format File with ‘swift-format’`.
 public enum DefaultKeymap {
 
-    /// `⇧Space`. Chosen over `⌥Space`, which is Alfred's hotkey on this machine.
-    ///
-    /// The trade is real: in Xcode's editor `⇧Space` types a space, so while Xcode is
-    /// frontmost that keystroke is ours and a Shift held a moment too long across a word
-    /// break loses the space. Doom avoids this by being modal; there is no insert mode
-    /// here, so the collision cannot be resolved the same way.
     public static let leader = KeyEvent(.space, [.shift])
 
-    public static func build() -> Keymap {
-        var map = Keymap()
-        let titles: [[KeyEvent]: String] = [
-            [KeyEvent("b")]: "build",
-            [KeyEvent("r")]: "run",
-            [KeyEvent("t")]: "test",
-            [KeyEvent("f")]: "file",
-            [KeyEvent("n")]: "navigate",
-            [KeyEvent("s")]: "search",
-        ]
+    public static func build() -> (registry: CommandRegistry, keymap: Keymap) {
+        var registry = CommandRegistry()
+        registry.register(contentsOf: commands)
 
-        for (sequence, command) in bindings {
-            // A conflict here is a programming error in this file, not a runtime condition.
-            try! map.bind(sequence, to: command, groupTitles: titles)
+        var keymap = Keymap()
+        for (sequence, id) in bindings {
+            // A conflict here is a programming error in this file. The test suite builds
+            // this keymap, so it surfaces there rather than at launch.
+            try! keymap.bind(sequence, to: id, groupTitles: groupTitles)
         }
-        return map
+        return (registry, keymap)
     }
 
-    /// Every path below was read off a real Xcode 26.6 menu bar, not written from memory.
-    static let bindings: [([KeyEvent], Command)] = [
-        // build
-        (["b", "b"], .menu("build.build",   "build",           ["Product", "Build"])),
-        (["b", "c"], .menu("build.clean",   "clean",           ["Product", "Clean Build Folder…"])),
-        (["b", "k"], .menu("build.stop",    "stop",            ["Product", "Stop"])),
-        (["b", "a"], .menu("build.analyze", "analyze",         ["Product", "Analyze"])),
-        (["b", "d"], .menu("build.docs",    "documentation",   ["Product", "Build Documentation"])),
-
-        // run
-        (["r", "r"], .menu("run.run",       "run",             ["Product", "Run"])),
-        (["r", "w"], .menu("run.noBuild",   "without building", ["Product", "Perform Action", "Run Without Building"])),
-        (["r", "p"], .menu("run.profile",   "profile",         ["Product", "Profile"])),
-
-        // test
-        (["t", "t"], .menu("test.test",     "test",            ["Product", "Test"])),
-        (["t", "a"], .menu("test.again",    "test again",      ["Product", "Perform Action", "Test Again"])),
-        (["t", "w"], .menu("test.noBuild",  "without building", ["Product", "Perform Action", "Test Without Building"])),
-        (["t", "c"], .menu("test.clear",    "clear results",   ["Product", "Clear Test Results"])),
-
-        // file
-        (["f", "f"], .menu("file.open",     "open quickly",    ["File", "Open Quickly…"])),
-        (["f", "s"], .menu("file.save",     "save",            ["File", "Save"])),
-        (["f", "S"], .menu("file.saveAll",  "save all",        ["File", "Save All"])),
-        (["f", "d"], .menu("file.close",    "close document",  ["File", "Close Document"])),
-
-        // navigate
-        (["n", "d"], .menu("nav.definition", "jump to definition", ["Navigate", "Jump to Definition"])),
-        (["n", "b"], .menu("nav.back",      "back",            ["Navigate", "Show Previous Location in History"])),
-        (["n", "f"], .menu("nav.forward",   "forward",         ["Navigate", "Show Next Location in History"])),
-        (["n", "i"], .menu("nav.nextIssue", "next issue",      ["Navigate", "Jump to Next Issue"])),
-        (["n", "I"], .menu("nav.prevIssue", "previous issue",  ["Navigate", "Jump to Previous Issue"])),
-        (["n", "c"], .menu("nav.callers",   "call hierarchy",  ["Find", "Find Call Hierarchy"])),
-
-        // search
-        (["s", "s"], .menu("find.find",     "find",            ["Find", "Find…"])),
-        (["s", "p"], .menu("find.project",  "find in project", ["Find", "Find in Package"])),
-        (["s", "n"], .menu("find.next",     "next match",      ["Find", "Find Next"])),
-        (["s", "N"], .menu("find.previous", "previous match",  ["Find", "Find Previous"])),
-        (["s", "r"], .menu("find.replace",  "find and replace", ["Find", "Find and Replace…"])),
+    static let groupTitles: [[KeyEvent]: String] = [
+        [KeyEvent("b")]: "buffers",
+        [KeyEvent("c")]: "code",
+        [KeyEvent("d")]: "debug",
+        [KeyEvent("f")]: "files",
+        [KeyEvent("g")]: "git",
+        [KeyEvent("h")]: "help",
+        [KeyEvent("m")]: "make",
+        [KeyEvent("p")]: "project",
+        [KeyEvent("q")]: "quit",
+        [KeyEvent("s")]: "search",
+        [KeyEvent("t")]: "toggles",
+        [KeyEvent("T")]: "ui",
+        [KeyEvent("w")]: "windows",
+        [KeyEvent("x")]: "text",
     ]
 
-    /// Every menu path the default keymap depends on, for the startup sanity check.
-    public static var menuPaths: [[String]] {
-        bindings.compactMap { _, command in
-            if case .menuPath(let path) = command.action { return path }
-            return nil
-        }
-    }
-}
+    // MARK: - commands
 
-extension Command {
-    static func menu(_ id: String, _ title: String, _ path: [String]) -> Command {
-        Command(id: id, title: title, action: .menuPath(path))
+    static let commands: [Command] = [
+        // pickers
+        .picker("picker.commands", "commands", .commands, searchText: "command palette"),
+        .picker("picker.files", "find file", .files, searchText: "find file in project"),
+        .picker("picker.buffers", "switch editor", .buffers, searchText: "switch open editor"),
+        .picker("picker.destinations", "destination", .destinations, searchText: "run destination simulator"),
+        .picker("picker.schemes", "scheme", .schemes),
+        .picker("picker.themes", "theme", .themes),
+        .picker("picker.syntax", "syntax coloring", .syntaxColoring),
+        .picker("picker.recent", "recent projects", .recentProjects),
+
+        // make — build, run, test
+        .menu("make.build", "build", ["Product", "Build"]),
+        .menu("make.run", "run", ["Product", "Run"]),
+        .menu("make.test", "test", ["Product", "Test"]),
+        .menu("make.clean", "clean", ["Product", "Clean Build Folder…"]),
+        .menu("make.stop", "stop", ["Product", "Stop"]),
+        .menu("make.analyze", "analyze", ["Product", "Analyze"]),
+        .menu("make.profile", "profile", ["Product", "Profile"]),
+        .menu("make.docs", "build documentation", ["Product", "Build Documentation"]),
+        .menu("make.testAgain", "test again", ["Product", "Perform Action", "Test Again"]),
+        .menu("make.runNoBuild", "run without building", ["Product", "Perform Action", "Run Without Building"]),
+        .menu("make.testNoBuild", "test without building", ["Product", "Perform Action", "Test Without Building"]),
+        .menu("make.clearResults", "clear test results", ["Product", "Clear Test Results"]),
+
+        // files
+        .menu("file.openQuickly", "open quickly", ["File", "Open Quickly…"]),
+        .menu("file.save", "save", ["File", "Save"]),
+        .menu("file.saveAll", "save all", ["File", "Save All"]),
+        .menu("file.new", "new file", ["File", "New", "File from Template…"]),
+        // The title carries the open file's name — `Close “main.swift”` — so this names the
+        // stable prefix and relies on `menuItem(at:)`'s prefix fallback.
+        .menu("file.close", "close document", ["File", "Close “"]),
+        .menu("file.revealInFinder", "reveal in finder", ["File", "Show in Finder"]),
+
+        // buffers / tabs
+        .menu("buffer.nextTab", "next tab", ["Navigate", "Show Next Tab"]),
+        .menu("buffer.previousTab", "previous tab", ["Navigate", "Show Previous Tab"]),
+        .menu("buffer.newTab", "new tab", ["File", "New", "Tab"]),
+
+        // code
+        .menu("code.definition", "jump to definition", ["Navigate", "Jump to Definition"]),
+        .menu("code.callers", "call hierarchy", ["Find", "Find Call Hierarchy"]),
+        .menu("code.rename", "rename", ["Editor", "Refactor", "Rename…"]),
+        .menu("code.editAllInScope", "edit all in scope", ["Editor", "Edit All in Scope"]),
+        .menu("code.fixAll", "fix all issues", ["Editor", "Fix All Issues"]),
+        .menu("code.formatFile", "format file", ["Editor", "Structure", "Format File with ‘swift-format’"]),
+        .menu("code.formatSelection", "format selection", ["Editor", "Structure", "Format Selection with ‘swift-format’"]),
+        .menu("code.reindent", "re-indent", ["Editor", "Structure", "Re-Indent"]),
+        .menu("code.comment", "comment selection", ["Editor", "Structure", "Add Documentation"]),
+        .menu("code.addDocs", "add documentation", ["Editor", "Structure", "Add Documentation"]),
+        .menu("code.moveLineUp", "move line up", ["Editor", "Structure", "Move Line Up"]),
+        .menu("code.moveLineDown", "move line down", ["Editor", "Structure", "Move Line Down"]),
+        .menu("code.extractFunction", "extract to function", ["Editor", "Refactor", "Extract to Function"]),
+        .menu("code.extractVariable", "extract to variable", ["Editor", "Refactor", "Extract to Variable"]),
+        .menu("code.memberwiseInit", "generate memberwise init", ["Editor", "Refactor", "Generate Memberwise Initializer"]),
+        .menu("code.quickHelp", "quick help", ["Help", "Show Quick Help for Selected Item"]),
+
+        // navigate
+        .menu("nav.back", "back", ["Navigate", "Show Previous Location in History"]),
+        .menu("nav.forward", "forward", ["Navigate", "Show Next Location in History"]),
+        .menu("nav.nextIssue", "next issue", ["Navigate", "Jump to Next Issue"]),
+        .menu("nav.previousIssue", "previous issue", ["Navigate", "Jump to Previous Issue"]),
+
+        // search
+        .menu("search.find", "find", ["Find", "Find…"]),
+        .menu("search.project", "find in project", ["Find", "Find in Package"]),
+        .menu("search.replace", "find and replace", ["Find", "Find and Replace…"]),
+        .menu("search.next", "next match", ["Find", "Find Next"]),
+        .menu("search.previous", "previous match", ["Find", "Find Previous"]),
+        .menu("search.selection", "use selection for find", ["Find", "Use Selection for Find"]),
+
+        // git
+        .menu("git.commit", "commit", ["Integrate", "Commit…"]),
+        .menu("git.push", "push", ["Integrate", "Push…"]),
+        .menu("git.pull", "pull", ["Integrate", "Pull…"]),
+        .menu("git.fetch", "fetch", ["Integrate", "Fetch Changes"]),
+        .menu("git.stageAll", "stage all", ["Integrate", "Stage All Changes"]),
+        .menu("git.unstageAll", "unstage all", ["Integrate", "Unstage All Changes"]),
+        .menu("git.stash", "stash", ["Integrate", "Stash Changes…"]),
+        .menu("git.discard", "discard all changes", ["Integrate", "Discard All Changes…"]),
+        .menu("git.cherryPick", "cherry-pick", ["Integrate", "Cherry-Pick…"]),
+
+        // debug
+        .menu("debug.pause", "pause", ["Debug", "Pause"]),
+        .menu("debug.stepOver", "step over", ["Debug", "Step Over"]),
+        .menu("debug.stepInto", "step into", ["Debug", "Step Into"]),
+        .menu("debug.stepOut", "step out", ["Debug", "Step Out"]),
+        .menu("debug.continueToLine", "continue to line", ["Debug", "Continue To Current Line"]),
+        .menu("debug.deactivateBreakpoints", "deactivate breakpoints", ["Debug", "Deactivate Breakpoints"]),
+        .menu("debug.detach", "detach", ["Debug", "Detach"]),
+
+        // toggles
+        .menu("toggle.minimap", "minimap", ["Editor", "Minimap"]),
+        .menu("toggle.wrap", "wrap lines", ["Editor", "Wrap Lines"]),
+        .menu("toggle.vim", "vim mode", ["Editor", "Vim Mode"]),
+        .menu("toggle.invisibles", "invisibles", ["Editor", "Invisibles"]),
+        .menu("toggle.lineNumbers", "relative line numbers", ["Editor", "Relative Line Numbers"]),
+        .menu("toggle.authors", "authors", ["Editor", "Authors"]),
+        .menu("toggle.coverage", "code coverage", ["Editor", "Code Coverage"]),
+        .menu("toggle.scopeGuides", "scope guides", ["Editor", "Scope Guides"]),
+
+        // ui
+        .menu("ui.fontIncrease", "font bigger", ["Editor", "Font Size", "Increase"]),
+        .menu("ui.fontDecrease", "font smaller", ["Editor", "Font Size", "Decrease"]),
+        .menu("ui.fontReset", "font reset", ["Editor", "Font Size", "Reset"]),
+
+        // windows / panes
+        .menu("window.paneRight", "pane on right", ["File", "New", "Editor Pane On Right"]),
+        .menu("window.paneBelow", "pane below", ["File", "New", "Editor Pane Below"]),
+        .menu("window.closePane", "close pane", ["File", "Close Editor Pane"]),
+        .menu("window.nextPane", "next pane", ["Navigate", "Move Focus to Next Editor Pane"]),
+        .menu("window.previousPane", "previous pane", ["Navigate", "Move Focus to Previous Editor Pane"]),
+        .menu("window.nextArea", "next area", ["Navigate", "Move Focus to Next Area"]),
+        .menu("window.editorOnly", "editor only", ["Editor", "Show Editor Only"]),
+
+        // help
+        .menu("help.docs", "developer documentation", ["Help", "Developer Documentation"]),
+        .menu("help.hig", "human interface guidelines", ["Help", "Human Interface Guidelines"]),
+        .menu("help.swiftBook", "the swift book", ["Help", "Swift Programming Language Book"]),
+        .menu("help.searchDocs", "search docs for selection", ["Help", "Search Documentation for Selected Text"]),
+
+        // quit
+        .menu("quit.xcode", "quit xcode", ["Xcode", "Quit Xcode"]),
+        Command(id: "quit.companion", title: "quit companion",
+                searchText: "quit Autographe for Xcode", action: .companion("quit")),
+        Command(id: "companion.reload", title: "reload commands",
+                searchText: "reload Xcode commands", action: .companion("reloadMenus")),
+
+        // text transforms — the ones Xcode does not have
+        .transform("text.align", TextTransform.align.title, .align,
+                   searchText: "align selection on delimiter"),
+        .transform("text.join", TextTransform.joinLines.title, .joinLines, searchText: "join lines"),
+        .transform("text.sort", TextTransform.sortLines.title, .sortLines, searchText: "sort lines"),
+        .transform("text.sortReversed", TextTransform.sortLinesReversed.title, .sortLinesReversed),
+        .transform("text.dedupe", TextTransform.removeDuplicateLines.title, .removeDuplicateLines),
+        .transform("text.reverse", TextTransform.reverseLines.title, .reverseLines),
+        .transform("text.trim", TextTransform.trimTrailingWhitespace.title, .trimTrailingWhitespace),
+        .transform("text.upper", TextTransform.upperCase.title, .upperCase),
+        .transform("text.lower", TextTransform.lowerCase.title, .lowerCase),
+        .transform("text.camel", TextTransform.camelCase.title, .camelCase),
+        .transform("text.snake", TextTransform.snakeCase.title, .snakeCase),
+    ]
+
+    // MARK: - bindings
+
+    static let bindings: [([KeyEvent], String)] = [
+        // Doom's own top-level keys, kept exactly.
+        ([" "], "picker.files"),          // SPC SPC — find file in project
+        ([":"], "picker.commands"),       // SPC :   — M-x
+        ([","], "picker.buffers"),        // SPC ,   — switch buffer
+        (["."], "file.openQuickly"),      // SPC .   — find file
+        (["/"], "search.project"),        // SPC /   — search project
+
+        // b — buffers
+        (["b", "b"], "picker.buffers"),
+        (["b", "n"], "buffer.nextTab"),
+        (["b", "p"], "buffer.previousTab"),
+        (["b", "t"], "buffer.newTab"),
+        (["b", "d"], "file.close"),
+        (["b", "s"], "file.save"),
+        (["b", "S"], "file.saveAll"),
+
+        // f — files
+        (["f", "f"], "file.openQuickly"),
+        (["f", "F"], "picker.files"),
+        (["f", "s"], "file.save"),
+        (["f", "S"], "file.saveAll"),
+        (["f", "n"], "file.new"),
+        (["f", "r"], "picker.recent"),
+        (["f", "d"], "file.close"),
+        (["f", "R"], "file.revealInFinder"),
+
+        // p — project
+        (["p", "f"], "picker.files"),
+        (["p", "d"], "picker.destinations"),
+        (["p", "s"], "picker.schemes"),
+        (["p", "r"], "picker.recent"),
+        (["p", "/"], "search.project"),
+
+        // m — make
+        (["m", "m"], "make.build"),
+        (["m", "r"], "make.run"),
+        (["m", "t"], "make.test"),
+        (["m", "c"], "make.clean"),
+        (["m", "k"], "make.stop"),
+        (["m", "a"], "make.analyze"),
+        (["m", "p"], "make.profile"),
+        (["m", "d"], "make.docs"),
+        (["m", "T"], "make.testAgain"),
+        (["m", "R"], "make.runNoBuild"),
+        (["m", "N"], "make.testNoBuild"),
+        (["m", "C"], "make.clearResults"),
+
+        // c — code
+        (["c", "d"], "code.definition"),
+        (["c", "c"], "code.callers"),
+        (["c", "r"], "code.rename"),
+        (["c", "e"], "code.editAllInScope"),
+        (["c", "x"], "code.fixAll"),
+        (["c", "f"], "code.formatFile"),
+        (["c", "F"], "code.formatSelection"),
+        (["c", "i"], "code.reindent"),
+        (["c", "k"], "code.addDocs"),
+        (["c", "u"], "code.moveLineUp"),
+        (["c", "j"], "code.moveLineDown"),
+        (["c", "v"], "code.extractVariable"),
+        (["c", "m"], "code.extractFunction"),
+        (["c", "M"], "code.memberwiseInit"),
+        (["c", "h"], "code.quickHelp"),
+        (["c", "o"], "nav.back"),
+        (["c", "O"], "nav.forward"),
+        (["c", "n"], "nav.nextIssue"),
+        (["c", "p"], "nav.previousIssue"),
+
+        // s — search
+        (["s", "s"], "search.find"),
+        (["s", "p"], "search.project"),
+        (["s", "r"], "search.replace"),
+        (["s", "n"], "search.next"),
+        (["s", "N"], "search.previous"),
+        (["s", "e"], "search.selection"),
+
+        // g — git
+        (["g", "c"], "git.commit"),
+        (["g", "p"], "git.push"),
+        (["g", "F"], "git.pull"),
+        (["g", "f"], "git.fetch"),
+        (["g", "s"], "git.stageAll"),
+        (["g", "u"], "git.unstageAll"),
+        (["g", "z"], "git.stash"),
+        (["g", "X"], "git.discard"),
+        (["g", "y"], "git.cherryPick"),
+
+        // d — debug
+        (["d", "p"], "debug.pause"),
+        (["d", "o"], "debug.stepOver"),
+        (["d", "i"], "debug.stepInto"),
+        (["d", "u"], "debug.stepOut"),
+        (["d", "c"], "debug.continueToLine"),
+        (["d", "b"], "debug.deactivateBreakpoints"),
+        (["d", "d"], "debug.detach"),
+
+        // t — toggles
+        (["t", "m"], "toggle.minimap"),
+        (["t", "w"], "toggle.wrap"),
+        (["t", "v"], "toggle.vim"),
+        (["t", "i"], "toggle.invisibles"),
+        (["t", "l"], "toggle.lineNumbers"),
+        (["t", "a"], "toggle.authors"),
+        (["t", "c"], "toggle.coverage"),
+        (["t", "g"], "toggle.scopeGuides"),
+
+        // T — ui
+        (["T", "t"], "picker.themes"),
+        (["T", "s"], "picker.syntax"),
+        (["T", "+"], "ui.fontIncrease"),
+        (["T", "-"], "ui.fontDecrease"),
+        (["T", "0"], "ui.fontReset"),
+
+        // w — windows
+        (["w", "v"], "window.paneRight"),
+        (["w", "s"], "window.paneBelow"),
+        (["w", "d"], "window.closePane"),
+        (["w", "w"], "window.nextPane"),
+        (["w", "p"], "window.previousPane"),
+        (["w", "o"], "window.editorOnly"),
+        (["w", "a"], "window.nextArea"),
+
+        // x — text transforms
+        (["x", "a"], "text.align"),
+        (["x", "j"], "text.join"),
+        (["x", "s"], "text.sort"),
+        (["x", "S"], "text.sortReversed"),
+        (["x", "d"], "text.dedupe"),
+        (["x", "r"], "text.reverse"),
+        (["x", "w"], "text.trim"),
+        (["x", "u"], "text.upper"),
+        (["x", "l"], "text.lower"),
+        (["x", "c"], "text.camel"),
+        (["x", "_"], "text.snake"),
+
+        // h — help
+        (["h", "d"], "help.docs"),
+        (["h", "h"], "help.hig"),
+        (["h", "s"], "help.swiftBook"),
+        (["h", "k"], "code.quickHelp"),
+        (["h", "/"], "help.searchDocs"),
+
+        // q — quit
+        (["q", "q"], "quit.companion"),
+        (["q", "X"], "quit.xcode"),
+        (["q", "r"], "companion.reload"),
+    ]
+
+    /// Every menu path the shipped keymap depends on, for a startup sanity check against
+    /// the live menu bar.
+    public static var menuPaths: [[String]] {
+        commands.compactMap(\.menuPath)
     }
 }
 
 extension KeyEvent: ExpressibleByStringLiteral {
-    /// Lets the table above read as `["b", "b"]`. A multi-character literal is a
-    /// programming error in this file and traps immediately rather than silently
-    /// binding something surprising.
+    /// Lets the tables above read as `["m", "m"]`. An upper-case letter means Shift.
     public init(stringLiteral value: String) {
         precondition(value.count == 1, "a KeyEvent literal is one character: '\(value)'")
         let c = value.first!
-        // An upper-case letter in the table means the key pressed with Shift.
+        if c == " " { self.init(.space, []); return }
         self.init(.character(Character(value.lowercased())), c.isUppercase ? [.shift] : [])
     }
 }
