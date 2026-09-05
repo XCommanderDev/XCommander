@@ -5,16 +5,20 @@ import os
 
 /// Runs a command against Xcode.
 ///
-/// Two tiers, and the choice between them is made per command rather than configured:
+/// **Pressing the menu item is the primary path, not synthesising its shortcut.** That is
+/// the opposite of what this started as, and the reason is visible rather than theoretical:
+/// when a synthetic key equivalent matches a menu item, **macOS flashes that menu's title
+/// in the menu bar**. Splitting an editor made "File" blink, which reads exactly like
+/// someone clicking through the menus — the thing a keyboard tool exists to avoid.
+/// `AXPress` on the item is silent, and at ~1 ms it is imperceptible next to the ~350 ms
+/// Xcode takes to show that anything happened at all.
 ///
-/// - **Tier 1** — Xcode already has a shortcut for the item, so synthesise it. ~40 µs.
-/// - **Tier 2** — it has no shortcut, so press the menu item over Accessibility. ~1 ms.
+/// Synthesising the shortcut remains the fallback for when a press is refused, and is still
+/// the only route for a command that names a shortcut directly rather than a menu path.
 ///
-/// A third tier was measured and rejected: writing `NSUserKeyEquivalents` into Xcode's own
-/// preferences would let tier 2 become tier 1, but it mutates another application's
-/// settings, collides with the user's own App Shortcuts, and needs Xcode restarted before
-/// it takes effect. 1 ms is already imperceptible next to the ~350 ms Xcode itself takes
-/// to show that anything happened. See `SPIKE-REPORT.md`.
+/// A third route was measured and rejected: writing `NSUserKeyEquivalents` into Xcode's own
+/// preferences mutates another application's settings, collides with the user's own App
+/// Shortcuts, and needs Xcode restarted before it takes effect. See `SPIKE-REPORT.md`.
 @MainActor
 final class CommandExecutor {
 
@@ -86,12 +90,11 @@ final class CommandExecutor {
             guard item.isEnabled else {
                 return .unavailable("\(command.title) is disabled right now")
             }
-            if let key = item.shortcut, post(key) {
-                return .posted(key)
-            }
-            return context.press(item)
-                ? .pressed(path)
-                : .unavailable("could not press \(path.joined(separator: " > "))")
+            // Silent first. Only if the press is refused do we fall back to the keystroke,
+            // which works but blinks the menu title.
+            if context.press(item) { return .pressed(path) }
+            if let key = item.shortcut, post(key) { return .posted(key) }
+            return .unavailable("could not run \(path.joined(separator: " > "))")
         }
     }
 
