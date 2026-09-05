@@ -20,7 +20,7 @@ final class EventTap {
 
     private var tap: CFMachPort?
     private var runLoopSource: CFRunLoopSource?
-    private var secureInputTimer: Timer?
+    private var healthTimer: Timer?
 
     private let log = Logger(subsystem: "com.wassimans.AutographeForXcode", category: "tap")
 
@@ -87,8 +87,8 @@ final class EventTap {
     }
 
     func uninstall() {
-        secureInputTimer?.invalidate()
-        secureInputTimer = nil
+        healthTimer?.invalidate()
+        healthTimer = nil
         if let runLoopSource { CFRunLoopRemoveSource(CFRunLoopGetMain(), runLoopSource, .commonModes) }
         if let tap { CGEvent.tapEnable(tap: tap, enable: false) }
         runLoopSource = nil
@@ -143,6 +143,6 @@ final class EventTap {
             }
         }
         RunLoop.main.add(timer, forMode: .common)
-        secureInputTimer = timer
+        healthTimer = timer
     }
 }
