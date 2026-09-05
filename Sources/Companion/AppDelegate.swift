@@ -21,6 +21,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var fileIndex = FileIndex()
     private var history = DocumentHistory()
     private var tracker: WindowTracker!
+    private let search = ProjectSearch()
+    /// The root the open picker is searching, held so keystrokes can re-run the search.
+    private var searchRoot: URL?
 
     private var xcodeIsFrontmost = false
     private var hasAccessibility = false
@@ -107,6 +110,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         switch outcome {
         case .updated:
             picker.update(current)
+            if current.source == .dynamic { runSearch(current.query) }
         case .ignored:
             break
         case .cancelled:
@@ -157,6 +161,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             } else {
                 context.press(entry)
             }
+        } else if item.id.hasPrefix("match:") {
+            // "match:<path>:<line>" — the path may contain colons, so take the line from
+            // the end rather than splitting from the front.
+            let body = String(item.id.dropFirst(6))
+            guard let separator = body.lastIndex(of: ":"),
+                  let line = Int(body[body.index(after: separator)...]) else { return }
+            let path = String(body[body.startIndex..<separator])
+            fileIndex.note(path)
+            ProjectSearch.jump(to: SearchMatch(path: path, line: line, text: "", start: 0, end: 0))
         } else if item.id.hasPrefix("file:") {
             let path = String(item.id.dropFirst(5))
             // Record the choice *before* opening, so ranking improves even if the open
@@ -181,6 +194,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         case .recentProjects: items = menuItems(under: ["File", "Open Recent"])
         case .files:         items = fileItems()
         case .buffers:       items = history.items
+        case .projectSearch:
+            guard search.isAvailable else {
+                log.notice("ripgrep is not installed; falling back to Xcode's find navigator")
+                run("search.project")
+                return
+            }
+            guard let root = projectRoot() else {
+                log.notice("no project root to search")
+                NSSound.beep()
+                return
+            }
+            searchRoot = root
+            // A search picker opens empty: there is nothing to show until a query exists.
+            var session = PickerSession(title: "Search \(root.lastPathComponent)",
+                                        items: [], source: .dynamic)
+            session.pageSize = 10
+            activePicker = session
+            picker.present(session)
+            return
         case .menuSlice:     items = commandItems()
         }
         guard !items.isEmpty else {
@@ -197,7 +229,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func closePicker() {
         activePicker = nil
+        searchRoot = nil
+        search.cancel()
         picker.dismiss()
+    }
+
+    /// Feed the query to ripgrep and put the hits back into the open picker.
+    private func runSearch(_ query: String) {
+        guard let root = searchRoot else { return }
+        search.search(query, in: root) { [weak self] matches in
+            guard let self, var session = self.activePicker, session.source == .dynamic else { return }
+            session.replaceRows(matches.map { match in
+                PickerItem(id: "match:\(match.path):\(match.line)",
+                           // The line itself is the row, because that is what you are
+                           // scanning for; the file and line sit on the right.
+                           title: match.text.trimmingCharacters(in: .whitespaces),
+                           detail: match.location(relativeTo: root.path))
+            })
+            self.activePicker = session
+            self.picker.update(session)
+        }
+    }
+
+    /// The project the open document belongs to, which is what we search.
+    private func projectRoot() -> URL? {
+        FileIndex.projectRoot(containing: context.documentURL() ?? history.current ?? URL(fileURLWithPath: NSHomeDirectory()))
     }
 
     /// Every command we know: ours, plus every menu item Xcode currently offers. The

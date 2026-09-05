@@ -19,6 +19,16 @@ public struct PickerItem: Hashable, Sendable, Identifiable {
     }
 }
 
+/// Where a picker's rows come from.
+public enum PickerSource: Hashable, Sendable {
+    /// A fixed list, filtered and ranked by the fuzzy matcher as you type.
+    case staticList
+    /// Rows supplied from outside on every keystroke — a project-wide search, where the
+    /// query goes to `rg` rather than to the matcher. The session does no filtering of its
+    /// own, because the results are already the answer to the query.
+    case dynamic
+}
+
 /// A matched row, with the positions to highlight.
 public struct PickerRow: Hashable, Sendable {
     public let item: PickerItem
@@ -41,6 +51,7 @@ public enum PickerOutcome: Hashable, Sendable {
 /// behaviour testable without a screen.
 public struct PickerSession: Sendable {
     public let title: String
+    public let source: PickerSource
     public private(set) var query = ""
     public private(set) var rows: [PickerRow] = []
     public private(set) var selection = 0
@@ -49,10 +60,19 @@ public struct PickerSession: Sendable {
     /// How many rows the overlay can show at once. Only used for page up/down.
     public var pageSize = 8
 
-    public init(title: String, items: [PickerItem]) {
+    public init(title: String, items: [PickerItem], source: PickerSource = .staticList) {
         self.title = title
         self.items = items
+        self.source = source
         refilter()
+    }
+
+    /// Supply rows for a `.dynamic` picker. The selection is clamped rather than preserved,
+    /// for the same reason it is when a static list shrinks: the row under the cursor is a
+    /// different row now.
+    public mutating func replaceRows(_ items: [PickerItem]) {
+        rows = items.map { PickerRow(item: $0, matched: []) }
+        selection = rows.isEmpty ? 0 : min(selection, rows.count - 1)
     }
 
     public var selectedItem: PickerItem? {
@@ -131,6 +151,9 @@ public struct PickerSession: Sendable {
     }
 
     private mutating func refilter() {
+        // A dynamic picker's rows answer the query already; filtering them again by the
+        // same text would drop hits whose match is on the line rather than in the path.
+        guard source == .staticList else { return }
         let ranked = FuzzyMatcher.rank(items, query: query) { $0.title }
         rows = ranked.map { PickerRow(item: $0.item, matched: $0.match.matched) }
         // Re-clamp rather than preserve: after typing, the row under the cursor is a

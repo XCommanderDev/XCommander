@@ -25,6 +25,7 @@ public enum PickerKind: String, Hashable, Sendable, CaseIterable {
     case themes
     case syntaxColoring
     case recentProjects
+    case projectSearch     // ripgrep over the project, results in the picker
     case menuSlice         // "fuzzy whatever submenu I name"
 
     public var title: String {
@@ -37,6 +38,7 @@ public enum PickerKind: String, Hashable, Sendable, CaseIterable {
         case .themes: "Theme"
         case .syntaxColoring: "Syntax Coloring"
         case .recentProjects: "Recent Projects"
+        case .projectSearch: "Search Project"
         case .menuSlice: "Menu"
         }
     }

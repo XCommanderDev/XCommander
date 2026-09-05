@@ -46,7 +46,9 @@ struct DefaultKeymapTests {
         #expect(id(KeyEvent(.space)) == "picker.files")   // SPC SPC
         #expect(id(KeyEvent(":")) == "picker.commands")   // SPC :  is M-x
         #expect(id(KeyEvent(",")) == "picker.buffers")
-        #expect(id(KeyEvent("/")) == "search.project")
+        // Still Doom's "search project", but ours (ripgrep) rather than Xcode's
+        // find navigator, which keeps SPC s p.
+        #expect(id(KeyEvent("/")) == "picker.search")
     }
 
     @Test("every binding resolves to a registered command")

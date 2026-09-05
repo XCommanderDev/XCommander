@@ -59,6 +59,8 @@ public enum DefaultKeymap {
         .picker("picker.themes", "theme", .themes),
         .picker("picker.syntax", "syntax coloring", .syntaxColoring),
         .picker("picker.recent", "recent projects", .recentProjects),
+        .picker("picker.search", "search project", .projectSearch,
+                searchText: "search project with ripgrep"),
 
         // make — build, run, test
         .menu("make.build", "build", ["Product", "Build"]),
@@ -201,7 +203,7 @@ public enum DefaultKeymap {
         ([":"], "picker.commands"),       // SPC :   — M-x
         ([","], "picker.buffers"),        // SPC ,   — switch buffer
         (["."], "file.openQuickly"),      // SPC .   — find file
-        (["/"], "search.project"),        // SPC /   — search project
+        (["/"], "picker.search"),         // SPC /   — search project, ours
 
         // b — buffers
         (["b", "b"], "picker.buffers"),
@@ -227,7 +229,7 @@ public enum DefaultKeymap {
         (["p", "d"], "picker.destinations"),
         (["p", "s"], "picker.schemes"),
         (["p", "r"], "picker.recent"),
-        (["p", "/"], "search.project"),
+        (["p", "/"], "picker.search"),
 
         // m — make
         (["m", "m"], "make.build"),
@@ -266,6 +268,7 @@ public enum DefaultKeymap {
 
         // s — search
         (["s", "s"], "search.find"),
+        (["s", "g"], "picker.search"),
         (["s", "p"], "search.project"),
         (["s", "r"], "search.replace"),
         (["s", "n"], "search.next"),

@@ -69,7 +69,7 @@ final class FileIndex {
 
     /// Walk up from the open document until something says "project": a `.xcodeproj`,
     /// a `Package.swift`, or a `.git`. The same shape as every editor's project detection.
-    private static func projectRoot(containing document: URL) -> URL? {
+    static func projectRoot(containing document: URL) -> URL? {
         var directory = document.hasDirectoryPath ? document : document.deletingLastPathComponent()
         let fm = FileManager.default
         for _ in 0..<12 {
