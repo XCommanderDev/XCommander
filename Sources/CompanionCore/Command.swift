@@ -11,8 +11,17 @@ public enum CommandAction: Hashable, Sendable {
     case transform(TextTransform)
     /// Open a picker. The payload names which one; the app supplies its rows.
     case picker(PickerKind)
+    /// Move focus to the pane in a direction, or resize around the current divider.
+    /// Xcode can only cycle between panes; direction, balance and zoom are ours.
+    case pane(PaneAction)
     /// Ours: quit, reload.
     case companion(String)
+}
+
+/// What the pane commands do.
+public enum PaneAction: Hashable, Sendable {
+    case focus(PaneDirection)
+    case balance, zoom, grow, shrink
 }
 
 /// The pickers the product knows how to open.
@@ -87,6 +96,12 @@ public struct Command: Hashable, Sendable, Identifiable {
     public static func picker(_ id: String, _ title: String, _ kind: PickerKind,
                               searchText: String? = nil) -> Command {
         Command(id: id, title: title, searchText: searchText ?? title, action: .picker(kind))
+    }
+
+    /// A command that moves or resizes an editor pane.
+    public static func pane(_ id: String, _ title: String, _ action: PaneAction,
+                            searchText: String? = nil) -> Command {
+        Command(id: id, title: title, searchText: searchText ?? title, action: .pane(action))
     }
 
     /// A command that rewrites the selection.

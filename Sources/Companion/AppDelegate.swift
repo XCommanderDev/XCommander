@@ -50,6 +50,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         executor = CommandExecutor(context: context)
+        executor.panes = PaneController(context: context)
         executor.onCompanionCommand = { [weak self] id in self?.runCompanionCommand(id) }
         whichKey = OverlayController(context: context)
         picker = PickerOverlay(context: context)
@@ -141,6 +142,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             log.debug("\(command.id, privacy: .public) via \(key.display, privacy: .public)")
         case .pressed(let path):
             log.debug("\(command.id, privacy: .public) via menu \(path.joined(separator: " > "), privacy: .public)")
+        case .movedPane:
+            break
         case .transformed(let n):
             log.debug("\(command.id, privacy: .public) rewrote \(n) characters")
         case .handledInternally:
@@ -334,7 +337,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         var items = registry.all.map { command -> PickerItem in
             let binding = session.keymap.binding(for: command.id)
                 .map { ([session.leader] + $0).map(\.display).joined(separator: " ") }
-            return PickerItem(id: command.id, title: command.searchText, detail: binding)
+            // A menu-backed command reads best as its path; one of ours reads best as its
+            // name. Either way both strings are searchable, so "balance" finds "balance
+            // panes" even though its description says "make the panes equal".
+            let isMenu = command.menuPath != nil
+            return PickerItem(id: command.id,
+                              title: isMenu ? command.searchText : command.title,
+                              detail: binding,
+                              matchText: "\(command.title) \(command.searchText)")
         }
         let known = Set(registry.all.compactMap { $0.menuPath?.joined(separator: " > ") })
         for entry in context.allMenuItems() {

@@ -135,3 +135,39 @@ struct PickerTests {
         #expect(p.query == " ")
     }
 }
+
+/// A command must be findable by its name *and* its description. Found on screen: typing
+/// "balance" ranked Xcode's "Balance Delimiters" above our own "balance panes", because
+/// that command was searchable only by its description, "make the panes equal".
+@Suite("Picker matching versus display")
+struct PickerMatchTextTests {
+
+    @Test("matching uses matchText while the row still shows title")
+    func matchesOnMatchText() {
+        var picker = PickerSession(title: "Commands", items: [
+            PickerItem(id: "pane.balance", title: "balance panes",
+                       matchText: "balance panes make the panes equal"),
+            PickerItem(id: "menu", title: "Editor > Selection > Balance Delimiters"),
+        ])
+        for c in "make" { _ = picker.press(KeyEvent(c)) }
+        #expect(picker.rows.count == 1)
+        // Found by its description, but still displayed by its name.
+        #expect(picker.selectedItem?.title == "balance panes")
+    }
+
+    @Test("a command is still findable by its visible name")
+    func matchesOnName() {
+        var picker = PickerSession(title: "Commands", items: [
+            PickerItem(id: "pane.balance", title: "balance panes",
+                       matchText: "balance panes make the panes equal"),
+        ])
+        for c in "balan" { _ = picker.press(KeyEvent(c)) }
+        #expect(picker.rows.count == 1)
+    }
+
+    @Test("matchText defaults to the title so ordinary rows are unaffected")
+    func defaultsToTitle() {
+        let item = PickerItem(id: "a", title: "alpha")
+        #expect(item.matchText == "alpha")
+    }
+}

@@ -3,19 +3,26 @@ import Foundation
 /// One row in a picker.
 public struct PickerItem: Hashable, Sendable, Identifiable {
     public let id: String
-    /// The line the user reads and the matcher searches.
+    /// The line the user reads.
     public let title: String
+    /// What the matcher searches, which is not always what is shown. "balance panes" is
+    /// the useful label, but the command should also be findable by "make the panes equal"
+    /// — and a command found only by its description loses to any Xcode menu item that
+    /// happens to contain the word you typed.
+    public let matchText: String
     /// Shown dimmed on the right: a key binding, a file's directory, a scheme's platform.
     public let detail: String?
     /// Greyed and unselectable. Xcode's menus are context-dependent, so a command offered
     /// a moment ago can be unavailable now.
     public let isEnabled: Bool
 
-    public init(id: String, title: String, detail: String? = nil, isEnabled: Bool = true) {
+    public init(id: String, title: String, detail: String? = nil,
+                isEnabled: Bool = true, matchText: String? = nil) {
         self.id = id
         self.title = title
         self.detail = detail
         self.isEnabled = isEnabled
+        self.matchText = matchText ?? title
     }
 }
 
@@ -154,7 +161,7 @@ public struct PickerSession: Sendable {
         // A dynamic picker's rows answer the query already; filtering them again by the
         // same text would drop hits whose match is on the line rather than in the path.
         guard source == .staticList else { return }
-        let ranked = FuzzyMatcher.rank(items, query: query) { $0.title }
+        let ranked = FuzzyMatcher.rank(items, query: query) { $0.matchText }
         rows = ranked.map { PickerRow(item: $0.item, matched: $0.match.matched) }
         // Re-clamp rather than preserve: after typing, the row under the cursor is a
         // different row, and keeping an index into a list that changed under it is how

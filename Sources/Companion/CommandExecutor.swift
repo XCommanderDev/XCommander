@@ -18,6 +18,9 @@ import os
 @MainActor
 final class CommandExecutor {
 
+    /// Set by the app, because pane work needs Accessibility state the executor does not own.
+    var panes: PaneController?
+
     enum Result: Equatable {
         case posted(KeyEvent)      // tier 1
         case pressed([String])     // tier 2
@@ -25,6 +28,20 @@ final class CommandExecutor {
         case opensPicker(PickerKind)
         case handledInternally(String)
         case unavailable(String)   // and why, for the log and the menu bar
+        case movedPane
+    }
+
+    private func performPane(_ action: PaneAction) -> Result {
+        guard let panes else { return .unavailable("pane control is not available") }
+        let ok: Bool
+        switch action {
+        case .focus(let direction): ok = panes.focus(direction)
+        case .balance: ok = panes.resize(.balance)
+        case .zoom: ok = panes.resize(.zoom)
+        case .grow: ok = panes.resize(.grow)
+        case .shrink: ok = panes.resize(.shrink)
+        }
+        return ok ? .movedPane : .unavailable("no pane in that direction")
     }
 
     private let context: XcodeContext
@@ -52,6 +69,9 @@ final class CommandExecutor {
 
         case .transform(let transform):
             return apply(transform)
+
+        case .pane(let action):
+            return performPane(action)
 
         case .shortcut(let key):
             return post(key) ? .posted(key) : .unavailable("could not post \(key.display)")

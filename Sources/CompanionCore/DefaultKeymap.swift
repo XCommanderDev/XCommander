@@ -162,7 +162,17 @@ public enum DefaultKeymap {
         .menu("ui.fontDecrease", "font smaller", ["Editor", "Font Size", "Decrease"]),
         .menu("ui.fontReset", "font reset", ["Editor", "Font Size", "Reset"]),
 
-        // windows / panes
+        // windows / panes — the directional moves, balance and zoom are ours, because
+        // Xcode can only cycle between panes.
+        .pane("pane.left", "focus left", .focus(.left), searchText: "focus the pane to the left"),
+        .pane("pane.down", "focus down", .focus(.down), searchText: "focus the pane below"),
+        .pane("pane.up", "focus up", .focus(.up), searchText: "focus the pane above"),
+        .pane("pane.right", "focus right", .focus(.right), searchText: "focus the pane to the right"),
+        .pane("pane.balance", "balance panes", .balance, searchText: "make the panes equal"),
+        .pane("pane.zoom", "zoom pane", .zoom, searchText: "maximise this pane, again to restore"),
+        .pane("pane.grow", "grow pane", .grow),
+        .pane("pane.shrink", "shrink pane", .shrink),
+
         .menu("window.paneRight", "pane on right", ["File", "New", "Editor Pane On Right"]),
         .menu("window.paneBelow", "pane below", ["File", "New", "Editor Pane Below"]),
         .menu("window.closePane", "close pane", ["File", "Close Editor Pane"]),
@@ -170,6 +180,18 @@ public enum DefaultKeymap {
         .menu("window.previousPane", "previous pane", ["Navigate", "Move Focus to Previous Editor Pane"]),
         .menu("window.nextArea", "next area", ["Navigate", "Move Focus to Next Area"]),
         .menu("window.editorOnly", "editor only", ["Editor", "Show Editor Only"]),
+        .menu("window.closeOthers", "close other panes", ["File", "Close Other Editor Panes"]),
+        .menu("window.openInNext", "open in next pane", ["Navigate", "Open in Next Editor Pane"]),
+        .menu("window.choosePane", "choose pane…", ["Navigate", "Move Focus to Editor Pane…"]),
+        .menu("window.tabToWindow", "move tab to new window", ["Window", "Move Tab to New Window"]),
+        .menu("window.mergeAll", "merge all windows", ["Window", "Merge All Windows"]),
+        .menu("window.tileLeft", "tile left", ["Window", "Move & Resize", "Left"]),
+        .menu("window.tileRight", "tile right", ["Window", "Move & Resize", "Right"]),
+        .menu("window.tileFull", "fill screen", ["Window", "Move & Resize", "Halves"]),
+        .menu("window.previousSize", "previous size", ["Window", "Move & Resize", "Return to Previous Size"]),
+        .menu("window.toggleNavigator", "toggle navigator", ["View", "Navigators", "Hide Navigator"]),
+        .menu("window.toggleInspector", "toggle inspector", ["View", "Inspectors", "Show Inspector"]),
+        .menu("window.toggleDebugArea", "toggle debug area", ["View", "Debug Area", "Show Debug Area"]),
 
         // help
         .menu("help.docs", "developer documentation", ["Help", "Developer Documentation"]),
@@ -318,14 +340,35 @@ public enum DefaultKeymap {
         (["T", "-"], "ui.fontDecrease"),
         (["T", "0"], "ui.fontReset"),
 
-        // w — windows
+        // w — windows and panes, laid out the way vim's ⌃w is
+        (["w", "h"], "pane.left"),
+        (["w", "j"], "pane.down"),
+        (["w", "k"], "pane.up"),
+        (["w", "l"], "pane.right"),
         (["w", "v"], "window.paneRight"),
         (["w", "s"], "window.paneBelow"),
         (["w", "d"], "window.closePane"),
+        (["w", "q"], "window.closePane"),
+        (["w", "o"], "window.closeOthers"),
         (["w", "w"], "window.nextPane"),
         (["w", "p"], "window.previousPane"),
-        (["w", "o"], "window.editorOnly"),
+        (["w", "="], "pane.balance"),
+        (["w", "z"], "pane.zoom"),
+        (["w", "."], "pane.grow"),
+        (["w", ","], "pane.shrink"),
+        (["w", "e"], "window.openInNext"),
+        (["w", "f"], "window.choosePane"),
         (["w", "a"], "window.nextArea"),
+        (["w", "O"], "window.editorOnly"),
+        (["w", "t"], "window.tabToWindow"),
+        (["w", "m"], "window.mergeAll"),
+        (["w", "H"], "window.tileLeft"),
+        (["w", "L"], "window.tileRight"),
+        (["w", "F"], "window.tileFull"),
+        (["w", "r"], "window.previousSize"),
+        (["w", "n"], "window.toggleNavigator"),
+        (["w", "i"], "window.toggleInspector"),
+        (["w", "b"], "window.toggleDebugArea"),
 
         // x — text transforms
         (["x", "a"], "text.align"),
