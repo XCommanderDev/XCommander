@@ -95,9 +95,12 @@ struct DefaultKeymapTests {
         }
     }
 
-    @Test("an upper-case literal is the lower-case key with Shift")
-    func upperCaseMeansShift() {
-        #expect(KeyEvent(stringLiteral: "S") == KeyEvent("s", [.shift]))
+    /// A literal is the character the user sees, not a key plus a modifier — which is what
+    /// makes one binding work on every keyboard layout. See `KeyIdentityTests`.
+    @Test("a literal is the character as written")
+    func literalIsTheCharacter() {
+        #expect(KeyEvent(stringLiteral: "S") == KeyEvent("S"))
+        #expect(KeyEvent(stringLiteral: "/") == KeyEvent("/"))
         #expect(KeyEvent(stringLiteral: " ") == KeyEvent(.space))
     }
 

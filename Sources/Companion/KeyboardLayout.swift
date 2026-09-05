@@ -25,6 +25,9 @@ enum KeyboardLayout {
     }
 
     private static var cache: [Character: Resolution] = [:]
+    /// The other direction: what each key produces, with and without Shift. Needed because
+    /// a binding names a character and the tap hands us a keycode — see `KeyIdentity`.
+    private static var produced: [CGKeyCode: (base: Character?, shifted: Character?)] = [:]
     private static var cachedLayoutName: String?
 
     /// Rebuild the map if the user has switched layouts since we last looked.
@@ -32,7 +35,9 @@ enum KeyboardLayout {
         let name = currentLayoutName()
         guard name != cachedLayoutName else { return }
         cachedLayoutName = name
-        cache = buildMap()
+        let built = buildMaps()
+        cache = built.byCharacter
+        produced = built.byKeyCode
     }
 
     static func resolve(_ character: Character) -> Resolution? {
@@ -52,24 +57,31 @@ enum KeyboardLayout {
         return Unmanaged<CFString>.fromOpaque(ptr).takeUnretainedValue() as String
     }
 
-    private static func buildMap() -> [Character: Resolution] {
+    private static func buildMaps() -> (byCharacter: [Character: Resolution],
+                                        byKeyCode: [CGKeyCode: (base: Character?, shifted: Character?)]) {
         guard let source = TISCopyCurrentKeyboardLayoutInputSource()?.takeRetainedValue(),
               let dataPtr = TISGetInputSourceProperty(source, kTISPropertyUnicodeKeyLayoutData) else {
-            return [:]
+            return ([:], [:])
         }
         let data = Unmanaged<CFData>.fromOpaque(dataPtr).takeUnretainedValue() as Data
 
-        var map: [Character: Resolution] = [:]
+        var byCharacter: [Character: Resolution] = [:]
+        var byKeyCode: [CGKeyCode: (base: Character?, shifted: Character?)] = [:]
         // Unshifted first so it wins: if a character is reachable both ways, the simpler
         // press is the right one to post.
         for shift in [false, true] {
             for code in CGKeyCode(0)...CGKeyCode(127) {
                 guard let c = character(forKeyCode: code, shift: shift, layoutData: data),
-                      !c.isWhitespace, map[c] == nil else { continue }
-                map[c] = Resolution(keyCode: code, needsShift: shift)
+                      !c.isWhitespace else { continue }
+                if byCharacter[c] == nil {
+                    byCharacter[c] = Resolution(keyCode: code, needsShift: shift)
+                }
+                var entry = byKeyCode[code] ?? (base: nil, shifted: nil)
+                if shift { entry.shifted = c } else { entry.base = c }
+                byKeyCode[code] = entry
             }
         }
-        return map
+        return (byCharacter, byKeyCode)
     }
 
     private static func character(forKeyCode code: CGKeyCode, shift: Bool,
@@ -123,9 +135,10 @@ enum KeyboardLayout {
         SpecialKey.allCases.first { keyCode(for: $0) == code }
     }
 
-    /// The character a keycode produces right now, used to turn a tap event into a `KeyEvent`.
-    static func character(forKeyCode code: CGKeyCode) -> Character? {
+    /// What a key produces right now, with and without Shift. The pair `KeyIdentity` needs
+    /// to decide what a keypress means.
+    static func characters(forKeyCode code: CGKeyCode) -> (base: Character?, shifted: Character?) {
         refreshIfNeeded()
-        return cache.first { $0.value.keyCode == code && !$0.value.needsShift }?.key
+        return produced[code] ?? (nil, nil)
     }
 }

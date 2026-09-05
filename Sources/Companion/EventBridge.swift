@@ -28,15 +28,13 @@ enum EventBridge {
 
     /// Turn a tap event into the value type the keymap speaks.
     ///
-    /// The character is read from the *unmodified* layout on purpose. With Option held,
-    /// `⌥space` would otherwise arrive as a non-breaking space and `⌥b` as `∫`, and the
-    /// keymap would never match. What the user means is the key they pressed.
+    /// The policy lives in `KeyIdentity`, in Core, where it is tested: this only supplies
+    /// what the current layout produces for the key.
     static func keyEvent(keyCode: CGKeyCode, flags: CGEventFlags) -> KeyEvent? {
-        let mods = modifiers(from: flags)
-        if let special = KeyboardLayout.special(forKeyCode: keyCode) {
-            return KeyEvent(special, mods)
-        }
-        guard let c = KeyboardLayout.character(forKeyCode: keyCode) else { return nil }
-        return KeyEvent(.character(c), mods)
+        let pair = KeyboardLayout.characters(forKeyCode: keyCode)
+        return KeyIdentity.event(base: pair.base,
+                                 shifted: pair.shifted,
+                                 special: KeyboardLayout.special(forKeyCode: keyCode),
+                                 modifiers: modifiers(from: flags))
     }
 }

@@ -355,11 +355,14 @@ public enum DefaultKeymap {
 }
 
 extension KeyEvent: ExpressibleByStringLiteral {
-    /// Lets the tables above read as `["m", "m"]`. An upper-case letter means Shift.
+    /// Lets the tables above read as `["m", "m"]`.
+    ///
+    /// The literal is **the character the user sees**, not a key plus a modifier: `"S"` is
+    /// the character `S`, and `"/"` is the character `/`, however the user's layout
+    /// produces them. See `KeyIdentity` for why Shift is not stored separately.
     public init(stringLiteral value: String) {
         precondition(value.count == 1, "a KeyEvent literal is one character: '\(value)'")
-        let c = value.first!
-        if c == " " { self.init(.space, []); return }
-        self.init(.character(Character(value.lowercased())), c.isUppercase ? [.shift] : [])
+        if value == " " { self.init(.space, []); return }
+        self.init(.character(value.first!), [])
     }
 }
