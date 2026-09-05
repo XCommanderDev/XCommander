@@ -23,6 +23,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var tracker: WindowTracker!
     private let search = ProjectSearch()
     private let symbolIndex = SymbolIndex()
+    private let terminal = TerminalPanel()
     /// The root the open picker is searching, held so keystrokes can re-run the search.
     private var searchRoot: URL?
     /// The symbols behind an open symbol picker, filtered by our own matcher.
@@ -51,6 +52,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         executor = CommandExecutor(context: context)
         executor.panes = PaneController(context: context)
+        terminal.attach(to: context)
         executor.onCompanionCommand = { [weak self] id in self?.runCompanionCommand(id) }
         whichKey = OverlayController(context: context)
         picker = PickerOverlay(context: context)
@@ -61,6 +63,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         tracker.onGeometryChanged = { [weak self] in
             self?.whichKey.followWindow()
             self?.picker.followWindow()
+            self?.terminal.dock()
         }
         tracker.onDocumentChanged = { [weak self] url in self?.history.record(url) }
         menuBar = MenuBarController()
@@ -375,6 +378,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func runCompanionCommand(_ id: String) {
         switch id {
         case "quit": NSApp.terminate(nil)
+        case "toggleTerminal":
+            terminal.toggle(at: projectRoot())
         case "reloadMenus":
             context.refreshMenuIndex()
             fileIndex.invalidate()
@@ -432,6 +437,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                             as? NSRunningApplication)?.bundleIdentifier
             MainActor.assumeIsolated {
                 guard let self else { return }
+                // The terminal belongs to Xcode's window, so it goes away when you leave
+                // for another app — but not when *we* become frontmost, which is exactly
+                // what happens when the terminal itself takes focus.
+                let ours = bundleID == Bundle.main.bundleIdentifier
+                if !ours && bundleID != "com.apple.dt.Xcode" { self.terminal.hideIfVisible() }
                 let nowFrontmost = bundleID == "com.apple.dt.Xcode"
                 if self.xcodeIsFrontmost && !nowFrontmost { self.abandonEverything() }
                 self.xcodeIsFrontmost = nowFrontmost

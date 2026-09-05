@@ -39,6 +39,7 @@ public enum DefaultKeymap {
         [KeyEvent("h")]: "help",
         [KeyEvent("m")]: "make",
         [KeyEvent("p")]: "project",
+        [KeyEvent("o")]: "open",
         [KeyEvent("q")]: "quit",
         [KeyEvent("s")]: "search",
         [KeyEvent("t")]: "toggles",
@@ -198,6 +199,11 @@ public enum DefaultKeymap {
         .menu("help.hig", "human interface guidelines", ["Help", "Human Interface Guidelines"]),
         .menu("help.swiftBook", "the swift book", ["Help", "Swift Programming Language Book"]),
         .menu("help.searchDocs", "search docs for selection", ["Help", "Search Documentation for Selected Text"]),
+
+        // open — Xcode has no terminal at all, only the LLDB console, so ours is ours.
+        Command(id: "open.terminal", title: "terminal",
+                searchText: "toggle the terminal at the project root",
+                action: .companion("toggleTerminal")),
 
         // quit
         .menu("quit.xcode", "quit xcode", ["Xcode", "Quit Xcode"]),
@@ -382,6 +388,10 @@ public enum DefaultKeymap {
         (["x", "l"], "text.lower"),
         (["x", "c"], "text.camel"),
         (["x", "_"], "text.snake"),
+
+        // o — open
+        (["o", "t"], "open.terminal"),
+        (["o", "f"], "file.revealInFinder"),
 
         // h — help
         (["h", "d"], "help.docs"),
