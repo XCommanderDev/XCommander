@@ -48,10 +48,25 @@ bundle() {
   <key>LSMinimumSystemVersion</key><string>14.0</string>
   <!-- A menu-bar app: no Dock icon, no app switcher entry. -->
   <key>LSUIElement</key><true/>
+  <key>CFBundleIconFile</key><string>AppIcon</string>
+  <key>CFBundleIconName</key><string>AppIcon</string>
 </dict>
 </plist>
 PLIST
   cp "$bin" "$BUNDLE/Contents/MacOS/Companion"
+
+  # SwiftPM does not build asset catalogues, so do it by hand with the same tool Xcode
+  # uses. It matters for more than the menu-bar mark: an app with no icon shows the generic
+  # placeholder in the "would like to control this computer" prompt, which is the worst
+  # possible answer to "do I trust this?".
+  actool "Sources/Companion/Assets.xcassets" \
+    --compile "$BUNDLE/Contents/Resources" \
+    --platform macosx \
+    --minimum-deployment-target 14.0 \
+    --app-icon AppIcon \
+    --output-partial-info-plist "$BUILD_ROOT/assets-partial.plist" \
+    --output-format human-readable-text >/dev/null
+
   xattr -cr "$BUNDLE" 2>/dev/null || true
   # Ad-hoc signing is enough locally, but the *identity* changes on every rebuild, which is
   # what makes macOS forget the Accessibility grant. Sign with a real certificate when one

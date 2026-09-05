@@ -72,12 +72,6 @@ final class MenuBarController {
 
     /// The app's own mark when everything is fine, a system glyph when it is not.
     ///
-    /// Alfred shows its hat as a **template** image — macOS throws away the colours and uses
-    /// the alpha as a mask, which works because the hat's transparency *is* its shape. Our
-    /// mark is a filled tile, so its alpha is a rounded rectangle: as a template it would be
-    /// a blank white square. So it is drawn in colour, which macOS allows and plenty of apps
-    /// do.
-    ///
     /// The two states that need attention keep an SF Symbol. A tinted brand mark is a poor
     /// way to say "your keyboard has stopped working"; a padlock and a warning triangle are
     /// unmistakable, and being off-brand for a moment is the point of them.
@@ -94,20 +88,33 @@ final class MenuBarController {
         return brandMark(opacity: opacity, description: status.explanation)
     }
 
-    /// The app icon, drawn down to menu-bar size. Taken from `applicationIconImage` rather
-    /// than a second asset, so it follows whatever icon the bundle actually ships.
+    /// The pens from the app icon, knocked out of their tile, as a **template** image —
+    /// the idiomatic menu-bar image on macOS. The system discards a template's colours and
+    /// uses its alpha as a mask, so the mark goes black on a light bar, white on a dark one,
+    /// and tints under a tinted wallpaper, the way Alfred's hat does.
+    ///
+    /// The *whole* app icon can never do this. A template's alpha is its shape, and the
+    /// icon's alpha is a filled rounded rectangle, so it renders as a blank white square.
+    /// The pens on their own are a silhouette, which is exactly what a template wants —
+    /// `Design/autographe-v1.svg` keeps them in their own groups so `tools/icons.sh` can
+    /// render them without the tile.
     private func brandMark(opacity: CGFloat, description: String) -> NSImage? {
-        guard let icon = NSApp.applicationIconImage else { return nil }
-        let side: CGFloat = 18
-        let image = NSImage(size: NSSize(width: side, height: side))
-        image.lockFocus()
-        icon.draw(in: NSRect(x: 0, y: 0, width: side, height: side),
-                  from: .zero, operation: .sourceOver, fraction: opacity)
-        image.unlockFocus()
-        // Not a template: the colours are the point.
-        image.isTemplate = false
-        image.accessibilityDescription = description
-        return image
+        guard let mark = NSImage(named: "MenuBarMark") else { return nil }
+        guard opacity < 1 else {
+            mark.isTemplate = true
+            mark.accessibilityDescription = description
+            return mark
+        }
+        // A template's mask can be partly transparent, so dimming the alpha dims the tint —
+        // the mark stays the bar's colour and simply recedes. Drawn through a handler rather
+        // than `lockFocus` so it re-renders per context and stays right on both scales.
+        let dimmed = NSImage(size: mark.size, flipped: false) { rect in
+            mark.draw(in: rect, from: .zero, operation: .sourceOver, fraction: opacity)
+            return true
+        }
+        dimmed.isTemplate = true
+        dimmed.accessibilityDescription = description
+        return dimmed
     }
 
     @objc private func toggleEnabled() { onToggleEnabled?() }
