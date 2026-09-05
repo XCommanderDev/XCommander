@@ -14,19 +14,11 @@ let package = Package(
         .library(name: "CompanionCore", targets: ["CompanionCore"]),
         .executable(name: "Companion", targets: ["Companion"]),
     ],
-    dependencies: [
-        // Xcode has no terminal at all — only the LLDB console — so a terminal has to be
-        // ours. SwiftTerm is a real emulator; a hand-rolled PTY with escape sequences
-        // stripped is unusable the moment anything draws (`less`, `htop`, colour).
-        .package(url: "https://github.com/migueldeicaza/SwiftTerm.git", from: "1.20.0"),
-    ],
     targets: [
         .target(name: "CompanionCore"),
         // Types only, for Xcode's index store. No library is linked: see the header.
         .target(name: "CIndexStore"),
-        .executableTarget(name: "Companion",
-                          dependencies: ["CompanionCore", "CIndexStore",
-                                         .product(name: "SwiftTerm", package: "SwiftTerm")]),
+        .executableTarget(name: "Companion", dependencies: ["CompanionCore", "CIndexStore"]),
         .testTarget(name: "CompanionCoreTests", dependencies: ["CompanionCore"]),
     ]
 )
