@@ -128,6 +128,17 @@ struct DefaultKeymapTests {
                                        xcodeFrontmost: true, enabled: false) == .needsAccessibility)
     }
 
+    /// The menu bar draws the brand mark for the three ordinary states and an SF Symbol
+    /// only when something is wrong, so `faultSymbol` must be `nil` for exactly the three.
+    @Test("only the fault states carry a symbol")
+    func faultSymbols() {
+        #expect(CompanionStatus.needsAccessibility.faultSymbol == "exclamationmark.triangle.fill")
+        #expect(CompanionStatus.pausedBySecureInput.faultSymbol == "lock.fill")
+        #expect(CompanionStatus.armed.faultSymbol == nil)
+        #expect(CompanionStatus.idle.faultSymbol == nil)
+        #expect(CompanionStatus.disabled.faultSymbol == nil)
+    }
+
     /// Every text transform should be both bound and registered: they are the features
     /// Xcode does not have, so a missing one is a missing product feature.
     @Test("every text transform is registered and bound")

@@ -25,14 +25,17 @@ public enum CompanionStatus: Hashable, Sendable {
         return xcodeFrontmost ? .armed : .idle
     }
 
-    /// The menu bar title. Short, because it sits next to the clock.
-    public var menuBarSymbol: String {
+    /// The SF Symbol to draw in the menu bar when something is *wrong*, or `nil` when the
+    /// state is ordinary and the brand mark speaks for itself.
+    ///
+    /// Only the two fault states have one. A dimmed brand mark is a poor way to say "your
+    /// keyboard has stopped working"; a warning triangle is the shape the user already reads
+    /// as "this needs you", and being a template image it tints with the menu bar.
+    public var faultSymbol: String? {
         switch self {
         case .needsAccessibility: "exclamationmark.triangle.fill"
-        case .disabled: "keyboard.badge.ellipsis"
         case .pausedBySecureInput: "lock.fill"
-        case .idle: "keyboard"
-        case .armed: "keyboard.fill"
+        case .disabled, .idle, .armed: nil
         }
     }
 
