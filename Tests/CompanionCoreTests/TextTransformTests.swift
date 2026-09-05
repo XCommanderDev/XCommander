@@ -92,3 +92,48 @@ struct TextTransformTests {
         }
     }
 }
+
+/// A linewise selection carries its trailing newline — vim's `V` does, and so does
+/// dragging across whole lines. These tests exist because sorting such a selection put a
+/// blank line at the top and welded the block to the line below it, in a real editor.
+@Suite("Transforms on linewise selections")
+struct LinewiseSelectionTests {
+
+    @Test("sorting a selection that ends in a newline keeps the newline at the end")
+    func sortKeepsTrailingNewline() {
+        #expect(TextTransform.sortLines.apply(to: "c\na\nb\n") == "a\nb\nc\n")
+    }
+
+    @Test("no transform moves an empty trailing component to the front")
+    func noLeadingBlankLine() {
+        for transform in [TextTransform.sortLines, .sortLinesReversed, .reverseLines,
+                          .removeDuplicateLines, .trimTrailingWhitespace, .align] {
+            let out = transform.apply(to: "let bb = 2\nlet a = 1\n")
+            #expect(!out.hasPrefix("\n"), "\(transform) produced a leading blank line")
+            #expect(out.hasSuffix("\n"), "\(transform) lost the trailing newline")
+        }
+    }
+
+    @Test("align works on a linewise selection")
+    func alignLinewise() {
+        let input = "let x = 1\nlet yy = 22\n"
+        #expect(TextTransform.align.apply(to: input) == "let x  = 1\nlet yy = 22\n")
+    }
+
+    @Test("reverse of a linewise selection reverses the lines, not the newline")
+    func reverseLinewise() {
+        #expect(TextTransform.reverseLines.apply(to: "a\nb\nc\n") == "c\nb\na\n")
+    }
+
+    @Test("join collapses a linewise selection and keeps its newline")
+    func joinLinewise() {
+        #expect(TextTransform.joinLines.apply(to: "one\ntwo\n") == "one two\n")
+    }
+
+    @Test("an empty selection is left alone rather than trapped on")
+    func emptySelection() {
+        for transform in TextTransform.allCases {
+            #expect(transform.apply(to: "") == "")
+        }
+    }
+}

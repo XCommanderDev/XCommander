@@ -188,6 +188,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             NSSound.beep()
             return
         }
+        log.notice("picker \(kind.rawValue, privacy: .public) opened with \(items.count) rows")
         var s = PickerSession(title: kind.title, items: items)
         s.pageSize = 10
         activePicker = s

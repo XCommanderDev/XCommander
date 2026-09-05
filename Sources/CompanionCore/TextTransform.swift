@@ -49,6 +49,14 @@ public enum TextTransform: Hashable, Sendable, CaseIterable {
     static let alignDelimiters = ["=", ":", "->", "//", ","]
 
     public func apply(to text: String) -> String {
+        // A linewise selection carries its trailing newline. Vim's `V` does, and so does
+        // selecting whole lines with a mouse. Transform the body without it and put it
+        // back afterwards: sorting "a\nb\n" as four components puts the empty one first,
+        // which shows up as a blank line at the top and the block welded to the line below.
+        guard !text.isEmpty else { return text }
+        if text.hasSuffix("\n") {
+            return apply(to: String(text.dropLast())) + "\n"
+        }
         switch self {
         case .upperCase: return text.uppercased()
         case .lowerCase: return text.lowercased()
@@ -87,8 +95,6 @@ public enum TextTransform: Hashable, Sendable, CaseIterable {
         text.components(separatedBy: "\n")
     }
 
-    /// Preserve a trailing newline if the selection had one: selecting whole lines in an
-    /// editor usually includes it, and losing it silently joins the block to the next line.
     private func rejoin(_ lines: [String], like original: String) -> String {
         lines.joined(separator: "\n")
     }
