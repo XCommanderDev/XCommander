@@ -19,6 +19,13 @@ targets:
     platform: macOS
     sources:
       - path: Sources/Companion
+        excludes:
+          - "AutographeAppIcon.icon/**"
+      # Declared as a single file, not scanned as a group: otherwise xcodegen adds
+      # icon.json and pens.png individually and they are copied into Resources as loose
+      # files instead of being compiled by actool.
+      - path: Sources/Companion/AutographeAppIcon.icon
+        type: file
     dependencies:
       - package: CompanionCore
         product: CompanionCore
@@ -36,6 +43,8 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.wassimans.AutographeForXcode
-        # Drop a 1024pt image into Assets.xcassets/AppIcon and this picks it up.
-        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        # The Icon Composer document, not the asset catalogue's AppIcon: macOS 26 draws it
+        # with the layered treatment, and actool compiles legacy representations from the
+        # same file for the deployment target. Regenerate its layer with tools/icons.sh.
+        ASSETCATALOG_COMPILER_APPICON_NAME: AutographeAppIcon
         INFOPLIST_KEY_NSHumanReadableCopyright: ""

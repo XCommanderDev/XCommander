@@ -10,9 +10,9 @@
 # run this and commit what it writes.
 #
 # What it produces:
-#   Sources/Companion/Assets.xcassets/AppIcon.appiconset/*.png   the app icon, 10 slots
+#   Sources/Companion/AutographeAppIcon.icon/Assets/pens.png     the app icon's one layer
 #   Sources/Companion/Assets.xcassets/MenuBarMark.imageset/*.png the menu-bar template mark
-#   Design/AutographeAppIcon.icon/Assets/pens.png                the Icon Composer layer
+#   Sources/Companion/AutographeAppIcon.icon/Assets/pens.png     the Icon Composer layer
 #   Design/autographe-v1-macos-1024.png                          grid-correct master, reference
 #   Design/AutographeForXcode.icns                               for the DMG volume icon
 set -euo pipefail
@@ -22,10 +22,14 @@ command -v rsvg-convert >/dev/null || { echo "need rsvg-convert (brew install li
 python3 -c "import PIL" 2>/dev/null || { echo "need Pillow (pip3 install Pillow)"; exit 1; }
 
 SVG="Design/autographe-v1.svg"
-ICONSET="Sources/Companion/Assets.xcassets/AppIcon.appiconset"
 MARKSET="Sources/Companion/Assets.xcassets/MenuBarMark.imageset"
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
+
+# The app icon is the Icon Composer document, so these ten PNGs are no longer an asset
+# catalogue slot — actool would not even compile them. They exist only to build the .icns
+# the DMG's volume icon needs, so they are rendered into the temp dir and not committed.
+ICONSET="$WORK/AutographeForXcode.iconset"
 
 # --- The macOS grid ------------------------------------------------------------------
 #
@@ -59,7 +63,7 @@ canvas.paste(art, off, art)
 canvas.save(work + "/master.png")
 PY
 
-echo "==> app icon: 10 slots"
+echo "==> flat icon: 10 slots, for the .icns only"
 mkdir -p "$ICONSET"
 python3 - "$WORK" "$ICONSET" <<'PY'
 import sys
@@ -103,7 +107,7 @@ open(work + "/pens.svg", "w").write(
 PY
 rsvg-convert -w 2048 -h 2048 -f png -o "$WORK/pens.png" "$WORK/pens.svg"
 
-mkdir -p "$MARKSET" Design/AutographeAppIcon.icon/Assets
+mkdir -p "$MARKSET" Sources/Companion/AutographeAppIcon.icon/Assets
 python3 - "$WORK" "$MARKSET" <<'PY'
 import sys, json
 from PIL import Image
@@ -114,7 +118,8 @@ pens = pens.crop(pens.split()[3].getbbox())          # trim to the ink
 # The Icon Composer layer keeps the full 1024 frame and its position within it, because
 # Icon Composer places layers against the canvas, not against their own bounds.
 full = Image.open(work + "/pens.png").convert("RGBA")
-full.resize((1024, 1024), Image.LANCZOS).save("Design/AutographeAppIcon.icon/Assets/pens.png")
+full.resize((1024, 1024), Image.LANCZOS).save(
+    "Sources/Companion/AutographeAppIcon.icon/Assets/pens.png")
 
 # The menu bar draws into an 18pt box. Fit the ink inside it, longest side first, so the
 # mark is as large as the bar allows without touching its edges.
@@ -146,10 +151,7 @@ PY
 # .icns is for the things Xcode does not build: the DMG's volume icon, mostly, since the
 # app ships outside the App Store.
 echo "==> .icns"
-TMPSET="$WORK/AutographeForXcode.iconset"
-mkdir -p "$TMPSET"
-for f in "$ICONSET"/*.png; do cp "$f" "$TMPSET/$(basename "$f")"; done
-iconutil -c icns "$TMPSET" -o Design/AutographeForXcode.icns
+iconutil -c icns "$ICONSET" -o Design/AutographeForXcode.icns
 echo "    Design/AutographeForXcode.icns"
 
 echo "done."

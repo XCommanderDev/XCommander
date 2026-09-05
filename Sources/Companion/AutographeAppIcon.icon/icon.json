@@ -1,8 +1,8 @@
 {
   "fill": {
     "linear-gradient": [
-      "display-p3:0.48235,0.60392,0.99608,1.00000",
-      "srgb:0.29412,0.47843,0.93725,1.00000"
+      "srgb:0.14510,0.78824,1.00000,1.00000",
+      "srgb:0.05490,0.44314,0.87059,1.00000"
     ]
   },
   "groups": [
@@ -14,7 +14,7 @@
           "image-name": "pens.png",
           "name": "pens",
           "position": {
-            "scale": 1.0,
+            "scale": 1.15,
             "translation-in-points": [
               0,
               0

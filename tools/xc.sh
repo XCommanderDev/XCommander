@@ -32,6 +32,9 @@ bundle() {
   bin="$BUILD_ROOT/.build/$CONFIG/Companion"
   [ -x "$bin" ] || { echo "no binary at $bin"; exit 1; }
 
+  # Wipe Resources rather than merging into it: actool's output is named after the app icon,
+  # so renaming one leaves the old .icns behind and the bundle ships two.
+  rm -rf "$BUNDLE/Contents/Resources"
   mkdir -p "$BUNDLE/Contents/MacOS" "$BUNDLE/Contents/Resources"
   cat > "$BUNDLE/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
@@ -48,8 +51,8 @@ bundle() {
   <key>LSMinimumSystemVersion</key><string>14.0</string>
   <!-- A menu-bar app: no Dock icon, no app switcher entry. -->
   <key>LSUIElement</key><true/>
-  <key>CFBundleIconFile</key><string>AppIcon</string>
-  <key>CFBundleIconName</key><string>AppIcon</string>
+  <key>CFBundleIconFile</key><string>AutographeAppIcon</string>
+  <key>CFBundleIconName</key><string>AutographeAppIcon</string>
 </dict>
 </plist>
 PLIST
@@ -59,11 +62,11 @@ PLIST
   # uses. It matters for more than the menu-bar mark: an app with no icon shows the generic
   # placeholder in the "would like to control this computer" prompt, which is the worst
   # possible answer to "do I trust this?".
-  actool "Sources/Companion/Assets.xcassets" \
+  actool "Sources/Companion/Assets.xcassets" "Sources/Companion/AutographeAppIcon.icon" \
     --compile "$BUNDLE/Contents/Resources" \
     --platform macosx \
     --minimum-deployment-target 14.0 \
-    --app-icon AppIcon \
+    --app-icon AutographeAppIcon \
     --output-partial-info-plist "$BUILD_ROOT/assets-partial.plist" \
     --output-format human-readable-text >/dev/null
 
