@@ -58,8 +58,13 @@ final class MenuBarController {
     func apply(_ status: CompanionStatus) {
         guard status != self.status || item.button?.image == nil else { return }
         self.status = status
-        item.button?.image = NSImage(systemSymbolName: status.menuBarSymbol,
-                                     accessibilityDescription: status.explanation)
+        let glyph = NSImage(systemSymbolName: status.menuBarSymbol,
+                            accessibilityDescription: status.explanation)
+        // A template image is drawn using the menu bar's own colour, so it stays legible
+        // in light and dark and while the bar is tinted by the wallpaper. SF Symbols are
+        // templates already; saying so keeps that true if this is ever a custom image.
+        glyph?.isTemplate = true
+        item.button?.image = glyph
         item.button?.toolTip = status.explanation
         statusEntry.title = status.explanation
     }
