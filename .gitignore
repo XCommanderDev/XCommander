@@ -1,0 +1,24 @@
+.build/
+.swiftpm/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+.DS_Store
+
+# Spike build products: the sources are tracked, the binaries are not.
+spikes/probe-trust
+spikes/axcheck
+spikes/axdump
+spikes/axpress
+spikes/bench-latency
+spikes/menustate
+spikes/movexcode
+spikes/postkey
+spikes/securetoggle
+spikes/spike1-post-cmdb
+spikes/spike2-tap
+spikes/spike3-overlay
+spikes/*.log
+spikes/*.dSYM/
+spikes/spike4/dd/
+spikes/spike4/SpikeHost.xcodeproj/
+spikes/fixture/HelloPkg/.build/
