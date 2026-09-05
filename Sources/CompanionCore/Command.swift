@@ -26,6 +26,8 @@ public enum PickerKind: String, Hashable, Sendable, CaseIterable {
     case syntaxColoring
     case recentProjects
     case projectSearch     // ripgrep over the project, results in the picker
+    case documentSymbols   // declarations in the current file, from Xcode's index
+    case projectSymbols    // declarations across the project, from Xcode's index
     case menuSlice         // "fuzzy whatever submenu I name"
 
     public var title: String {
@@ -39,6 +41,8 @@ public enum PickerKind: String, Hashable, Sendable, CaseIterable {
         case .syntaxColoring: "Syntax Coloring"
         case .recentProjects: "Recent Projects"
         case .projectSearch: "Search Project"
+        case .documentSymbols: "Symbols in File"
+        case .projectSymbols: "Project Symbols"
         case .menuSlice: "Menu"
         }
     }

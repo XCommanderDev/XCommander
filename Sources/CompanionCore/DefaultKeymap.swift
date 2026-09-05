@@ -61,6 +61,10 @@ public enum DefaultKeymap {
         .picker("picker.recent", "recent projects", .recentProjects),
         .picker("picker.search", "search project", .projectSearch,
                 searchText: "search project with ripgrep"),
+        .picker("picker.docSymbols", "symbols in file", .documentSymbols,
+                searchText: "symbols in this file"),
+        .picker("picker.projectSymbols", "project symbols", .projectSymbols,
+                searchText: "symbols across the project"),
 
         // make — build, run, test
         .menu("make.build", "build", ["Product", "Build"]),
@@ -261,6 +265,8 @@ public enum DefaultKeymap {
         (["c", "m"], "code.extractFunction"),
         (["c", "M"], "code.memberwiseInit"),
         (["c", "h"], "code.quickHelp"),
+        (["c", "s"], "picker.docSymbols"),
+        (["c", "S"], "picker.projectSymbols"),
         (["c", "o"], "nav.back"),
         (["c", "O"], "nav.forward"),
         (["c", "n"], "nav.nextIssue"),

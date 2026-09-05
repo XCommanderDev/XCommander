@@ -87,10 +87,7 @@ final class ProjectSearch {
 
         // Read on a background queue: rg streams, and a large result set would otherwise
         // fill the pipe buffer and deadlock against a main thread waiting for exit.
-        // `nonisolated(unsafe)` on the pieces the reader thread touches: the handle is
-        // used only here, and the completion is only ever called back on the main actor.
-        nonisolated(unsafe) let completion = completion
-        nonisolated(unsafe) let child = process
+        let child = process
         DispatchQueue.global(qos: .userInitiated).async {
             var matches: [SearchMatch] = []
             var carry = ""

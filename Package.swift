@@ -16,7 +16,9 @@ let package = Package(
     ],
     targets: [
         .target(name: "CompanionCore"),
-        .executableTarget(name: "Companion", dependencies: ["CompanionCore"]),
+        // Types only, for Xcode's index store. No library is linked: see the header.
+        .target(name: "CIndexStore"),
+        .executableTarget(name: "Companion", dependencies: ["CompanionCore", "CIndexStore"]),
         .testTarget(name: "CompanionCoreTests", dependencies: ["CompanionCore"]),
     ]
 )

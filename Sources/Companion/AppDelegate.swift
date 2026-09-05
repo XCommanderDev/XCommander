@@ -22,8 +22,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var history = DocumentHistory()
     private var tracker: WindowTracker!
     private let search = ProjectSearch()
+    private let symbolIndex = SymbolIndex()
     /// The root the open picker is searching, held so keystrokes can re-run the search.
     private var searchRoot: URL?
+    /// The symbols behind an open symbol picker, filtered by our own matcher.
+    private var symbolRows: [ProjectSymbol] = []
 
     private var xcodeIsFrontmost = false
     private var hasAccessibility = false
@@ -110,7 +113,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         switch outcome {
         case .updated:
             picker.update(current)
-            if current.source == .dynamic { runSearch(current.query) }
+            if current.source == .dynamic {
+                if symbolRows.isEmpty { runSearch(current.query) } else { applySymbolQuery(current.query) }
+            }
         case .ignored:
             break
         case .cancelled:
@@ -161,6 +166,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             } else {
                 context.press(entry)
             }
+        } else if item.id.hasPrefix("symbol:") {
+            let body = String(item.id.dropFirst(7))
+            guard let separator = body.lastIndex(of: ":"),
+                  let line = Int(body[body.index(after: separator)...]) else { return }
+            let path = String(body[body.startIndex..<separator])
+            fileIndex.note(path)
+            ProjectSearch.jump(to: SearchMatch(path: path, line: line, text: "", start: 0, end: 0))
         } else if item.id.hasPrefix("match:") {
             // "match:<path>:<line>" — the path may contain colons, so take the line from
             // the end rather than splitting from the front.
@@ -213,6 +225,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             activePicker = session
             picker.present(session)
             return
+        case .documentSymbols, .projectSymbols:
+            openSymbolPicker(kind)
+            return
         case .menuSlice:     items = commandItems()
         }
         guard !items.isEmpty else {
@@ -230,8 +245,64 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func closePicker() {
         activePicker = nil
         searchRoot = nil
+        symbolRows = []
         search.cancel()
         picker.dismiss()
+    }
+
+    /// Symbols come from Xcode's own index, which is read off the main thread, so the
+    /// picker opens immediately and fills in.
+    private func openSymbolPicker(_ kind: PickerKind) {
+        guard let root = projectRoot() else {
+            log.notice("no project root for symbols")
+            NSSound.beep()
+            return
+        }
+        let currentFile = context.documentURL()?.path
+        searchRoot = root
+        var session = PickerSession(title: kind.title, items: [], source: .dynamic)
+        session.pageSize = 10
+        activePicker = session
+        picker.present(session)
+
+        symbolIndex.symbols(forProjectAt: root) { [weak self] result in
+            guard let self, var open = self.activePicker else { return }
+            if let reason = result.unavailable {
+                open.replaceRows([PickerItem(id: "none", title: reason, isEnabled: false)])
+                self.activePicker = open
+                self.picker.update(open)
+                return
+            }
+            var symbols = result.symbols
+            if kind == .documentSymbols, let currentFile {
+                symbols = symbols.filter { $0.path == currentFile }
+                if symbols.isEmpty {
+                    open.replaceRows([PickerItem(id: "none",
+                                                 title: "no indexed symbols in this file",
+                                                 isEnabled: false)])
+                    self.activePicker = open
+                    self.picker.update(open)
+                    return
+                }
+            }
+            self.symbolRows = symbols
+            self.applySymbolQuery(open.query)
+        }
+    }
+
+    /// Symbol pickers are dynamic, but their filtering is ours rather than an external
+    /// command's, so the fuzzy matcher does the work here instead of in the session.
+    private func applySymbolQuery(_ query: String) {
+        guard var open = activePicker, !symbolRows.isEmpty else { return }
+        let ranked = FuzzyMatcher.rank(symbolRows, query: query) { $0.name }
+        open.replaceRows(ranked.prefix(300).map { entry in
+            let symbol = entry.item
+            return PickerItem(id: "symbol:\(symbol.path):\(symbol.line)",
+                              title: "\(symbol.kind.label)  \(symbol.name)",
+                              detail: symbol.location(relativeTo: searchRoot?.path))
+        })
+        activePicker = open
+        picker.update(open)
     }
 
     /// Feed the query to ripgrep and put the hits back into the open picker.
