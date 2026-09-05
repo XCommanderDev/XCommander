@@ -86,13 +86,21 @@ final class FileIndex {
         return nil
     }
 
-    private func scan(_ root: URL) -> [PickerItem] {
+    private func scan(_ unresolvedRoot: URL) -> [PickerItem] {
         let fm = FileManager.default
+        // The enumerator yields symlink-resolved paths, so a root that is not resolved makes
+        // every relative label wrong: `/tmp` is a symlink to `/private/tmp`, and a project
+        // opened from `/tmp` labelled its files `scratch/config.json` instead of
+        // `config.json`. Both sides have to agree before they are compared.
+        //
+        // `URL.resolvingSymlinksInPath()` is *not* the way to make them agree: it normalises
+        // `/private/tmp` down to `/tmp` rather than up, so it leaves this exact pair as far
+        // apart as it found them. `realpath(3)` is what the enumerator itself agrees with.
+        let root = Self.canonical(unresolvedRoot)
         guard let walker = fm.enumerator(at: root,
                                          includingPropertiesForKeys: [.isDirectoryKey],
                                          options: [.skipsHiddenFiles]) else { return [] }
         var found: [(url: URL, relative: String)] = []
-        let prefix = root.path.hasSuffix("/") ? root.path : root.path + "/"
 
         for case let url as URL in walker {
             if found.count >= Self.maxFiles { break }
@@ -108,7 +116,9 @@ final class FileIndex {
                 continue
             }
             guard Self.interesting.contains(url.pathExtension) else { continue }
-            found.append((url, String(url.path.dropFirst(prefix.count))))
+            // A file that is somehow not under the root keeps its full path rather than a
+            // slice taken from the wrong offset.
+            found.append((url, ProjectPath.relative(of: url.path, under: root.path) ?? url.path))
         }
 
         return found
@@ -119,6 +129,14 @@ final class FileIndex {
                            detail: file.url.deletingLastPathComponent().lastPathComponent,
                            icon: .file)
             }
+    }
+
+    /// The path macOS actually uses, with every symlink resolved — including `/tmp`, `/var`
+    /// and `/etc`, which Foundation's own resolver deliberately leaves alone.
+    private static func canonical(_ url: URL) -> URL {
+        guard let resolved = realpath(url.path, nil) else { return url }
+        defer { free(resolved) }
+        return URL(fileURLWithPath: String(cString: resolved))
     }
 
     /// Frecency: how often, decayed by how long ago.

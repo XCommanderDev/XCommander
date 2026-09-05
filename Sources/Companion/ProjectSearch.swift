@@ -127,9 +127,6 @@ final class ProjectSearch {
     /// Open a hit in Xcode at its line. `xed --line` is Xcode's own command-line tool, so
     /// this lands in the editor the user is already in rather than opening a new window.
     static func jump(to match: SearchMatch) {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/xed")
-        process.arguments = ["--line", String(match.line), match.path]
-        try? process.run()
+        XcodeOpen.file(at: match.path, line: match.line)
     }
 }

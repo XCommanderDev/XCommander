@@ -168,8 +168,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// What a chosen picker row does depends on which picker it came from. Rows carry an id
     /// that says: a command id, or a menu path, or a file URL.
     private func choose(_ item: PickerItem) {
-        if item.id.hasPrefix("menu:") {
-            let path = String(item.id.dropFirst(5)).components(separatedBy: "\u{1}")
+        switch PickerTarget.parse(item.id) {
+        case .menu(let path):
             guard let entry = context.menuItem(at: path) else {
                 log.notice("menu item vanished: \(path.joined(separator: " > "), privacy: .public)")
                 NSSound.beep()
@@ -180,30 +180,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             } else {
                 context.press(entry)
             }
-        } else if item.id.hasPrefix("symbol:") {
-            let body = String(item.id.dropFirst(7))
-            guard let separator = body.lastIndex(of: ":"),
-                  let line = Int(body[body.index(after: separator)...]) else { return }
-            let path = String(body[body.startIndex..<separator])
-            fileIndex.note(path)
-            ProjectSearch.jump(to: SearchMatch(path: path, line: line, text: "", start: 0, end: 0))
-        } else if item.id.hasPrefix("match:") {
-            // "match:<path>:<line>" — the path may contain colons, so take the line from
-            // the end rather than splitting from the front.
-            let body = String(item.id.dropFirst(6))
-            guard let separator = body.lastIndex(of: ":"),
-                  let line = Int(body[body.index(after: separator)...]) else { return }
-            let path = String(body[body.startIndex..<separator])
-            fileIndex.note(path)
-            ProjectSearch.jump(to: SearchMatch(path: path, line: line, text: "", start: 0, end: 0))
-        } else if item.id.hasPrefix("file:") {
-            let path = String(item.id.dropFirst(5))
+        case .file(let path, let line):
             // Record the choice *before* opening, so ranking improves even if the open
             // fails. This call is the one that makes frecency real rather than decorative.
             fileIndex.note(path)
-            NSWorkspace.shared.open(URL(fileURLWithPath: path))
-        } else {
-            run(item.id)
+            // Every picker that opens a file goes through here, and through `xed`. The file
+            // picker used to call `NSWorkspace.open` instead, which routes to the app that
+            // owns the extension — so choosing `notes.md` opened a Markdown previewer and
+            // never reached Xcode at all.
+            XcodeOpen.file(at: path, line: line)
+        case .command(let id):
+            run(id)
         }
     }
 
@@ -364,7 +351,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         for entry in context.allMenuItems() {
             let path = entry.path.joined(separator: " > ")
             guard !known.contains(path) else { continue }
-            items.append(PickerItem(id: "menu:" + entry.path.joined(separator: "\u{1}"),
+            items.append(PickerItem(id: PickerTarget.menuID(entry.path),
                                     title: path,
                                     detail: entry.shortcut?.display,
                                     isEnabled: entry.isEnabled,
@@ -375,7 +362,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func menuItems(under prefix: [String], icon: RowIcon = .menuItem) -> [PickerItem] {
         context.menuItems(under: prefix).map { entry in
-            PickerItem(id: "menu:" + entry.path.joined(separator: "\u{1}"),
+            PickerItem(id: PickerTarget.menuID(entry.path),
                        title: entry.path.last ?? "",
                        detail: entry.shortcut?.display,
                        isEnabled: entry.isEnabled,
