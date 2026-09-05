@@ -38,6 +38,12 @@ final class PickerOverlay {
         view?.needsDisplay = true
     }
 
+    /// Re-centre on Xcode's window when it moves under us.
+    func followWindow() {
+        guard isVisible else { return }
+        reposition()
+    }
+
     func dismiss() {
         window?.orderOut(nil)
     }
@@ -104,8 +110,36 @@ final class PickerView: NSView {
     private let rowHeight: CGFloat = 26
     private let queryFont = NSFont.systemFont(ofSize: 17)
     private let rowFont = NSFont.systemFont(ofSize: 13)
-    private let matchFont = NSFont.boldSystemFont(ofSize: 13)
+    private let matchFont = NSFont.systemFont(ofSize: 13, weight: .bold)
     private let detailFont = NSFont.monospacedSystemFont(ofSize: 11, weight: .regular)
+
+    /// Row colours, kept in one place because getting them wrong is what made the first
+    /// version read as a christmas tree.
+    ///
+    /// Three rules. **Matched characters never use the accent colour on the selected row**,
+    /// because the selection band is already accent-tinted and accent-on-accent has no
+    /// contrast. **A disabled row gets no accent at all**, or an unavailable command looks
+    /// livelier than an available one. And the unmatched part of a title stays at full
+    /// label colour rather than dropping to secondary, so the highlight marks the match
+    /// instead of the rest of the row receding.
+    private struct RowPalette {
+        let text: NSColor
+        let match: NSColor
+        let detail: NSColor
+
+        static func of(selected: Bool, enabled: Bool) -> RowPalette {
+            switch (selected, enabled) {
+            case (true, true):
+                RowPalette(text: .labelColor, match: .labelColor, detail: .secondaryLabelColor)
+            case (false, true):
+                RowPalette(text: .labelColor, match: .controlAccentColor, detail: .tertiaryLabelColor)
+            case (true, false):
+                RowPalette(text: .secondaryLabelColor, match: .secondaryLabelColor, detail: .tertiaryLabelColor)
+            case (false, false):
+                RowPalette(text: .tertiaryLabelColor, match: .tertiaryLabelColor, detail: .quaternaryLabelColor)
+            }
+        }
+    }
 
     var visibleRowCount: Int { Int((bounds.height - padding * 2 - queryHeight) / rowHeight) }
 
@@ -148,28 +182,34 @@ final class PickerView: NSView {
             let index = first + offset
             let isSelected = index == session.selection
 
+            let palette = RowPalette.of(selected: isSelected, enabled: row.item.isEnabled)
+
             if isSelected {
-                NSColor.controlAccentColor.withAlphaComponent(0.25).setFill()
-                NSRect(x: 6, y: y - 3, width: bounds.width - 12, height: rowHeight).fill()
+                // Softer than a solid accent band, and rounded so it reads as a row rather
+                // than a stripe across the window.
+                let band = NSRect(x: 8, y: y - 4, width: bounds.width - 16, height: rowHeight)
+                NSColor.controlAccentColor.withAlphaComponent(0.18).setFill()
+                NSBezierPath(roundedRect: band, xRadius: 6, yRadius: 6).fill()
             }
 
-            let base: NSColor = row.item.isEnabled
-                ? (isSelected ? .labelColor : .secondaryLabelColor)
-                : .tertiaryLabelColor
             let title = NSMutableAttributedString(string: row.item.title, attributes: [
-                .font: rowFont, .foregroundColor: base,
+                .font: rowFont, .foregroundColor: palette.text,
             ])
-            // Bold the characters the query matched, which is most of what makes a fuzzy
-            // list readable at a glance.
-            for i in row.matched where i < row.item.title.count {
-                title.addAttributes([.font: matchFont, .foregroundColor: NSColor.controlAccentColor],
-                                    range: NSRange(location: i, length: 1))
+            // Bold the characters the query matched. Indices come from the matcher and are
+            // in characters, so map them through to UTF-16 before touching an NSRange:
+            // a path with an emoji or an accent would otherwise attribute the wrong glyph.
+            let utf16 = Array(row.item.title)
+            for i in row.matched where i < utf16.count {
+                let start = String(utf16[0..<i]).utf16.count
+                let length = String(utf16[i]).utf16.count
+                title.addAttributes([.font: matchFont, .foregroundColor: palette.match],
+                                    range: NSRange(location: start, length: length))
             }
             title.draw(at: NSPoint(x: padding, y: y))
 
             if let detail = row.item.detail {
                 let d = NSAttributedString(string: detail, attributes: [
-                    .font: detailFont, .foregroundColor: NSColor.tertiaryLabelColor,
+                    .font: detailFont, .foregroundColor: palette.detail,
                 ])
                 d.draw(at: NSPoint(x: bounds.width - padding - d.size().width, y: y + 2))
             }

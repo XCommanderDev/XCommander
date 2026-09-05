@@ -51,6 +51,13 @@ final class OverlayController {
         }
     }
 
+    /// Re-pin to Xcode's window. Driven by `WindowTracker`'s AX notifications, so the panel
+    /// follows a window dragged or resized while it is open.
+    func followWindow() {
+        guard window?.isVisible == true else { return }
+        reposition()
+    }
+
     func dismiss() {
         pendingShow?.invalidate()
         pendingShow = nil

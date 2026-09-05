@@ -62,6 +62,20 @@ struct DefaultKeymapTests {
         }
     }
 
+    /// Two commands on the same menu path is always a copy-paste slip, and it shows up as
+    /// a duplicated row in the palette. That is how this one was found.
+    @Test("no two commands point at the same menu path")
+    func noDuplicateMenuPaths() {
+        var seen: [String: String] = [:]
+        for command in DefaultKeymap.commands {
+            guard let path = command.menuPath?.joined(separator: " > ") else { continue }
+            if let existing = seen[path] {
+                Issue.record("\(command.id) and \(existing) both point at \(path)")
+            }
+            seen[path] = command.id
+        }
+    }
+
     @Test("command ids are unique")
     func uniqueIDs() {
         let ids = DefaultKeymap.commands.map(\.id)

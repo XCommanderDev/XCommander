@@ -19,6 +19,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// panel; a picker, once open, takes every key until it is chosen or cancelled.
     private var activePicker: PickerSession?
     private var fileIndex = FileIndex()
+    private var history = DocumentHistory()
+    private var tracker: WindowTracker!
 
     private var xcodeIsFrontmost = false
     private var hasAccessibility = false
@@ -45,6 +47,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         executor.onCompanionCommand = { [weak self] id in self?.runCompanionCommand(id) }
         whichKey = OverlayController(context: context)
         picker = PickerOverlay(context: context)
+
+        // Both overlays follow Xcode's window, and the buffer list is fed by watching which
+        // document has focus.
+        tracker = WindowTracker(context: context)
+        tracker.onGeometryChanged = { [weak self] in
+            self?.whichKey.followWindow()
+            self?.picker.followWindow()
+        }
+        tracker.onDocumentChanged = { [weak self] url in self?.history.record(url) }
         menuBar = MenuBarController()
         menuBar.onQuit = { NSApp.terminate(nil) }
         menuBar.onReloadMenus = { [weak self] in self?.context.refreshMenuIndex() }
@@ -148,6 +159,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
         } else if item.id.hasPrefix("file:") {
             let path = String(item.id.dropFirst(5))
+            // Record the choice *before* opening, so ranking improves even if the open
+            // fails. This call is the one that makes frecency real rather than decorative.
+            fileIndex.note(path)
             NSWorkspace.shared.open(URL(fileURLWithPath: path))
         } else {
             run(item.id)
@@ -166,7 +180,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         case .syntaxColoring: items = menuItems(under: ["Editor", "Syntax Coloring"])
         case .recentProjects: items = menuItems(under: ["File", "Open Recent"])
         case .files:         items = fileItems()
-        case .buffers:       items = menuItems(under: ["Window"])
+        case .buffers:       items = history.items
         case .menuSlice:     items = commandItems()
         }
         guard !items.isEmpty else {
@@ -267,6 +281,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         KeyboardLayout.refreshIfNeeded()
         log.notice("layout: \(KeyboardLayout.currentLayoutName(), privacy: .public), \(self.registry.count) commands")
         if context.isRunning { context.refreshMenuIndex() }
+        tracker.start()
         updateStatus()
     }
 

@@ -98,7 +98,7 @@ public enum DefaultKeymap {
         .menu("code.formatFile", "format file", ["Editor", "Structure", "Format File with ‘swift-format’"]),
         .menu("code.formatSelection", "format selection", ["Editor", "Structure", "Format Selection with ‘swift-format’"]),
         .menu("code.reindent", "re-indent", ["Editor", "Structure", "Re-Indent"]),
-        .menu("code.comment", "comment selection", ["Editor", "Structure", "Add Documentation"]),
+        .menu("code.comment", "comment selection", ["Editor", "Structure", "Comment Selection"]),
         .menu("code.addDocs", "add documentation", ["Editor", "Structure", "Add Documentation"]),
         .menu("code.moveLineUp", "move line up", ["Editor", "Structure", "Move Line Up"]),
         .menu("code.moveLineDown", "move line down", ["Editor", "Structure", "Move Line Down"]),

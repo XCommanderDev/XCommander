@@ -13,9 +13,13 @@ final class FileIndex {
     private(set) var items: [PickerItem] = []
     private var root: URL?
     private var lastScan: Date?
-    /// How often a file has been chosen, and when. Survives only for the session; a file
-    /// picker that forgets on relaunch is still better than one that never learns.
-    private var frecency: [String: (count: Int, last: Date)] = [:]
+    /// How often a file has been chosen, and when.
+    ///
+    /// Persisted, because a picker that forgets everything on relaunch never gets to be
+    /// good at its job — the whole value of frecency is that it accumulates.
+    private struct Score: Codable { var count: Int; var last: Date }
+    private var frecency: [String: Score] = [:]
+    private let defaultsKey = "fileFrecency"
 
     private static let skipped: Set<String> = [
         ".git", ".build", "build", "DerivedData", "Pods", "Carthage", "node_modules",
@@ -26,6 +30,8 @@ final class FileIndex {
         "json", "yml", "yaml", "toml", "md", "txt", "strings", "xcconfig", "sh", "rb", "py",
     ]
     private static let maxFiles = 20_000
+
+    init() { loadFrecency() }
 
     func invalidate() { lastScan = nil }
 
@@ -39,9 +45,26 @@ final class FileIndex {
         items = newRoot.map(scan) ?? []
     }
 
+    /// Called every time a file is chosen from a picker. Without this call the ranking
+    /// below has no input and the whole mechanism is decoration — which is exactly what it
+    /// was until the wiring was noticed.
     func note(_ path: String) {
         let existing = frecency[path]
-        frecency[path] = (count: (existing?.count ?? 0) + 1, last: Date())
+        frecency[path] = Score(count: (existing?.count ?? 0) + 1, last: Date())
+        saveFrecency()
+        // The order is baked into `items` at scan time, so refresh it on the next ask.
+        lastScan = nil
+    }
+
+    private func loadFrecency() {
+        guard let data = UserDefaults.standard.data(forKey: defaultsKey),
+              let decoded = try? JSONDecoder().decode([String: Score].self, from: data) else { return }
+        frecency = decoded
+    }
+
+    private func saveFrecency() {
+        guard let data = try? JSONEncoder().encode(frecency) else { return }
+        UserDefaults.standard.set(data, forKey: defaultsKey)
     }
 
     /// Walk up from the open document until something says "project": a `.xcodeproj`,
