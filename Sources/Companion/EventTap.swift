@@ -114,12 +114,13 @@ final class EventTap {
     /// There is no notification for secure input, so it has to be asked for. 250 ms catches
     /// both edges within one interval and costs nothing measurable.
     ///
-    /// The same tick also checks whether the tap is still enabled, and that is not
-    /// redundant. A tap can end up disabled with **no callback to tell you** — an episode of
-    /// secure input leaves it that way — and since the callback is the only other place
-    /// re-enabling happens, a tap that dies quietly stays dead. Observed directly: after a
-    /// single episode of secure input the leader key stopped working and never came back,
-    /// at 1, 3, 6 and 12 seconds after release.
+    /// The same tick also checks whether the tap is still enabled. This is belt-and-braces
+    /// rather than a fix for anything observed: the callback already re-enables on
+    /// `.tapDisabledByTimeout`, and secure input does *not* disable a tap — it starves it,
+    /// with `tapIsEnabled` staying true throughout and delivery resuming on its own. The
+    /// poll exists because the callback is otherwise the only place re-enabling happens, so
+    /// a tap disabled by any route that does not call back would stay dead. It has never
+    /// fired in practice.
     private func startHealthPolling() {
         let timer = Timer(timeInterval: 0.25, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated {
