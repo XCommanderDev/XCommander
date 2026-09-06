@@ -3,11 +3,19 @@ import CompanionCore
 
 /// The files you have actually been editing, most recent first.
 ///
-/// This is the buffer list, and we keep it ourselves because Xcode will not lend us one.
-/// Its window has no tab attribute, and the `Window` menu lists *windows*, not the files
-/// open in them — so the honest source is to watch which document has focus and remember.
-/// That also makes it better than a tab list: it is the files you have been in, in the
-/// order you were last in them, which is what `SPC ,` is for.
+/// **This was the buffer list, and it is now the fallback behind one.** It was written on
+/// the belief that Xcode lends out nothing to build a buffer list from — that its window has
+/// no tab attribute and the `Window` menu lists *windows*, not the files open in them. The
+/// first half of that was wrong: every editor *pane* carries an `AXTabGroup`, so the real
+/// list is readable, and `EditorTab` is now where it comes from.
+///
+/// Two jobs are left, and they are why this is not deleted:
+///
+/// 1. **Xcode often draws no tab bar at all.** It shows them only when
+///    `View > Show Editor Tab Bar` is on, or when some pane holds more than one tab. On a
+///    default Xcode with one file per pane there are none, so `openEditors()` is empty and the
+///    history is what answers — which is most of the time, not an edge case.
+/// 2. It remembers files you have **closed**, which a tab list by definition cannot.
 @MainActor
 final class DocumentHistory {
 

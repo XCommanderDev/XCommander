@@ -19,7 +19,21 @@ let package = Package(
         .target(name: "CompanionCore"),
         // Types only, for Xcode's index store. No library is linked: see the header.
         .target(name: "CIndexStore"),
-        .executableTarget(name: "Companion", dependencies: ["CompanionCore", "CIndexStore"]),
+        .executableTarget(
+            name: "Companion",
+            dependencies: ["CompanionCore", "CIndexStore"],
+            // SwiftPM cannot build an asset catalogue or an Icon Composer document, and it
+            // does not own the Info.plist either: `tools/xc.sh` assembles the .app and runs
+            // `actool` over these by hand. Excluding them silences the "unhandled files"
+            // warning without changing what ships — the bundle still gets its icon, which
+            // matters because macOS shows it in the "would like to control this computer"
+            // prompt.
+            exclude: [
+                "Info.plist",
+                "Assets.xcassets",
+                "AutographeAppIcon.icon",
+            ]
+        ),
         .testTarget(name: "CompanionCoreTests", dependencies: ["CompanionCore"]),
     ]
 )

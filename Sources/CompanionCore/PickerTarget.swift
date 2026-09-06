@@ -13,6 +13,13 @@ public enum PickerTarget: Equatable, Sendable {
     case menu([String])
     /// A file to open in Xcode, optionally at a line.
     case file(path: String, line: Int?)
+    /// An editor tab that is already open, addressed by its position rather than its path.
+    ///
+    /// Xcode's tab bars are per pane, and a tab is an `AXRadioButton` whose title is only a
+    /// *file name* — two `main.swift` in different targets are indistinguishable by title.
+    /// So the row carries coordinates and the app re-resolves them against the live tree
+    /// when the row is chosen, rather than trying to round-trip a path it never had.
+    case tab(pane: Int, index: Int)
 
     /// The separator inside a `menu:` id. A control character, because menu titles contain
     /// every printable one — including the `>` that would be the obvious choice.
@@ -22,6 +29,11 @@ public enum PickerTarget: Equatable, Sendable {
     /// written one way at the call site and read another way in the parser.
     public static func menuID(_ path: [String]) -> String {
         "menu:" + path.joined(separator: menuSeparator)
+    }
+
+    /// The encoder for `tab:` ids, paired with `parse` for the same reason.
+    public static func tabID(pane: Int, index: Int) -> String {
+        "tab:\(pane):\(index)"
     }
 
     /// Arguments for `xed`, the developer tools' "open in Xcode" command. Here rather than
@@ -35,6 +47,15 @@ public enum PickerTarget: Equatable, Sendable {
     public static func parse(_ id: String) -> PickerTarget {
         if let body = id.dropPrefix("menu:") {
             return .menu(body.components(separatedBy: menuSeparator))
+        }
+        // Before the symbol/match branch: those take the *last* colon as a line number,
+        // and "tab:0:1" would parse as the file "tab:0" at line 1.
+        if let body = id.dropPrefix("tab:") {
+            let parts = body.components(separatedBy: ":")
+            guard parts.count == 2, let pane = Int(parts[0]), let index = Int(parts[1]) else {
+                return .command(id)
+            }
+            return .tab(pane: pane, index: index)
         }
         if let body = id.dropPrefix("symbol:") ?? id.dropPrefix("match:") {
             // "<path>:<line>". The path may itself contain colons, so the line is taken from

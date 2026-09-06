@@ -30,6 +30,17 @@ protocol XcodeContext {
     /// Grow an empty selection to cover the whole line, so a transform with nothing
     /// selected acts on the line the cursor is in — which is what every editor does.
     @discardableResult func selectCurrentLineIfEmpty() -> Bool
+    /// Every open editor tab, across every pane, in on-screen order.
+    ///
+    /// **Empty more often than you would guess.** Xcode draws editor tab bars only when `View > Show Editor Tab Bar` is on, or
+    /// when some pane holds more than one tab — and then it draws one in *every* pane. With
+    /// Xcode's default setting and one file per pane there are no tab bars at all, so this
+    /// returns empty far more often than "you have one file open".
+    /// The caller falls back accordingly.
+    func openEditors() -> [EditorTab]
+    /// Switch to a tab by the coordinates `openEditors` gave out. False when the tree has
+    /// moved on and those coordinates no longer name anything.
+    @discardableResult func selectTab(pane: Int, index: Int) -> Bool
 }
 
 struct MenuItemInfo {
@@ -107,6 +118,14 @@ final class AccessibilityXcodeContext: XcodeContext {
     func menuItem(at path: [String]) -> MenuItemInfo? {
         if index.isEmpty { refreshMenuIndex() }
         if let exact = index[path] { return exact }
+
+        // A toggle rewrites its own title: `Show Inspector` becomes `Hide Inspector` once it
+        // is open. A command names one spelling, so without this it works in one direction
+        // only — `w n` could hide the navigator and never bring it back, and `w i` could show
+        // the inspector and never hide it. Both shipped that way. Exact match is tried first,
+        // so this can only fire when the named spelling is genuinely absent.
+        if let sibling = Self.toggleSibling(of: path), let hit = index[sibling] { return hit }
+
         guard let wanted = path.last, path.count >= 2 else { return nil }
         let parent = Array(path.dropLast())
         let candidates = index.values.filter {
@@ -117,6 +136,17 @@ final class AccessibilityXcodeContext: XcodeContext {
         // Deterministic when more than one matches, rather than whichever the dictionary
         // happened to yield first.
         return candidates.min { $0.path.last! < $1.path.last! }
+    }
+
+    /// `["View", "Inspectors", "Show Inspector"]` → `["View", "Inspectors", "Hide Inspector"]`,
+    /// and the reverse. Nil when the last component is not a Show/Hide pair.
+    private static func toggleSibling(of path: [String]) -> [String]? {
+        guard let last = path.last else { return nil }
+        let flipped: String
+        if last.hasPrefix("Show ") { flipped = "Hide " + last.dropFirst(5) }
+        else if last.hasPrefix("Hide ") { flipped = "Show " + last.dropFirst(5) }
+        else { return nil }
+        return path.dropLast() + [flipped]
     }
 
     func allMenuItems() -> [MenuItemInfo] {
@@ -247,6 +277,120 @@ final class AccessibilityXcodeContext: XcodeContext {
         else { return nil }
         return MenuShortcut.decode(character: char,
                                    mask: int(item, kAXMenuItemCmdModifiersAttribute) ?? 0)
+    }
+
+    // MARK: - open editors
+
+    /// One editor pane, with the tab bar that belongs to it.
+    private struct PaneScan {
+        var frame: CGRect
+        var isFocused: Bool
+        var tabs: [(element: AXUIElement, title: String, isActive: Bool)]
+    }
+
+    /// Panes and tab bars in a single traversal, then paired up by geometry.
+    ///
+    /// They are separate subtrees — a tab bar is not a child of the pane it labels — so the
+    /// only honest way to associate them is where they sit: a pane's tab bar is the one
+    /// horizontally inside it and immediately above it. Measured on a four-pane layout the
+    /// bar is inset 58pt and sits 33pt clear of the editor, so the tolerances below are
+    /// generous in y and use containment in x.
+    private func scanPanes() -> [PaneScan] {
+        guard let app = appElement() else { return [] }
+        var win: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(app, kAXFocusedWindowAttribute as CFString, &win) == .success,
+              CFGetTypeID(win!) == AXUIElementGetTypeID() else { return [] }
+
+        var panes: [(frame: CGRect, focused: Bool)] = []
+        var bars: [(frame: CGRect, element: AXUIElement)] = []
+
+        func walk(_ element: AXUIElement, _ depth: Int) {
+            if depth > 14 { return }
+            for child in Self.children(of: element) {
+                switch Self.string(child, kAXRoleAttribute) ?? "" {
+                case "AXScrollArea":
+                    if let editor = Self.children(of: child).first(where: {
+                        Self.string($0, kAXRoleAttribute) == "AXTextArea"
+                            && Self.string($0, kAXDescriptionAttribute) == "Source Editor"
+                    }), let frame = Self.frame(of: child) {
+                        panes.append((frame, Self.bool(editor, kAXFocusedAttribute) ?? false))
+                    }
+                case "AXTabGroup":
+                    if Self.string(child, kAXDescriptionAttribute) == "tab bar",
+                       let frame = Self.frame(of: child) {
+                        bars.append((frame, child))
+                    }
+                default:
+                    break
+                }
+                walk(child, depth + 1)
+            }
+        }
+        walk(win as! AXUIElement, 0)
+
+        // Left to right, then top to bottom — the same ordering `PaneLayout` uses, so a
+        // pane index means the same thing to the picker as it does to `w h/j/k/l`.
+        panes.sort { $0.frame.minX == $1.frame.minX ? $0.frame.minY < $1.frame.minY
+                                                    : $0.frame.minX < $1.frame.minX }
+
+        return panes.map { pane in
+            let bar = bars
+                .filter { $0.frame.midX >= pane.frame.minX && $0.frame.midX <= pane.frame.maxX
+                          && $0.frame.maxY <= pane.frame.minY + 8
+                          && pane.frame.minY - $0.frame.maxY < 80 }
+                .max { $0.frame.maxY < $1.frame.maxY }
+            return PaneScan(frame: pane.frame, isFocused: pane.focused,
+                            tabs: bar.map(Self.tabs(in:)) ?? [])
+        }
+    }
+
+    /// The tabs in one tab bar. The radio buttons sit below an intermediate group rather
+    /// than directly under the bar, so this descends instead of reading `AXChildren` once.
+    private static func tabs(in bar: (frame: CGRect, element: AXUIElement))
+        -> [(element: AXUIElement, title: String, isActive: Bool)] {
+        var found: [(AXUIElement, String, Bool)] = []
+        func collect(_ element: AXUIElement, _ depth: Int) {
+            if depth > 6 { return }
+            for child in children(of: element) {
+                if string(child, kAXRoleAttribute) == "AXRadioButton",
+                   let title = string(child, kAXTitleAttribute), !title.isEmpty {
+                    found.append((child, title, (int(child, kAXValueAttribute) ?? 0) == 1))
+                }
+                collect(child, depth + 1)
+            }
+        }
+        collect(bar.element, 0)
+        return found.map { (element: $0.0, title: $0.1, isActive: $0.2) }
+    }
+
+    func openEditors() -> [EditorTab] {
+        scanPanes().enumerated().flatMap { paneIndex, pane in
+            pane.tabs.enumerated().map { tabIndex, tab in
+                EditorTab(pane: paneIndex, index: tabIndex, title: tab.title,
+                          isActive: tab.isActive, isInFocusedPane: pane.isFocused)
+            }
+        }
+    }
+
+    @discardableResult
+    func selectTab(pane: Int, index: Int) -> Bool {
+        let scan = scanPanes()
+        guard scan.indices.contains(pane), scan[pane].tabs.indices.contains(index) else {
+            return false
+        }
+        return AXUIElementPerformAction(scan[pane].tabs[index].element,
+                                        kAXPressAction as CFString) == .success
+    }
+
+    private static func frame(of element: AXUIElement) -> CGRect? {
+        var p: CFTypeRef?, s: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(element, kAXPositionAttribute as CFString, &p) == .success,
+              AXUIElementCopyAttributeValue(element, kAXSizeAttribute as CFString, &s) == .success
+        else { return nil }
+        var origin = CGPoint.zero, size = CGSize.zero
+        AXValueGetValue(p as! AXValue, .cgPoint, &origin)
+        AXValueGetValue(s as! AXValue, .cgSize, &size)
+        return CGRect(origin: origin, size: size)
     }
 
     private static func children(of element: AXUIElement) -> [AXUIElement] {

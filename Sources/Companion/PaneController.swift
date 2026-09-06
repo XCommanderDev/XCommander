@@ -108,6 +108,108 @@ final class PaneController {
         return ok
     }
 
+    // MARK: - moving buffers between panes
+
+    /// Exchange the focused pane's file with the next pane's. Vim's `⌃w x`.
+    ///
+    /// Xcode has no such command, and the split tree's shape is not writable from outside,
+    /// so this is synthesised from the two things that *are* possible: reading a pane's
+    /// document (the window's `AXDocument` follows the focused pane) and re-opening a file
+    /// into whichever pane has focus.
+    ///
+    /// It runs as a `Task` rather than inline because each step has to wait for Xcode to
+    /// catch up, and the caller is the event-tap keystroke path — which must never block.
+    /// The return value therefore says "the preconditions hold", not "it finished".
+    @discardableResult
+    func swap() -> Bool {
+        let panes = layout().panes
+        guard panes.count > 1, let from = panes.firstIndex(where: \.isFocused) else { return false }
+        let to = (from + 1) % panes.count
+        Task { await exchange(from, to) }
+        return true
+    }
+
+    /// Open the focused pane's file in the pane in a direction, and go there.
+    ///
+    /// Named `send` and not `move` on purpose: vim's `⌃w H/J/K/L` relocates the *window*,
+    /// which cannot be done here, and promising it in the which-key panel would be a lie.
+    /// This sends the buffer, which is the useful half.
+    @discardableResult
+    func send(_ direction: PaneDirection) -> Bool {
+        let refs = layout().panes
+        guard refs.count > 1 else { return false }
+        let model = refs.enumerated().map {
+            Pane(index: $0.offset, frame: $0.element.frame, isFocused: $0.element.isFocused)
+        }
+        guard let current = model.first(where: \.isFocused) ?? model.first,
+              let target = PaneLayout.target(from: current, direction: direction, among: model),
+              let document = editableDocument() else { return false }
+        Task { await open(document, inPaneAt: target.index) }
+        return true
+    }
+
+    /// How long to let Xcode settle after a focus change or an open.
+    ///
+    /// Both are asynchronous on Xcode's side: `AXFocused` returns before the window's
+    /// `AXDocument` has caught up, and `xed` returns before the file is on screen. These are
+    /// the values that were reliable when driving a four-pane layout; they are deliberately
+    /// unhurried, because a swap is a one-shot deliberate command and a wrong answer here
+    /// silently swaps the wrong file.
+    private static let focusSettle = Duration.milliseconds(200)
+    private static let openSettle = Duration.milliseconds(500)
+
+    private func exchange(_ from: Int, _ to: Int) async {
+        guard let a = await document(ofPaneAt: from),
+              let b = await document(ofPaneAt: to) else {
+            log.notice("swap: could not read both panes' documents")
+            return
+        }
+        guard a != b else {
+            log.notice("swap: both panes show the same file")
+            return
+        }
+        await open(b, inPaneAt: from)
+        await open(a, inPaneAt: to)
+        // Leave the user where they started, now looking at the other file.
+        _ = focusPane(at: from)
+    }
+
+    /// Focus a pane and ask the window what it is showing. The window's `AXDocument`
+    /// follows the focused pane, which is the only route to a pane's *path*: a tab reports
+    /// a file name and nothing more.
+    private func document(ofPaneAt index: Int) async -> URL? {
+        guard focusPane(at: index) else { return nil }
+        try? await Task.sleep(for: Self.focusSettle)
+        return editableDocument()
+    }
+
+    private func open(_ url: URL, inPaneAt index: Int) async {
+        guard focusPane(at: index) else { return }
+        try? await Task.sleep(for: Self.focusSettle)
+        XcodeOpen.file(at: url.path)
+        try? await Task.sleep(for: Self.openSettle)
+    }
+
+    /// The pane list is re-read on every step rather than cached: opening a file rebuilds
+    /// parts of the tree, and a stale `AXUIElement` fails silently instead of loudly.
+    private func focusPane(at index: Int) -> Bool {
+        let panes = layout().panes
+        guard panes.indices.contains(index) else { return false }
+        return AXUIElementSetAttributeValue(panes[index].editor, kAXFocusedAttribute as CFString,
+                                            kCFBooleanTrue) == .success
+    }
+
+    /// The focused pane's file, excluding the case where `AXDocument` is a *directory* —
+    /// which is what a workspace window reports when a `Package.swift` is opened as a
+    /// package. A directory is not a buffer, and `xed` on one reopens the whole project.
+    private func editableDocument() -> URL? {
+        guard let url = context.documentURL(), url.isFileURL else { return nil }
+        var isDirectory: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory),
+              !isDirectory.boolValue else { return nil }
+        return url
+    }
+
     enum SizeChange {
         case balance, zoom, grow, shrink
     }

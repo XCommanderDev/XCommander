@@ -15,7 +15,19 @@ import Foundation
 /// `Format File with ‘swift-format’`.
 public enum DefaultKeymap {
 
-    public static let leader = KeyEvent(.space, [.shift])
+    /// **`⌥Return`, and the reason is a defect `⇧Space` had.**
+    ///
+    /// A leader that is also a text-producing key is swallowed while Xcode is frontmost, so
+    /// a Shift held a beat too long across a word break armed the sequence — and since the
+    /// session has no way to know the space was an accident, the *next word you typed* was
+    /// read as a command. `wo…` closed your other editor panes; `ma…` started a build. Nine
+    /// of eighteen ordinary English words reached something; see `NEXT-ANSWERS.md`.
+    ///
+    /// `⌥Return` cannot be produced as a character in the editor, so the failure is not
+    /// mitigated but structurally absent. The sequence timeout below is separate hygiene: it
+    /// does not help here, because a mis-typed leader and the next letter are milliseconds
+    /// apart.
+    public static let leader = KeyEvent(.return, [.option])
 
     public static func build() -> (registry: CommandRegistry, keymap: Keymap) {
         var registry = CommandRegistry()
@@ -37,19 +49,24 @@ public enum DefaultKeymap {
         [KeyEvent("f")]: "files",
         [KeyEvent("g")]: "git",
         [KeyEvent("h")]: "help",
+        [KeyEvent("i")]: "inspector",
         [KeyEvent("m")]: "make",
+        [KeyEvent("n")]: "navigator",
         [KeyEvent("p")]: "project",
         [KeyEvent("q")]: "quit",
         [KeyEvent("s")]: "search",
         [KeyEvent("t")]: "toggles",
         [KeyEvent("T")]: "ui",
         [KeyEvent("w")]: "windows",
+        // macOS window management, one level down: it is a different object from an editor
+        // pane, and keeping it out of the way frees w H/J/K/L for sending a buffer.
+        [KeyEvent("w"), KeyEvent("W")]: "os window",
         [KeyEvent("x")]: "text",
     ]
 
     // MARK: - commands
 
-    static let commands: [Command] = [
+    static let commands: [Command] = navigatorCommands + areaCommands + [
         // pickers
         .picker("picker.commands", "commands", .commands, searchText: "command palette"),
         .picker("picker.files", "find file", .files, searchText: "find file in project"),
@@ -104,7 +121,9 @@ public enum DefaultKeymap {
         .menu("code.formatFile", "format file", ["Editor", "Structure", "Format File with ‘swift-format’"]),
         .menu("code.formatSelection", "format selection", ["Editor", "Structure", "Format Selection with ‘swift-format’"]),
         .menu("code.reindent", "re-indent", ["Editor", "Structure", "Re-Indent"]),
-        .menu("code.comment", "comment selection", ["Editor", "Structure", "Comment Selection"]),
+        // Xcode 26 calls this "Toggle Comments"; it was "Comment Selection" when the keymap
+        // was written, and the command sat dead until `⌥RET h c` reported it.
+        .menu("code.comment", "toggle comments", ["Editor", "Structure", "Toggle Comments"]),
         .menu("code.addDocs", "add documentation", ["Editor", "Structure", "Add Documentation"]),
         .menu("code.moveLineUp", "move line up", ["Editor", "Structure", "Move Line Up"]),
         .menu("code.moveLineDown", "move line down", ["Editor", "Structure", "Move Line Down"]),
@@ -112,6 +131,15 @@ public enum DefaultKeymap {
         .menu("code.extractVariable", "extract to variable", ["Editor", "Refactor", "Extract to Variable"]),
         .menu("code.memberwiseInit", "generate memberwise init", ["Editor", "Refactor", "Generate Memberwise Initializer"]),
         .menu("code.quickHelp", "quick help", ["Help", "Show Quick Help for Selected Item"]),
+        // Xcode offers most navigation three ways — here, in a tab, or in the next pane —
+        // which is the same "where should this land" idea Doom has, already built in.
+        .menu("code.definitionInPane", "definition in next pane",
+              ["Navigate", "Jump to Definition in Next Editor Pane"]),
+        .menu("code.definitionInTab", "definition in a tab",
+              ["Navigate", "Jump to Definition using Tab"]),
+        .menu("code.counterpart", "counterpart", ["Navigate", "Jump to Next Counterpart"]),
+        .menu("code.counterpartInPane", "counterpart in next pane",
+              ["Navigate", "Jump to Next Counterpart in Next Editor Pane"]),
 
         // navigate
         .menu("nav.back", "back", ["Navigate", "Show Previous Location in History"]),
@@ -156,6 +184,10 @@ public enum DefaultKeymap {
         .menu("toggle.authors", "authors", ["Editor", "Authors"]),
         .menu("toggle.coverage", "code coverage", ["Editor", "Code Coverage"]),
         .menu("toggle.scopeGuides", "scope guides", ["Editor", "Scope Guides"]),
+        // A real toggle since `menuItem(at:)` learned to try the `Show`/`Hide` sibling: this
+        // names one spelling and works in both directions. Worth having because the
+        // cross-pane buffer list only exists while the tab bars do.
+        .menu("toggle.tabBar", "editor tab bar", ["View", "Show Editor Tab Bar"]),
 
         // ui
         .menu("ui.fontIncrease", "font bigger", ["Editor", "Font Size", "Increase"]),
@@ -172,6 +204,17 @@ public enum DefaultKeymap {
         .pane("pane.zoom", "zoom pane", .zoom, searchText: "maximise this pane, again to restore"),
         .pane("pane.grow", "grow pane", .grow),
         .pane("pane.shrink", "shrink pane", .shrink),
+        // Neither of these exists in Xcode. Both are synthesised; see `PaneController`.
+        .pane("pane.swap", "swap panes", .swap,
+              searchText: "exchange this pane's file with the next"),
+        .pane("pane.sendLeft", "send left", .send(.left),
+              searchText: "send this file to the pane on the left"),
+        .pane("pane.sendDown", "send down", .send(.down),
+              searchText: "send this file to the pane below"),
+        .pane("pane.sendUp", "send up", .send(.up),
+              searchText: "send this file to the pane above"),
+        .pane("pane.sendRight", "send right", .send(.right),
+              searchText: "send this file to the pane on the right"),
 
         .menu("window.paneRight", "pane on right", ["File", "New", "Editor Pane On Right"]),
         .menu("window.paneBelow", "pane below", ["File", "New", "Editor Pane Below"]),
@@ -182,6 +225,7 @@ public enum DefaultKeymap {
         .menu("window.editorOnly", "editor only", ["Editor", "Show Editor Only"]),
         .menu("window.closeOthers", "close other panes", ["File", "Close Other Editor Panes"]),
         .menu("window.openInNext", "open in next pane", ["Navigate", "Open in Next Editor Pane"]),
+        .menu("window.openInTab", "open in a tab", ["Navigate", "Open using Tab"]),
         .menu("window.choosePane", "choose pane…", ["Navigate", "Move Focus to Editor Pane…"]),
         .menu("window.tabToWindow", "move tab to new window", ["Window", "Move Tab to New Window"]),
         .menu("window.mergeAll", "merge all windows", ["Window", "Merge All Windows"]),
@@ -192,6 +236,21 @@ public enum DefaultKeymap {
         .menu("window.toggleNavigator", "toggle navigator", ["View", "Navigators", "Hide Navigator"]),
         .menu("window.toggleInspector", "toggle inspector", ["View", "Inspectors", "Show Inspector"]),
         .menu("window.toggleDebugArea", "toggle debug area", ["View", "Debug Area", "Show Debug Area"]),
+
+        // navigator — the left-hand pane. Selecting one is an ordinary menu command, and
+        // the menu item reveals the pane when it is hidden, so there is no special case.
+        // Only focusing it needs Accessibility; see `NavigatorController`.
+        .menu("navigator.filter", "filter navigator", ["View", "Navigators", "Filter in Navigator"]),
+
+        // inspector — the right-hand pane. Entirely menu-driven; there is nothing in it
+        // worth focusing, so it has no focus command. See `XcodeArea`.
+        .menu("inspector.file", "file inspector", ["View", "Inspectors", "File"]),
+        .menu("inspector.history", "history inspector", ["View", "Inspectors", "History"]),
+        .menu("inspector.quickHelp", "quick help inspector", ["View", "Inspectors", "Quick Help"]),
+
+        // debug area — the bottom pane. `Activate Console` already moves the keyboard into
+        // the console, so only the variables list needs Accessibility.
+        .menu("debug.console", "activate console", ["View", "Debug Area", "Activate Console"]),
 
         // help
         .menu("help.docs", "developer documentation", ["Help", "Developer Documentation"]),
@@ -205,6 +264,9 @@ public enum DefaultKeymap {
                 searchText: "quit Autographe for Xcode", action: .companion("quit")),
         Command(id: "companion.reload", title: "reload commands",
                 searchText: "reload Xcode commands", action: .companion("reloadMenus")),
+        Command(id: "companion.checkMenus", title: "check keymap",
+                searchText: "check every binding still resolves against Xcode's menus",
+                action: .companion("checkMenus")),
 
         // text transforms — the ones Xcode does not have
         .transform("text.align", TextTransform.align.title, .align,
@@ -221,11 +283,21 @@ public enum DefaultKeymap {
         .transform("text.snake", TextTransform.snakeCase.title, .snakeCase),
     ]
 
+    /// One command per navigator, from the single table in `XcodeNavigator`. Written this
+    /// way rather than nine hand-typed lines so a new navigator cannot be added to the enum
+    /// and then quietly forgotten here — the test asserts every case is reachable.
+    static let navigatorCommands: [Command] = XcodeNavigator.allCases.map(\.command)
+
+    /// One command per focusable area, from the single table in `XcodeArea`, for the same
+    /// reason: a case added to the enum and forgotten here is caught by the test rather than
+    /// by never working.
+    static let areaCommands: [Command] = XcodeArea.allCases.map(\.command)
+
     // MARK: - bindings
 
     static let bindings: [([KeyEvent], String)] = [
         // Doom's own top-level keys, kept exactly.
-        ([" "], "picker.files"),          // SPC SPC — find file in project
+        ([" "], "picker.files"),          // Doom's SPC SPC — find file in project
         ([":"], "picker.commands"),       // SPC :   — M-x
         ([","], "picker.buffers"),        // SPC ,   — switch buffer
         (["."], "file.openQuickly"),      // SPC .   — find file
@@ -289,6 +361,11 @@ public enum DefaultKeymap {
         (["c", "h"], "code.quickHelp"),
         (["c", "s"], "picker.docSymbols"),
         (["c", "S"], "picker.projectSymbols"),
+        (["c", "D"], "code.definitionInPane"),
+        (["c", "T"], "code.definitionInTab"),
+        (["c", "a"], "code.counterpart"),
+        (["c", "A"], "code.counterpartInPane"),
+        (["c", "/"], "code.comment"),
         (["c", "o"], "nav.back"),
         (["c", "O"], "nav.forward"),
         (["c", "n"], "nav.nextIssue"),
@@ -322,6 +399,10 @@ public enum DefaultKeymap {
         (["d", "c"], "debug.continueToLine"),
         (["d", "b"], "debug.deactivateBreakpoints"),
         (["d", "d"], "debug.detach"),
+        // the debug area itself, as opposed to the debugger
+        (["d", "a"], "window.toggleDebugArea"),
+        (["d", "C"], "debug.console"),
+        (["d", "v"], "debug.focusVariables"),
 
         // t — toggles
         (["t", "m"], "toggle.minimap"),
@@ -332,6 +413,7 @@ public enum DefaultKeymap {
         (["t", "a"], "toggle.authors"),
         (["t", "c"], "toggle.coverage"),
         (["t", "g"], "toggle.scopeGuides"),
+        (["t", "b"], "toggle.tabBar"),
 
         // T — ui
         (["T", "t"], "picker.themes"),
@@ -357,15 +439,29 @@ public enum DefaultKeymap {
         (["w", "."], "pane.grow"),
         (["w", ","], "pane.shrink"),
         (["w", "e"], "window.openInNext"),
+        (["w", "E"], "window.openInTab"),
         (["w", "f"], "window.choosePane"),
         (["w", "a"], "window.nextArea"),
         (["w", "O"], "window.editorOnly"),
-        (["w", "t"], "window.tabToWindow"),
-        (["w", "m"], "window.mergeAll"),
-        (["w", "H"], "window.tileLeft"),
-        (["w", "L"], "window.tileRight"),
-        (["w", "F"], "window.tileFull"),
-        (["w", "r"], "window.previousSize"),
+
+        // Exchanging and sending, which Xcode cannot do at all. `w x` is vim's ⌃w x; the
+        // capitals are where vim puts ⌃w H/J/K/L, though ours sends the *buffer* rather
+        // than moving the window — the split tree's shape is not writable from outside.
+        (["w", "x"], "pane.swap"),
+        (["w", "H"], "pane.sendLeft"),
+        (["w", "J"], "pane.sendDown"),
+        (["w", "K"], "pane.sendUp"),
+        (["w", "L"], "pane.sendRight"),
+
+        // macOS window management, one level down. These act on the *window*, not on an
+        // editor pane, and they were occupying the letters vim reserves for moving windows.
+        (["w", "W", "h"], "window.tileLeft"),
+        (["w", "W", "l"], "window.tileRight"),
+        (["w", "W", "f"], "window.tileFull"),
+        (["w", "W", "r"], "window.previousSize"),
+        (["w", "W", "t"], "window.tabToWindow"),
+        (["w", "W", "m"], "window.mergeAll"),
+
         (["w", "n"], "window.toggleNavigator"),
         (["w", "i"], "window.toggleInspector"),
         (["w", "b"], "window.toggleDebugArea"),
@@ -383,12 +479,33 @@ public enum DefaultKeymap {
         (["x", "c"], "text.camel"),
         (["x", "_"], "text.snake"),
 
+        // n — the navigator, Xcode's left-hand pane
+        (["n", "n"], "window.toggleNavigator"),
+        (["n", "f"], "navigator.focus"),
+        (["n", "p"], "navigator.project"),
+        (["n", "g"], "navigator.sourceControl"),
+        (["n", "b"], "navigator.bookmarks"),
+        (["n", "s"], "navigator.find"),
+        (["n", "i"], "navigator.issues"),
+        (["n", "t"], "navigator.tests"),
+        (["n", "d"], "navigator.debug"),
+        (["n", "k"], "navigator.breakpoints"),
+        (["n", "r"], "navigator.reports"),
+        (["n", "/"], "navigator.filter"),
+
+        // i — the inspector, Xcode's right-hand pane
+        (["i", "i"], "window.toggleInspector"),
+        (["i", "f"], "inspector.file"),
+        (["i", "h"], "inspector.history"),
+        (["i", "q"], "inspector.quickHelp"),
+
         // h — help
         (["h", "d"], "help.docs"),
         (["h", "h"], "help.hig"),
         (["h", "s"], "help.swiftBook"),
         (["h", "k"], "code.quickHelp"),
         (["h", "/"], "help.searchDocs"),
+        (["h", "c"], "companion.checkMenus"),
 
         // q — quit
         (["q", "q"], "quit.companion"),
@@ -396,8 +513,12 @@ public enum DefaultKeymap {
         (["q", "r"], "companion.reload"),
     ]
 
-    /// Every menu path the shipped keymap depends on, for a startup sanity check against
-    /// the live menu bar.
+    /// Every menu path the shipped keymap depends on.
+    ///
+    /// Read by `AppDelegate.reportUnresolvedMenuPaths()` at startup and on `⌥RET h c`. It sat
+    /// here with **no caller at all** for a while, described as being "for a startup sanity
+    /// check" that was never written — which is the failure it is meant to catch, in
+    /// miniature: something plausible, tested, and wired to nothing.
     public static var menuPaths: [[String]] {
         commands.compactMap(\.menuPath)
     }

@@ -71,13 +71,20 @@ struct KeyIdentityTests {
         #expect(event?.modifiers == [.option])
     }
 
-    /// Space, Escape and the arrows have no shifted form to fold anything into, and the
-    /// leader is ⇧SPC, so they keep their modifiers.
+    /// Return, Space, Escape and the arrows have no shifted form to fold anything into, and
+    /// the leader is ⌥RET, so they keep their modifiers.
     @Test("special keys keep their modifiers, which is what makes the leader work")
     func specialKeysKeepModifiers() {
-        let leader = KeyIdentity.event(base: nil, shifted: nil, special: .space, modifiers: [.shift])
-        #expect(leader == KeyEvent(.space, [.shift]))
+        let leader = KeyIdentity.event(base: nil, shifted: nil, special: .return, modifiers: [.option])
+        #expect(leader == KeyEvent(.return, [.option]))
         #expect(leader == DefaultKeymap.leader)
+
+        // Option is a chord modifier, and a chord over a *character* key drops Shift into
+        // the modifier set rather than folding it. A special key is the other branch: it
+        // has no character, so there is nothing to fold and Option survives intact. That
+        // distinction is the whole reason ⌥RET is expressible as a leader.
+        let shiftSpace = KeyIdentity.event(base: nil, shifted: nil, special: .space, modifiers: [.shift])
+        #expect(shiftSpace == KeyEvent(.space, [.shift]))
 
         let escape = KeyIdentity.event(base: nil, shifted: nil, special: .escape, modifiers: [])
         #expect(escape == .escape)

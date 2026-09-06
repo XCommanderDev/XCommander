@@ -24,6 +24,8 @@ final class CommandExecutor {
 
     /// Set by the app, because pane work needs Accessibility state the executor does not own.
     var panes: PaneController?
+    /// Likewise focusing a side pane, which the menu bar has no item for.
+    var areas: AreaController?
 
     enum Result: Equatable {
         case posted(KeyEvent)      // tier 1
@@ -44,7 +46,12 @@ final class CommandExecutor {
         case .zoom: ok = panes.resize(.zoom)
         case .grow: ok = panes.resize(.grow)
         case .shrink: ok = panes.resize(.shrink)
+        case .swap: ok = panes.swap()
+        case .send(let direction): ok = panes.send(direction)
         }
+        // `swap` and `send` finish asynchronously, so `ok` means the preconditions held —
+        // there was more than one pane, and a target in that direction. A failure after
+        // that point is reported in the log rather than here.
         return ok ? .movedPane : .unavailable("no pane in that direction")
     }
 
@@ -76,6 +83,11 @@ final class CommandExecutor {
 
         case .pane(let action):
             return performPane(action)
+
+        case .focus(let area):
+            guard let areas else { return .unavailable("area focus is not available") }
+            return areas.focus(area) ? .movedPane
+                                     : .unavailable("the \(area.rawValue) is not on screen")
 
         case .shortcut(let key):
             return post(key) ? .posted(key) : .unavailable("could not post \(key.display)")

@@ -8,6 +8,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private let context = AccessibilityXcodeContext()
     private var registry = CommandRegistry()
+    /// Held so the session can be rebuilt when the leader changes — `KeymapSession.leader`
+    /// is a `let`, deliberately, so switching it means a new session rather than a mutation
+    /// that could land halfway through a sequence.
+    private var keymap = Keymap()
     private var session: KeymapSession!
     private var executor: CommandExecutor!
     private var whichKey: OverlayController!
@@ -29,6 +33,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// The symbols behind an open symbol picker, filtered by our own matcher.
     private var symbolRows: [ProjectSymbol] = []
 
+    /// Fires when an armed sequence has gone unresolved for `session.timeout`.
+    private var sequenceTimer: Timer?
+
     private var xcodeIsFrontmost = false
     private var hasAccessibility = false
     private var accessibilityPollTimer: Timer?
@@ -40,9 +47,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         let built = DefaultKeymap.build()
         registry = built.registry
-        session = KeymapSession(leader: DefaultKeymap.leader,
+        keymap = built.keymap
+        session = KeymapSession(leader: SettingsWindow.leader.event,
                                 keymap: built.keymap,
                                 registry: built.registry)
+        session.timeout = SettingsWindow.sequenceTimeout
         // The panel shows each command's live Xcode shortcut, which depends on the running
         // Xcode and the user's layout, so Core is handed a closure rather than a table.
         session.shortcutProvider = { [weak self] command in
@@ -52,6 +61,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         executor = CommandExecutor(context: context)
         executor.panes = PaneController(context: context)
+        executor.areas = AreaController()
         executor.onCompanionCommand = { [weak self] id in self?.runCompanionCommand(id) }
         whichKey = OverlayController(context: context)
         picker = PickerOverlay(context: context)
@@ -74,6 +84,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         menuBar.onShowSettings = { [weak self] in self?.settings.show() }
         settings.onChange = { [weak self] in self?.applySettings() }
+        settings.checkKeymap = { [weak self] in self?.keymapCheckSummary() ?? "unavailable" }
+        settings.rereadMenus = { [weak self] in
+            self?.context.refreshMenuIndex()
+            self?.fileIndex.invalidate()
+        }
 
         tap = EventTap(
             handler: { [weak self] keyCode, flags in
@@ -84,6 +99,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
 
         observeFrontmostApplication()
+        menuBar.leaderDisplay = session.leader.display
         applySettings()
         xcodeIsFrontmost = context.isFrontmost
         requestAccessibilityThenStart()
@@ -107,15 +123,46 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             return false
         case .awaiting(let panel):
             whichKey.present(panel)
+            armSequenceTimeout()
         case .fired(let commandID):
+            cancelSequenceTimeout()
             whichKey.dismiss()
             // Posting a synthetic event from inside the tap callback would re-enter our own
             // tap before it has returned. Run on the next turn of the run loop instead.
             DispatchQueue.main.async { [weak self] in self?.run(commandID) }
         case .cancelled:
+            cancelSequenceTimeout()
             whichKey.dismiss()
         }
         return true
+    }
+
+    /// An armed sequence gives up on its own rather than waiting indefinitely for a key
+    /// that is never coming. Rescheduled on every keypress, so the bound is on *idle* time
+    /// and a slow deliberate sequence is never cut off mid-way.
+    ///
+    /// Scheduling this is not on the keystroke path in any meaningful sense — it happens
+    /// after the tap callback has already decided to swallow the key.
+    private func armSequenceTimeout() {
+        cancelSequenceTimeout()
+        let timer = Timer(timeInterval: session.timeout, repeats: false) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                self.sequenceTimer = nil
+                // `expireIfIdle` re-checks the clock, so a key that arrived between this
+                // timer being scheduled and firing keeps the sequence alive.
+                guard self.session.expireIfIdle() != nil else { return }
+                self.whichKey.dismiss()
+                self.log.notice("sequence timed out with nothing pressed")
+            }
+        }
+        RunLoop.main.add(timer, forMode: .common)
+        sequenceTimer = timer
+    }
+
+    private func cancelSequenceTimeout() {
+        sequenceTimer?.invalidate()
+        sequenceTimer = nil
     }
 
     private func handlePickerKey(_ event: KeyEvent) -> Bool {
@@ -180,6 +227,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             } else {
                 context.press(entry)
             }
+        case .tab(let pane, let index):
+            // The row named coordinates in the live tree rather than a path, so a stale
+            // row is a normal outcome — the user may have closed that tab since.
+            if !context.selectTab(pane: pane, index: index) {
+                log.notice("tab \(pane):\(index, privacy: .public) is no longer there")
+                NSSound.beep()
+            }
         case .file(let path, let line):
             // Record the choice *before* opening, so ranking improves even if the open
             // fails. This call is the one that makes frecency real rather than decorative.
@@ -206,7 +260,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         case .syntaxColoring: items = menuItems(under: ["Editor", "Syntax Coloring"])
         case .recentProjects: items = menuItems(under: ["File", "Open Recent"])
         case .files:         items = fileItems()
-        case .buffers:       items = history.items
+        case .buffers:       items = bufferItems()
         case .projectSearch:
             guard search.isAvailable else {
                 log.notice("ripgrep is not installed; falling back to Xcode's find navigator")
@@ -229,7 +283,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         case .documentSymbols, .projectSymbols:
             openSymbolPicker(kind)
             return
-        case .menuSlice:     items = commandItems()
         }
         guard !items.isEmpty else {
             log.notice("picker \(kind.rawValue, privacy: .public) has nothing to show")
@@ -370,6 +423,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    /// The buffer list, from Xcode's own tab bars.
+    ///
+    /// This used to be `DocumentHistory` — a most-recently-visited list we maintained by
+    /// watching which document had focus — because we believed Xcode exposed no tabs. It
+    /// does: every pane carries an `AXTabGroup`. So the list is now the truth rather than a
+    /// recollection, it spans every pane, and choosing a row presses the actual tab.
+    ///
+    /// **The fallback is not dead code, and it is not rare.** Xcode draws editor tab bars only when `View > Show Editor Tab Bar` is on, or
+    /// when some pane holds more than one tab — and then it draws one in *every* pane. With
+    /// Xcode's default setting and one file per pane there are no tab bars at all, so this
+    /// returns empty far more often than "you have one file open".
+    /// So on a default Xcode the history is still what answers most of the time — and it is
+    /// also the only thing that remembers files you have closed. `⌥RET t b` turns the tab bar
+    /// on, which is what makes the cross-pane list appear.
+    private func bufferItems() -> [PickerItem] {
+        let rows = EditorTabList.rows(context.openEditors())
+        return rows.isEmpty ? history.items : rows
+    }
+
     private func fileItems() -> [PickerItem] {
         fileIndex.refreshIfNeeded(around: context.documentURL())
         return fileIndex.items
@@ -381,12 +453,41 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         case "reloadMenus":
             context.refreshMenuIndex()
             fileIndex.invalidate()
+        case "checkMenus":
+            context.refreshMenuIndex()
+            reportUnresolvedMenuPaths()
         default: log.error("unknown companion command \(id, privacy: .public)")
+        }
+    }
+
+    /// Resolve every menu path the shipped keymap names against the live menu bar and say
+    /// which ones are missing.
+    ///
+    /// **This exists because a command bound to a path Xcode has renamed is silently dead.**
+    /// It runs, `AXPress` finds nothing, the user gets a beep, and no test can see it — the
+    /// suite asserts that a command is registered and bound, which it still is. Xcode renames
+    /// menu items between versions, so this is the only thing that would ever notice.
+    ///
+    /// A diagnostic rather than an assertion, because Xcode's menus are context-dependent:
+    /// with no source editor focused, whole submenus are absent and a miss means nothing.
+    /// Read it with a `.swift` file open. `⌥RET h c` re-runs it; see it with
+    /// `tools/xc.sh logs`.
+    private func reportUnresolvedMenuPaths() {
+        let paths = DefaultKeymap.menuPaths
+        let missing = paths.filter { context.menuItem(at: $0) == nil }
+        guard !missing.isEmpty else {
+            log.notice("keymap check: all \(paths.count) menu paths resolve")
+            return
+        }
+        log.notice("keymap check: \(missing.count) of \(paths.count) menu paths did not resolve")
+        for path in missing {
+            log.notice("  unresolved: \(path.joined(separator: " > "), privacy: .public)")
         }
     }
 
     /// Every way a sequence or a picker can be abandoned ends here.
     private func abandonEverything() {
+        cancelSequenceTimeout()
         if session.abandon() != nil { whichKey.dismiss() }
         if activePicker != nil { closePicker() }
     }
@@ -421,7 +522,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         KeyboardLayout.refreshIfNeeded()
         log.notice("layout: \(KeyboardLayout.currentLayoutName(), privacy: .public), \(self.registry.count) commands")
-        if context.isRunning { context.refreshMenuIndex() }
+        if context.isRunning {
+            context.refreshMenuIndex()
+            reportUnresolvedMenuPaths()
+        }
         tracker.start()
         updateStatus()
     }
@@ -447,9 +551,37 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Push the stored settings into the parts that use them.
     private func applySettings() {
         whichKey.delay = SettingsWindow.overlayDelay
+        session.timeout = SettingsWindow.sequenceTimeout
         menuBar.setEnabled(SettingsWindow.isEnabled)
+
+        // Changing the leader mid-sequence would leave the old one armed with no way to
+        // finish it, so abandon first and rebuild around the new key.
+        let chosen = SettingsWindow.leader.event
+        if session.leader != chosen {
+            abandonEverything()
+            var replacement = KeymapSession(leader: chosen, keymap: keymap, registry: registry)
+            replacement.timeout = SettingsWindow.sequenceTimeout
+            replacement.shortcutProvider = session.shortcutProvider
+            session = replacement
+            menuBar.leaderDisplay = chosen.display
+            log.notice("leader is now \(chosen.display, privacy: .public)")
+        }
+
         if !SettingsWindow.isEnabled { abandonEverything() }
         updateStatus()
+    }
+
+    /// The keymap check as one line, for the settings window. The log gets the detail.
+    private func keymapCheckSummary() -> String {
+        context.refreshMenuIndex()
+        let paths = DefaultKeymap.menuPaths
+        let missing = paths.filter { context.menuItem(at: $0) == nil }
+        reportUnresolvedMenuPaths()
+        guard !missing.isEmpty else { return "All \(paths.count) bindings resolve." }
+        let names = missing.prefix(2).map { $0.joined(separator: " › ") }.joined(separator: ", ")
+        let more = missing.count > 2 ? " and \(missing.count - 2) more" : ""
+        return "\(missing.count) of \(paths.count) unresolved: \(names)\(more). "
+            + "Open a Swift file and try again — Xcode's menus are context-dependent."
     }
 
     private func updateStatus() {

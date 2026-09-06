@@ -14,14 +14,31 @@ public enum CommandAction: Hashable, Sendable {
     /// Move focus to the pane in a direction, or resize around the current divider.
     /// Xcode can only cycle between panes; direction, balance and zoom are ours.
     case pane(PaneAction)
+    /// Put the keyboard into a part of the window the menu bar cannot target. `View >
+    /// Navigators >` selects a navigator but does not focus it, and `Navigate > Move Focus to
+    /// Next Area` only *cycles* — three presses to reach the navigator from the editor.
+    case focus(XcodeArea)
     /// Ours: quit, reload.
     case companion(String)
 }
 
 /// What the pane commands do.
+///
+/// `focus`, `balance`, `zoom`, `grow` and `shrink` drive Xcode's own split view. `swap` and
+/// `send` have **no Xcode equivalent at all** and are synthesised: Xcode can cycle focus
+/// between panes and open into the "next" one, but it cannot exchange two panes or target a
+/// direction. Both are built from reading each pane's document and re-opening it elsewhere.
 public enum PaneAction: Hashable, Sendable {
     case focus(PaneDirection)
     case balance, zoom, grow, shrink
+    /// Exchange the focused pane's file with the next pane's. Vim's `⌃w x`.
+    case swap
+    /// Open the focused pane's file in the pane in this direction, and go there.
+    ///
+    /// Deliberately *not* vim's `⌃w H/J/K/L`, which moves the window itself. The split
+    /// tree's shape is not writable from outside Xcode, so moving a pane is impossible;
+    /// sending the buffer is the half that is both possible and useful.
+    case send(PaneDirection)
 }
 
 /// The pickers the product knows how to open.
@@ -37,7 +54,6 @@ public enum PickerKind: String, Hashable, Sendable, CaseIterable {
     case projectSearch     // ripgrep over the project, results in the picker
     case documentSymbols   // declarations in the current file, from Xcode's index
     case projectSymbols    // declarations across the project, from Xcode's index
-    case menuSlice         // "fuzzy whatever submenu I name"
 
     public var title: String {
         switch self {
@@ -52,7 +68,6 @@ public enum PickerKind: String, Hashable, Sendable, CaseIterable {
         case .projectSearch: "Search Project"
         case .documentSymbols: "Symbols in File"
         case .projectSymbols: "Project Symbols"
-        case .menuSlice: "Menu"
         }
     }
 }

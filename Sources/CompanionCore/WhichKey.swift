@@ -39,7 +39,7 @@ public struct WhichKeyRow: Hashable, Sendable, Comparable, Identifiable {
 
 /// Everything the overlay needs to draw itself.
 public struct WhichKeyPanel: Hashable, Sendable {
-    /// The keys pressed so far, e.g. `⌥SPC b`.
+    /// The keys pressed so far, e.g. `⌥RET b`.
     public var breadcrumb: String
     public var rows: [WhichKeyRow]
 

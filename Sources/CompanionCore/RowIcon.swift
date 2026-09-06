@@ -30,6 +30,7 @@ public struct RowIcon: Hashable, Sendable {
     public static let pane      = RowIcon("◫", .teal)
     public static let picker    = RowIcon("⌥", .accent)
     public static let destination = RowIcon("▶", .orange)
+    public static let navigator = RowIcon("◨", .purple)
 
     /// Symbols follow Xcode's completion badges: a letter for the kind, coloured by family.
     /// Types are purple, callables blue, values teal — the same grouping Xcode uses, so the
@@ -62,6 +63,7 @@ public struct RowIcon: Hashable, Sendable {
         case .shortcut:  .command
         case .transform: .transform
         case .pane:      .pane
+        case .focus: .navigator
         case .picker:    .picker
         case .companion: .command
         }

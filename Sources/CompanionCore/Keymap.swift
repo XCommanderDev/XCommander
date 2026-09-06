@@ -125,7 +125,7 @@ public struct Keymap: Hashable, Sendable {
     }
 
     /// Where a command lives in the tree, for the palette's binding column. The palette
-    /// showing `⇧SPC m m` next to "Product > Build" is what makes it teach the keymap
+    /// showing `⌥RET m m` next to "Product > Build" is what makes it teach the keymap
     /// rather than compete with it.
     public func binding(for commandID: String) -> [KeyEvent]? {
         func search(_ level: [KeyEvent: KeymapEntry], _ prefix: [KeyEvent]) -> [KeyEvent]? {

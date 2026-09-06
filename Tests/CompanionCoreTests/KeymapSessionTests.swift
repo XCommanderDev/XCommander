@@ -6,7 +6,7 @@ import Testing
 @Suite("Keymap session")
 struct KeymapSessionTests {
 
-    private let leader = KeyEvent(.space, [.shift])
+    private let leader = KeyEvent(.return, [.option])
 
     private func session() throws -> KeymapSession {
         var registry = CommandRegistry()
@@ -36,7 +36,7 @@ struct KeymapSessionTests {
             Issue.record("expected awaiting, got \(outcome)"); return
         }
         #expect(outcome.swallowsKey)
-        #expect(panel.breadcrumb == "⇧SPC")
+        #expect(panel.breadcrumb == "⌥RET")
         #expect(panel.rows.map(\.key) == ["m", "q"])
     }
 
@@ -47,7 +47,7 @@ struct KeymapSessionTests {
         guard case .awaiting(let panel) = s.press(KeyEvent("m")) else {
             Issue.record("expected awaiting"); return
         }
-        #expect(panel.breadcrumb == "⇧SPC m")
+        #expect(panel.breadcrumb == "⌥RET m")
         #expect(panel.rows.map(\.key) == ["m"])
     }
 
@@ -108,7 +108,7 @@ struct KeymapSessionTests {
         guard case .awaiting(let panel) = s.press(leader) else {
             Issue.record("expected awaiting"); return
         }
-        #expect(panel.breadcrumb == "⇧SPC")
+        #expect(panel.breadcrumb == "⌥RET")
         #expect(s.pending.isEmpty)
     }
 
@@ -131,5 +131,75 @@ struct KeymapSessionTests {
         _ = s.press(leader)
         _ = s.press(KeyEvent("q"))
         #expect(s.press(KeyEvent("q")) == .passThrough)
+    }
+
+    // MARK: - the sequence timeout
+
+    /// The clock is a parameter rather than `Date()`, so these run instantly and
+    /// deterministically. A test that has to sleep for ten seconds to prove a ten-second
+    /// timeout is a test nobody runs.
+
+    @Test("an armed sequence expires, and the key that finds it expired reaches Xcode")
+    func expiresAndPassesThrough() throws {
+        var s = try session()
+        _ = s.press(leader, at: 0)
+        #expect(s.isActive)
+
+        // `m` would normally open the make group. Arriving after the timeout it should
+        // instead find no session at all, and — the part that matters — be passed through
+        // rather than swallowed. Eating the user's keystroke would be the same defect the
+        // leader change exists to remove, in a smaller form.
+        #expect(s.press(KeyEvent("m"), at: 11) == .passThrough)
+        #expect(s.isActive == false)
+    }
+
+    @Test("the bound is on idle time, so a slow deliberate sequence is never cut off")
+    func timeoutIsIdleNotTotal() throws {
+        var s = try session()
+        _ = s.press(leader, at: 0)
+        // Nine seconds to decide, then nine more: eighteen seconds in total, but never ten
+        // idle, so the sequence survives and fires.
+        guard case .awaiting = s.press(KeyEvent("m"), at: 9) else {
+            Issue.record("the make group should still have been open at t=9")
+            return
+        }
+        #expect(s.press(KeyEvent("m"), at: 18) == .fired("make.build"))
+    }
+
+    @Test("expireIfIdle cancels an abandoned sequence")
+    func expiryFromTheTimer() throws {
+        var s = try session()
+        _ = s.press(leader, at: 0)
+        #expect(s.expireIfIdle(at: 10) == .cancelled(reason: .timedOut))
+        #expect(s.isActive == false)
+    }
+
+    @Test("expireIfIdle loses the race to a key that arrived first")
+    func expiryLosesTheRace() throws {
+        var s = try session()
+        _ = s.press(leader, at: 0)
+        _ = s.press(KeyEvent("m"), at: 9)          // the timer for t=10 is already scheduled
+        #expect(s.expireIfIdle(at: 10) == nil)     // but the clock was reset, so it does nothing
+        #expect(s.isActive)
+    }
+
+    @Test("expireIfIdle does nothing when the session is idle to begin with")
+    func expiryWhenNothingIsArmed() throws {
+        var s = try session()
+        #expect(s.expireIfIdle(at: 1_000) == nil)
+    }
+
+    /// **The limit of this feature, asserted so nobody mistakes it for the fix.**
+    ///
+    /// A mis-typed leader and the letter after it are milliseconds apart, so no timeout
+    /// worth having separates them: at 40 ms the sequence is still very much alive and the
+    /// word still runs a command. What actually removes this failure is a leader that
+    /// cannot be produced as text, which is why the default moved to `⌥RET`.
+    @Test("a timeout does not protect against a mis-typed leader — only the key choice does")
+    func timeoutDoesNotSaveAMistypedLeader() throws {
+        var s = try session()
+        _ = s.press(leader, at: 0)
+        #expect(s.press(KeyEvent("m"), at: 0.04) != .passThrough)
+        #expect(s.press(KeyEvent("m"), at: 0.08) == .fired("make.build"))
     }
 }

@@ -15,20 +15,52 @@ final class MenuBarController {
     var onToggleEnabled: (() -> Void)?
     var onShowSettings: (() -> Void)?
 
-    private let enabledEntry = NSMenuItem(title: "Enable Leader Key", action: nil, keyEquivalent: "")
+    /// A **noun with a checkmark**, not a flipping verb.
+    ///
+    /// This used to do both: the title flipped between `Enable`/`Disable` *and* the item
+    /// carried a checkmark. "✓ Disable Leader Key" reads as "disabling is on" — the exact
+    /// opposite of what it meant. macOS gives you two idioms and they are mutually exclusive:
+    /// a verb that flips and carries no state, or a static noun whose checkmark is the state.
+    /// The noun is better here because it also reads as an indicator at a glance.
+    private let enabledEntry = NSMenuItem(title: "Leader Key", action: nil, keyEquivalent: "")
+    private let permissionsEntry = NSMenuItem(title: "Open Accessibility Settings…",
+                                              action: nil, keyEquivalent: "")
+    private let permissionsSeparator = NSMenuItem.separator()
+
+    /// Name and version, the way Alfred and most menu-bar apps carry it: dimmed, directly
+    /// under the status. It is not decoration — it is the first thing you ask a user in a
+    /// support conversation, and the menu is the only place they can read it without hunting
+    /// through a settings window.
+    private let versionEntry = NSMenuItem(title: "", action: nil, keyEquivalent: "")
+
+    /// Shown next to the status line so the one thing a new user needs to know — which key
+    /// starts everything — is visible without reading any documentation. Discovery is this
+    /// app's largest risk; the menu is the only surface it has to spend on it.
+    var leaderDisplay: String = "" { didSet { apply(status, force: true) } }
 
     private(set) var status: CompanionStatus = .idle
 
     init() {
         item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         let menu = NSMenu()
-        statusEntry.isEnabled = false
-        menu.addItem(statusEntry)
-        menu.addItem(.separator())
 
+        // The primary action first, then a dimmed line saying what is going on: the shape
+        // Alfred and most good menu-bar apps use. Everything that is not one of those two
+        // things, or Settings, or Quit, has been moved into the settings window — a menu
+        // that repeats the settings window is just a second place to look.
         enabledEntry.action = #selector(toggleEnabled)
         enabledEntry.target = self
         menu.addItem(enabledEntry)
+
+        statusEntry.isEnabled = false
+        menu.addItem(statusEntry)
+
+        let short = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String
+        versionEntry.title = build.map { "Autographe \(short) (\($0))" } ?? "Autographe \(short)"
+        versionEntry.isEnabled = false
+        menu.addItem(versionEntry)
+
         menu.addItem(.separator())
 
         let settings = NSMenuItem(title: "Settings…", action: #selector(showSettings),
@@ -36,15 +68,16 @@ final class MenuBarController {
         settings.target = self
         menu.addItem(settings)
 
-        let permissions = NSMenuItem(title: "Open Accessibility Settings…",
-                                     action: #selector(openSettings), keyEquivalent: "")
-        permissions.target = self
-        menu.addItem(permissions)
-
-        let reload = NSMenuItem(title: "Reload Xcode Commands",
-                                action: #selector(reload), keyEquivalent: "")
-        reload.target = self
-        menu.addItem(reload)
+        // **Kept, but only when it is the answer to something.** This is the one item that
+        // cannot live in the settings window: with no Accessibility permission the app sees
+        // no keys, so the menu is the only surface a user has. It is hidden in every other
+        // state, which is what keeps the ordinary menu to three items.
+        permissionsEntry.action = #selector(openSettings)
+        permissionsEntry.target = self
+        permissionsSeparator.isHidden = true
+        permissionsEntry.isHidden = true
+        menu.addItem(permissionsSeparator)
+        menu.addItem(permissionsEntry)
 
         menu.addItem(.separator())
         let quit = NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q")
@@ -55,18 +88,27 @@ final class MenuBarController {
         apply(.idle)
     }
 
-    func apply(_ status: CompanionStatus) {
-        guard status != self.status || item.button?.image == nil else { return }
+    func apply(_ status: CompanionStatus) { apply(status, force: false) }
+
+    private func apply(_ status: CompanionStatus, force: Bool) {
+        guard force || status != self.status || item.button?.image == nil else { return }
         self.status = status
         item.button?.image = image(for: status)
         item.button?.toolTip = status.explanation
-        statusEntry.title = status.explanation
+        // When the leader is live, say what it is. "Ready." tells a new user nothing they
+        // can act on; "Ready — press ⌥RET" tells them the only thing they need.
+        statusEntry.title = status == .armed && !leaderDisplay.isEmpty
+            ? "Ready — press \(leaderDisplay)"
+            : status.explanation
+
+        let needsPermission = status == .needsAccessibility
+        permissionsEntry.isHidden = !needsPermission
+        permissionsSeparator.isHidden = !needsPermission
     }
 
     /// Reflect the on/off state in the menu, so the item reads as a switch rather than a
     /// command whose effect you have to remember.
     func setEnabled(_ enabled: Bool) {
-        enabledEntry.title = enabled ? "Disable Leader Key" : "Enable Leader Key"
         enabledEntry.state = enabled ? .on : .off
     }
 

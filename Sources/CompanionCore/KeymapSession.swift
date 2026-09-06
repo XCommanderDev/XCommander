@@ -26,6 +26,8 @@ public enum CancelReason: Hashable, Sendable {
     case unbound(KeyEvent)
     /// Xcode stopped being frontmost, the mouse was clicked, the tap was interrupted.
     case abandoned
+    /// Nothing resolved the sequence for `timeout` seconds, so it gave up.
+    case timedOut
 }
 
 /// The modal state machine: idle, or partway through a sequence.
@@ -44,6 +46,23 @@ public struct KeymapSession: Sendable {
     public private(set) var pending: [KeyEvent] = []
     public private(set) var isActive = false
 
+    /// How long an armed sequence waits for its next key before giving up.
+    ///
+    /// This is **not** what protects you from a mis-typed leader: that keystroke and the
+    /// letter after it are milliseconds apart, so no timeout worth having would separate
+    /// them. Choosing a leader that cannot be typed as text is what does that job. What
+    /// this stops is the other case — a sequence you started and then abandoned, which
+    /// would otherwise stay armed indefinitely and read whatever you typed on your return
+    /// as a command.
+    ///
+    /// Ten seconds because the panel is on screen after `overlayDelay`, so the user has
+    /// feedback throughout and the only thing being bounded is a sequence they have
+    /// forgotten about. Short enough to matter, long enough to read thirty rows.
+    public var timeout: TimeInterval = 10
+
+    /// When the last key of the current sequence arrived. `nil` while idle.
+    private var lastPressAt: TimeInterval?
+
     public init(leader: KeyEvent, keymap: Keymap, registry: CommandRegistry) {
         self.leader = leader
         self.keymap = keymap
@@ -55,11 +74,18 @@ public struct KeymapSession: Sendable {
         ([leader] + pending).map(\.display).joined(separator: " ")
     }
 
-    public mutating func press(_ event: KeyEvent) -> SessionOutcome {
+    public mutating func press(_ event: KeyEvent,
+                               at now: TimeInterval = Date().timeIntervalSinceReferenceDate) -> SessionOutcome {
+        // An expired sequence is treated as though it had never been armed, so this key is
+        // passed through to Xcode rather than swallowed. Swallowing it would be the same
+        // defect in a smaller form: a keystroke the user meant for their file, eaten.
+        if isActive, let last = lastPressAt, now - last >= timeout { reset() }
+
         guard isActive else {
             guard event == leader else { return .passThrough }
             isActive = true
             pending = []
+            lastPressAt = now
             return .awaiting(WhichKeyPanel(breadcrumb: breadcrumb, rows: rows(at: [])))
         }
 
@@ -74,6 +100,7 @@ public struct KeymapSession: Sendable {
         // cancelling. Cheaper than Esc-then-leader, and it is what the muscle expects.
         if event == leader {
             pending = []
+            lastPressAt = now
             return .awaiting(WhichKeyPanel(breadcrumb: breadcrumb, rows: rows(at: [])))
         }
 
@@ -84,12 +111,23 @@ public struct KeymapSession: Sendable {
             return .fired(commandID)
         case .some(.group):
             pending = candidate
+            lastPressAt = now
             return .awaiting(WhichKeyPanel(breadcrumb: breadcrumb,
                                            rows: rows(at: pending)))
         case .none:
             reset()
             return .cancelled(reason: .unbound(event))
         }
+    }
+
+    /// Called by the app's timer. Ends the sequence only if nothing has arrived since,
+    /// so a key that landed between the timer being scheduled and firing wins the race.
+    /// Returns `nil` when there is nothing to do, which is the ordinary case.
+    public mutating func expireIfIdle(at now: TimeInterval = Date().timeIntervalSinceReferenceDate)
+        -> SessionOutcome? {
+        guard isActive, let last = lastPressAt, now - last >= timeout else { return nil }
+        reset()
+        return .cancelled(reason: .timedOut)
     }
 
     /// Everything that ends a sequence without a keypress: a mouse click, an app switch,
@@ -107,5 +145,6 @@ public struct KeymapSession: Sendable {
     private mutating func reset() {
         isActive = false
         pending = []
+        lastPressAt = nil
     }
 }

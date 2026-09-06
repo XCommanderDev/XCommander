@@ -31,6 +31,24 @@ struct PickerTargetTests {
         #expect(PickerTarget.parse(PickerTarget.menuID(path)) == .menu(path))
     }
 
+    /// `tab:` is parsed *before* `symbol:`/`match:`, which take the last colon as a line
+    /// number. Ordered the other way, "tab:0:1" reads as the file "tab:0" at line 1 — which
+    /// is a plausible-looking wrong answer rather than an error, so it is pinned here.
+    @Test("a tab id is coordinates, not a path with a line")
+    func tabIsNotAFileWithALine() {
+        #expect(PickerTarget.parse("tab:0:1") == .tab(pane: 0, index: 1))
+        #expect(PickerTarget.parse(PickerTarget.tabID(pane: 2, index: 11))
+                == .tab(pane: 2, index: 11))
+    }
+
+    /// A malformed tab id falls back to being a command id rather than crashing or
+    /// inventing coordinates. Rows come from our own encoder, so this is defence in depth.
+    @Test("a malformed tab id is not forced into coordinates")
+    func malformedTab() {
+        #expect(PickerTarget.parse("tab:x:1") == .command("tab:x:1"))
+        #expect(PickerTarget.parse("tab:1") == .command("tab:1"))
+    }
+
     @Test("xed takes a line only when there is one")
     func xedArguments() {
         #expect(PickerTarget.xedArguments(path: "/tmp/a.swift", line: nil) == ["/tmp/a.swift"])
