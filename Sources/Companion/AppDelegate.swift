@@ -19,6 +19,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var tap: EventTap!
     private var menuBar: MenuBarController!
     private let settings = SettingsWindow()
+    /// The user's `config.toml`, if there is one. Owns the last-good rule.
+    private var config: ConfigStore!
 
     /// Exactly one of these is active at a time. The keymap session drives the which-key
     /// panel; a picker, once open, takes every key until it is chosen or cancelled.
@@ -89,6 +91,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             self?.context.refreshMenuIndex()
             self?.fileIndex.invalidate()
         }
+        settings.configSummary = { [weak self] in self?.configSummary() ?? "unavailable" }
+
+        config = ConfigStore(registry: built.registry)
+        config.projectRoot = { [weak self] in self?.projectRoot() }
+        config.onChange = { [weak self] resolution in self?.apply(resolution) }
 
         tap = EventTap(
             handler: { [weak self] keyCode, flags in
@@ -99,6 +106,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
 
         observeFrontmostApplication()
+        // Last, because loading a file calls straight back into `apply(_:)`, which expects
+        // the overlay and the menu bar to exist.
+        config.start()
         menuBar.leaderDisplay = session.leader.display
         applySettings()
         xcodeIsFrontmost = context.isFrontmost
@@ -453,6 +463,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         case "reloadMenus":
             context.refreshMenuIndex()
             fileIndex.invalidate()
+            config.load()
         case "checkMenus":
             context.refreshMenuIndex()
             reportUnresolvedMenuPaths()
@@ -548,19 +559,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    /// Put a freshly loaded configuration into service.
+    ///
+    /// The same move the leader popup makes, with a bigger payload: abandon anything in
+    /// flight first, because a sequence armed under the old keymap has no meaning under the
+    /// new one and finishing it would run whatever now sits at those keys.
+    private func apply(_ resolution: ConfigResolution) {
+        guard let replacement = resolution.keymap else { return }
+        abandonEverything()
+        keymap = replacement
+        applySettings()
+    }
+
     /// Push the stored settings into the parts that use them.
+    ///
+    /// **The file wins where it speaks.** A value the config file sets is not a preference
+    /// any more, so the settings window's copy of it is ignored rather than fought with.
+    /// Where the file is silent, the window is in charge.
     private func applySettings() {
-        whichKey.delay = SettingsWindow.overlayDelay
-        session.timeout = SettingsWindow.sequenceTimeout
+        whichKey.delay = config?.current.overlayDelay ?? SettingsWindow.overlayDelay
+        session.timeout = config?.current.sequenceTimeout ?? SettingsWindow.sequenceTimeout
         menuBar.setEnabled(SettingsWindow.isEnabled)
 
         // Changing the leader mid-sequence would leave the old one armed with no way to
         // finish it, so abandon first and rebuild around the new key.
-        let chosen = SettingsWindow.leader.event
-        if session.leader != chosen {
+        let chosen = (config?.current.leader ?? SettingsWindow.leader).event
+        if session.leader != chosen || session.keymap != keymap {
             abandonEverything()
             var replacement = KeymapSession(leader: chosen, keymap: keymap, registry: registry)
-            replacement.timeout = SettingsWindow.sequenceTimeout
+            replacement.timeout = session.timeout
             replacement.shortcutProvider = session.shortcutProvider
             session = replacement
             menuBar.leaderDisplay = chosen.display
@@ -569,6 +596,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         if !SettingsWindow.isEnabled { abandonEverything() }
         updateStatus()
+    }
+
+    /// What the configuration file had to say, as one line for the settings window.
+    ///
+    /// A config error belongs where a person will look for it. The system log is not that
+    /// place — it is where this used to report, and nobody ever found it.
+    private func configSummary() -> String {
+        config.load()
+        if let summary = config.current.summary ?? config.diagnostics.forDisplay.first.map(\.description) {
+            return summary
+        }
+        let file = ConfigStore.globalFile
+        guard FileManager.default.fileExists(atPath: file.path) else {
+            return "No config file. Create ~/.config/autographe/config.toml to customise the keymap."
+        }
+        return "\(file.lastPathComponent) loaded, no problems."
     }
 
     /// The keymap check as one line, for the settings window. The log gets the detail.

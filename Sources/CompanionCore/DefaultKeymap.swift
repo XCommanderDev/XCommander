@@ -29,6 +29,15 @@ public enum DefaultKeymap {
     /// apart.
     public static let leader = KeyEvent(.return, [.option])
 
+    /// The shipped keymap as data, for `ConfigResolver` to layer a user's file over.
+    ///
+    /// The same two tables `build()` uses. Exposed rather than duplicated, so a config file
+    /// can never be merged against a keymap that differs from the one the app ships.
+    public static var blueprint: KeymapBlueprint {
+        KeymapBlueprint(bindings: bindings.map { (sequence: $0.0, commandID: $0.1) },
+                        groupTitles: groupTitles)
+    }
+
     public static func build() -> (registry: CommandRegistry, keymap: Keymap) {
         var registry = CommandRegistry()
         registry.register(contentsOf: commands)
