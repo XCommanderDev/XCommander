@@ -1,5 +1,5 @@
 import Testing
-@testable import CompanionCore
+@testable import AutographeCore
 
 /// The bug these exist for: on French AZERTY `/` is Shift and the `:` key, so `⇧SPC /`
 /// arrived as `:` plus Shift, nothing was bound to that, and the picker never opened. The

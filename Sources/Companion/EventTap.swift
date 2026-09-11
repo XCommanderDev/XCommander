@@ -1,7 +1,7 @@
 import AppKit
 import Carbon
 import CoreGraphics
-import CompanionCore
+import AutographeCore
 import os
 
 /// The `CGEventTap`, and the three ways it fails in practice.

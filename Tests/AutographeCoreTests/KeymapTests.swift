@@ -1,5 +1,5 @@
 import Testing
-@testable import CompanionCore
+@testable import AutographeCore
 
 /// The trie is the heart of the interaction model, so it is tested for the shapes that
 /// break it rather than only the shape that works.

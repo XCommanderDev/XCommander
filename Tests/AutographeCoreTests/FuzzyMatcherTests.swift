@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import CompanionCore
+@testable import AutographeCore
 
 /// The matcher is judged by its *ordering*, not its numbers, so almost every test here
 /// asserts that one candidate beats another rather than pinning a score.

@@ -1,6 +1,6 @@
 import Foundation
 import CIndexStore
-import CompanionCore
+import AutographeCore
 import os
 
 /// Xcode's symbol knowledge, read rather than recomputed.

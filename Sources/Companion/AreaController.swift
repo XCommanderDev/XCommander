@@ -1,6 +1,6 @@
 import AppKit
 import ApplicationServices
-import CompanionCore
+import AutographeCore
 import os
 
 /// Putting the keyboard **into** a part of Xcode's window that the menu bar cannot target.

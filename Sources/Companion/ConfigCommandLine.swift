@@ -1,4 +1,4 @@
-import CompanionCore
+import AutographeCore
 import Foundation
 
 /// The two things a person publishing a configuration file needs from this app.

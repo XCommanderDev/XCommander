@@ -1,7 +1,7 @@
 import CoreGraphics
-import CompanionCore
+import AutographeCore
 
-/// The edge where CoreGraphics stops and CompanionCore begins.
+/// The edge where CoreGraphics stops and AutographeCore begins.
 ///
 /// Core deliberately knows nothing about `CGEventFlags` or virtual keycodes, so every
 /// conversion lives here and is the only place that has to be right.

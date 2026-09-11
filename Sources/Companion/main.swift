@@ -1,5 +1,5 @@
 import AppKit
-import CompanionCore
+import AutographeCore
 
 // Two command-line modes, handled before any UI exists.
 //

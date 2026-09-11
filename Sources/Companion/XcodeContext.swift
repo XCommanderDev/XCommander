@@ -1,6 +1,6 @@
 import AppKit
 import ApplicationServices
-import CompanionCore
+import AutographeCore
 
 /// What we need to know about Xcode. Behind a protocol because it is the least testable
 /// part of the system and the most likely to break across Xcode versions.

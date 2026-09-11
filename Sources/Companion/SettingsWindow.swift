@@ -1,5 +1,5 @@
 import AppKit
-import CompanionCore
+import AutographeCore
 import ServiceManagement
 import SwiftUI
 

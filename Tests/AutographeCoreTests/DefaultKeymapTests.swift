@@ -1,5 +1,5 @@
 import Testing
-@testable import CompanionCore
+@testable import AutographeCore
 
 /// Guards on the shipped keymap. `DefaultKeymap.build()` uses `try!`, so a conflict
 /// introduced while editing the tables would crash at launch; these find it in the suite.

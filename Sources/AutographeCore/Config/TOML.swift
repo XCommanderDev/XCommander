@@ -69,7 +69,7 @@ public struct TOMLDocument: Sendable {
 /// A small TOML reader: enough of the format for a configuration file, and no more.
 ///
 /// **Why hand-written rather than a dependency.** Two reasons, and the second is the real
-/// one. `CompanionCore` has no dependencies at all, which is what lets it build and test in
+/// one. `AutographeCore` has no dependencies at all, which is what lets it build and test in
 /// under a second on any machine — but more importantly, the diagnostics *are* the feature
 /// here (see `ConfigDiagnostic`), and a general-purpose parser reports what is wrong with a
 /// document rather than what is wrong with a user's keymap. Owning the reader means an error

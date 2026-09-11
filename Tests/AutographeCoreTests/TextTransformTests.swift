@@ -1,5 +1,5 @@
 import Testing
-@testable import CompanionCore
+@testable import AutographeCore
 
 /// The text features Xcode does not have. Every case is a hand-written before/after pair,
 /// which is the only way to be sure about whitespace.

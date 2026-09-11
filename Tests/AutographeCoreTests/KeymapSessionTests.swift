@@ -1,5 +1,5 @@
 import Testing
-@testable import CompanionCore
+@testable import AutographeCore
 
 /// The session is what the event tap actually asks, so these tests are written as
 /// sequences of presses with the tap's question in mind: swallow it, or pass it on?

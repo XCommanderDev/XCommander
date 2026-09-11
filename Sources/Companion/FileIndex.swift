@@ -1,5 +1,5 @@
 import Foundation
-import CompanionCore
+import AutographeCore
 
 /// The project's files, for the file picker.
 ///

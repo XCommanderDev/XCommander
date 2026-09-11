@@ -1,5 +1,5 @@
 import Testing
-@testable import CompanionCore
+@testable import AutographeCore
 
 /// These tests exist because of a bug that reached the screen: `⌥SPC b b` ran Xcode's
 /// **Analyze** instead of **Build**. Accessibility reports `Product > Build` as the

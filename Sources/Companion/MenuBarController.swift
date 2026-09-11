@@ -1,5 +1,5 @@
 import AppKit
-import CompanionCore
+import AutographeCore
 
 /// The status item. Small, but it is the only surface the app has when something is wrong,
 /// so it says *why* rather than just going quiet.

@@ -1,5 +1,5 @@
 import Testing
-@testable import CompanionCore
+@testable import AutographeCore
 
 /// Directional pane movement is the thing Xcode cannot do — it can only cycle — so the
 /// geometry is ours and has to be right. Coordinates are Accessibility's: y grows downward.

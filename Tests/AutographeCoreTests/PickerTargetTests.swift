@@ -1,5 +1,5 @@
 import Testing
-@testable import CompanionCore
+@testable import AutographeCore
 
 @Suite("Picker row ids")
 struct PickerTargetTests {

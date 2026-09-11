@@ -1,5 +1,5 @@
 import Foundation
-import CompanionCore
+import AutographeCore
 import os
 
 /// Project-wide search, backed by ripgrep.

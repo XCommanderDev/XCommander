@@ -1,17 +1,17 @@
 import Testing
-@testable import CompanionCore
+@testable import AutographeCore
 
 /// Parsed against real `rg --json` output, captured from ripgrep 15.2.0 rather than
 /// written from memory.
 @Suite("Ripgrep parsing")
 struct RipgrepParserTests {
 
-    private let matchLine = #"{"type":"match","data":{"path":{"text":"Sources/CompanionCore/Picker.swift"},"lines":{"text":"public struct PickerSession: Sendable {\n"},"line_number":42,"absolute_offset":1435,"submatches":[{"match":{"text":"PickerSession"},"start":14,"end":27}]}}"#
+    private let matchLine = #"{"type":"match","data":{"path":{"text":"Sources/AutographeCore/Picker.swift"},"lines":{"text":"public struct PickerSession: Sendable {\n"},"line_number":42,"absolute_offset":1435,"submatches":[{"match":{"text":"PickerSession"},"start":14,"end":27}]}}"#
 
     @Test("a match line yields the path, line number, text and match range")
     func parsesMatch() throws {
         let m = try #require(RipgrepParser.parse(line: matchLine))
-        #expect(m.path == "Sources/CompanionCore/Picker.swift")
+        #expect(m.path == "Sources/AutographeCore/Picker.swift")
         #expect(m.line == 42)
         #expect(m.text == "public struct PickerSession: Sendable {")
         #expect(m.start == 14)

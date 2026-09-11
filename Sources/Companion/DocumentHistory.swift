@@ -1,5 +1,5 @@
 import Foundation
-import CompanionCore
+import AutographeCore
 
 /// The files you have actually been editing, most recent first.
 ///

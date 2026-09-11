@@ -1,6 +1,6 @@
 import AppKit
 import Foundation
-import CompanionCore
+import AutographeCore
 import os
 
 /// Opening a file **in Xcode**, which is not the same thing as opening it.

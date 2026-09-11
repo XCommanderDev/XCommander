@@ -1,5 +1,5 @@
 import Testing
-@testable import CompanionCore
+@testable import AutographeCore
 
 /// Reading Xcode's index is the easy half. **Filtering it is the half that decides whether
 /// the picker is usable**: the raw store held 76,765 symbols for a small package, 929 in

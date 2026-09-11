@@ -1,5 +1,5 @@
 import Testing
-@testable import CompanionCore
+@testable import AutographeCore
 
 /// The picker's whole behaviour lives in `PickerSession`, so all of it is testable without
 /// a window. These read as the key sequences a user actually types.

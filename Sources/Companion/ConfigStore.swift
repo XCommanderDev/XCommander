@@ -1,10 +1,10 @@
 import AppKit
-import CompanionCore
+import AutographeCore
 import os
 
 /// Finds the configuration files, reads them, watches them, and keeps the last good result.
 ///
-/// Everything that decides what a file *means* lives in `CompanionCore` and is tested without
+/// Everything that decides what a file *means* lives in `AutographeCore` and is tested without
 /// a disk. This type is the part that cannot be: paths, file descriptors, and the debounce
 /// around an editor that writes three times in a row. Keeping the split means the interesting
 /// half is testable and this half is small enough to read.

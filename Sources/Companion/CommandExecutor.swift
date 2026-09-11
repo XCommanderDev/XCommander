@@ -1,6 +1,6 @@
 import AppKit
 import CoreGraphics
-import CompanionCore
+import AutographeCore
 import os
 
 /// Runs a command against Xcode.

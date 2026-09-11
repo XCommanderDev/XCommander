@@ -11,7 +11,7 @@ settings:
     SWIFT_VERSION: "6.0"
     ENABLE_HARDENED_RUNTIME: YES
 packages:
-  CompanionCore:
+  AutographeCore:
     path: .
 targets:
   Autographe for Xcode:
@@ -27,9 +27,9 @@ targets:
       - path: Sources/Companion/AutographeAppIcon.icon
         type: file
     dependencies:
-      - package: CompanionCore
-        product: CompanionCore
-      - package: CompanionCore
+      - package: AutographeCore
+        product: AutographeCore
+      - package: AutographeCore
         product: CIndexStore
     info:
       path: Sources/Companion/Info.plist

@@ -18,7 +18,7 @@
 		5D5902F791068CB38E93DF11 /* FileIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = A53E17E2DBCB92CA86ABBA61 /* FileIndex.swift */; };
 		7049AAD8298D38ABBD738157 /* MenuBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A8D9861C85E60F6463C1F3C /* MenuBarController.swift */; };
 		81A0B96B89D7822C3A31E664 /* WindowTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62A50A1B22863DF1CACB7660 /* WindowTracker.swift */; };
-		952732F4EA96C7D8FAC1E55B /* CompanionCore in Frameworks */ = {isa = PBXBuildFile; productRef = F5772363A0DCC690290F1050 /* CompanionCore */; };
+		952732F4EA96C7D8FAC1E55B /* AutographeCore in Frameworks */ = {isa = PBXBuildFile; productRef = F5772363A0DCC690290F1050 /* AutographeCore */; };
 		98BA9118B53F96507E809FC1 /* XcodeContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = C51FC91A8D43A50F479E91AF /* XcodeContext.swift */; };
 		98CF969ED99FD68682698C1B /* OverlayController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FF02716252AA4CF732C67A /* OverlayController.swift */; };
 		AE361B32AA1CC3A08074EDA8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 79695A8803B061156B9DA755 /* Assets.xcassets */; };
@@ -64,7 +64,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				952732F4EA96C7D8FAC1E55B /* CompanionCore in Frameworks */,
+				952732F4EA96C7D8FAC1E55B /* AutographeCore in Frameworks */,
 				B19956F5A71D04A8B22A2DEA /* CIndexStore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -151,7 +151,7 @@
 			);
 			name = "Autographe for Xcode";
 			packageProductDependencies = (
-				F5772363A0DCC690290F1050 /* CompanionCore */,
+				F5772363A0DCC690290F1050 /* AutographeCore */,
 				0CA119000C1C6B3DBA2C206F /* CIndexStore */,
 			);
 			productName = "Autographe for Xcode";
@@ -427,9 +427,9 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = CIndexStore;
 		};
-		F5772363A0DCC690290F1050 /* CompanionCore */ = {
+		F5772363A0DCC690290F1050 /* AutographeCore */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = CompanionCore;
+			productName = AutographeCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -1,6 +1,6 @@
 import AppKit
 import ApplicationServices
-import CompanionCore
+import AutographeCore
 import os
 
 /// Editor panes, over Accessibility.

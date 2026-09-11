@@ -1,5 +1,5 @@
 import AppKit
-import CompanionCore
+import AutographeCore
 
 /// The picker window: a query line and a ranked list, centred over Xcode.
 ///
