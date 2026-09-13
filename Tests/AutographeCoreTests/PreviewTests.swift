@@ -149,7 +149,8 @@ struct PreviewTests {
     }
 }
 
-/// Slicing a parsed file down to what the pane draws.
+/// Slicing a parsed file down to what the pane draws, and the three offset conversions that
+/// have to agree for a colour to land on the right glyph.
 @Suite("Preview builder")
 struct PreviewBuilderTests {
 
@@ -162,8 +163,8 @@ struct PreviewBuilderTests {
     // trailing
     """
 
-    private func parts() -> (LineTable, [UInt8]) {
-        let bytes = Array(source.utf8)
+    private func parts(_ text: String? = nil) -> (LineTable, [UInt8]) {
+        let bytes = Array((text ?? source).utf8)
         return (LineTable(bytes: bytes), bytes)
     }
 
@@ -183,18 +184,95 @@ struct PreviewBuilderTests {
                                     focusLine: nil, capacity: 50)
         #expect(p.lines.count == 6)
         #expect(!p.hasMore)
+        #expect(p.lines.map(\.number) == [1, 2, 3, 4, 5, 6])
     }
 
     @Test("only tokens on drawn lines survive the cut")
     func tokensClipped() {
         let (lines, bytes) = parts()
-        // One token on line 1, one on the last line.
         let first = SyntaxToken(role: .keyword, offset: 0, length: 6)
-        let lastLineStart = lines.lineStarts[5]
-        let last = SyntaxToken(role: .comment, offset: lastLineStart, length: 3)
+        let last = SyntaxToken(role: .comment, offset: lines.lineStarts[5], length: 3)
         let p = PreviewBuilder.text(lines: lines, bytes: bytes, tokens: [first, last],
                                     focusLine: 1, capacity: 2)
-        #expect(p.tokens.map(\.role) == [.keyword])
+        #expect(p.lines.flatMap(\.spans).map(\.role) == [.keyword])
+    }
+
+    @Test("a span lands on the characters the token covered")
+    func spanPlacement() {
+        let (lines, bytes) = parts()
+        // "import" on line 1.
+        let token = SyntaxToken(role: .keyword, offset: 0, length: 6)
+        let p = PreviewBuilder.text(lines: lines, bytes: bytes, tokens: [token],
+                                    focusLine: 1, capacity: 1)
+        let span = p.lines[0].spans[0]
+        let text = p.lines[0].text
+        let start = text.index(text.startIndex, offsetBy: span.start)
+        let end = text.index(start, offsetBy: span.length)
+        #expect(String(text[start..<end]) == "import")
+    }
+
+    @Test("tabs are expanded, and spans after them still land correctly")
+    func tabsShiftSpans() {
+        // A tab, then `let`: the keyword starts at byte 1 but at column 4 once expanded.
+        let (lines, bytes) = parts("\tlet x = 1\n")
+        let token = SyntaxToken(role: .keyword, offset: 1, length: 3)
+        let p = PreviewBuilder.text(lines: lines, bytes: bytes, tokens: [token],
+                                    focusLine: 1, capacity: 1)
+        let line = p.lines[0]
+        #expect(line.text == "    let x = 1")
+        let span = line.spans[0]
+        #expect(span.start == 4)
+        let start = line.text.index(line.text.startIndex, offsetBy: span.start)
+        let end = line.text.index(start, offsetBy: span.length)
+        #expect(String(line.text[start..<end]) == "let")
+    }
+
+    @Test("a multi-byte character does not shift the span that follows it")
+    func multiByteShiftsSpans() {
+        // "// é" is 6 bytes but 5 UTF-16 units; `let` starts at byte 6, column 5.
+        let (lines, bytes) = parts("// é\nlet y = 2\n")
+        let token = SyntaxToken(role: .keyword, offset: lines.lineStarts[1], length: 3)
+        let p = PreviewBuilder.text(lines: lines, bytes: bytes, tokens: [token],
+                                    focusLine: 2, capacity: 2)
+        let line = p.lines.first { $0.number == 2 }!
+        let span = line.spans[0]
+        let start = line.text.index(line.text.startIndex, offsetBy: span.start)
+        let end = line.text.index(start, offsetBy: span.length)
+        #expect(String(line.text[start..<end]) == "let")
+    }
+
+    @Test("an emoji in the line does not shift the span that follows it")
+    func emojiShiftsSpans() {
+        // An emoji is 4 UTF-8 bytes and 2 UTF-16 units: the two counts disagree, which is
+        // exactly the case that puts a colour on the wrong glyph.
+        let (lines, bytes) = parts("let a = \"🖋\" ; let b = 2\n")
+        let raw = Array("let a = \"🖋\" ; ".utf8).count
+        let token = SyntaxToken(role: .keyword, offset: raw, length: 3)
+        let p = PreviewBuilder.text(lines: lines, bytes: bytes, tokens: [token],
+                                    focusLine: 1, capacity: 1)
+        let line = p.lines[0]
+        let span = line.spans[0]
+        // Indexed through UTF-16, because that is what a span is and what `NSRange` counts.
+        // Counting Characters here would land one short: the emoji is one Character and two
+        // UTF-16 units, which is the whole reason this conversion happens in Core.
+        #expect(utf16Slice(line.text, span) == "let")
+    }
+
+    /// The substring a span actually selects when `NSAttributedString` applies it.
+    private func utf16Slice(_ text: String, _ span: PreviewSpan) -> String? {
+        let units = Array(text.utf16)
+        guard span.start + span.length <= units.count else { return nil }
+        return String(utf16CodeUnits: Array(units[span.start..<(span.start + span.length)]),
+                      count: span.length)
+    }
+
+    @Test("plain tokens are dropped rather than drawn in a colour")
+    func plainDropped() {
+        let (lines, bytes) = parts()
+        let token = SyntaxToken(role: .plain, offset: 0, length: 6)
+        let p = PreviewBuilder.text(lines: lines, bytes: bytes, tokens: [token],
+                                    focusLine: 1, capacity: 1)
+        #expect(p.lines[0].spans.isEmpty)
     }
 
     @Test("the focus line survives into the result, clamped to the file")

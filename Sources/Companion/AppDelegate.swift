@@ -25,6 +25,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Exactly one of these is active at a time. The keymap session drives the which-key
     /// panel; a picker, once open, takes every key until it is chosen or cancelled.
     private var activePicker: PickerSession?
+    private let previewLoader = PreviewLoader()
+    /// The style the open picker previews in, so every selection change knows what to ask for.
+    private var previewStyle: PreviewStyle = .none
     private var fileIndex = FileIndex()
     private var history = DocumentHistory()
     private var tracker: WindowTracker!
@@ -186,6 +189,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             if current.source == .dynamic {
                 if symbolRows.isEmpty { runSearch(current.query) } else { applySymbolQuery(current.query) }
             }
+            // `.updated` covers typing and arrow keys alike, so one hook here serves every
+            // way the selection can move.
+            refreshPreview()
         case .ignored:
             break
         case .cancelled:
@@ -261,6 +267,37 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: - pickers
 
+    /// How tall the pane is for a picker, and whether it has one at all.
+    ///
+    /// Decided here, once, before the panel is shown — the panel never resizes while it is
+    /// open, so this is the only moment the question is asked.
+    private func previewHeight(for kind: PickerKind) -> CGFloat {
+        guard kind.previewStyle != .none else { return 0 }
+        // Resolved, because `FileIndex` yields symlink-resolved paths: an unresolved root
+        // would fail the containment test for every row and the pane would only ever say so.
+        previewLoader.projectRoot = projectRoot()?.resolvingSymlinksInPath().path
+        // Nothing to read means nothing to preview, and a pane that can only ever say so is
+        // worse than no pane.
+        guard previewLoader.projectRoot != nil else { return 0 }
+        return 240
+    }
+
+    /// Ask for whatever the current selection wants shown. Safe to call on every keystroke.
+    private func refreshPreview() {
+        guard previewStyle != .none, let item = activePicker?.selectedItem else {
+            picker.showPreview(nil)
+            return
+        }
+        guard let request = PreviewRequest.of(item, style: previewStyle) else {
+            // A row with nothing behind it — the frame stays, and says so.
+            picker.showPreview(.failure(.noOutline))
+            return
+        }
+        previewLoader.request(request, capacity: picker.previewCapacity) { [weak self] result in
+            self?.picker.showPreview(result)
+        }
+    }
+
     private func openPicker(_ kind: PickerKind) {
         let items: [PickerItem]
         switch kind {
@@ -289,7 +326,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                                         items: [], source: .dynamic)
             session.pageSize = 10
             activePicker = session
-            picker.present(session)
+            previewStyle = kind.previewStyle
+            picker.present(session, previewHeight: previewHeight(for: kind))
             return
         case .documentSymbols, .projectSymbols:
             openSymbolPicker(kind)
@@ -304,11 +342,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         var s = PickerSession(title: kind.title, items: items)
         s.pageSize = 10
         activePicker = s
-        picker.present(s)
+        previewStyle = kind.previewStyle
+        picker.present(s, previewHeight: previewHeight(for: kind))
+        // The first row is selected the moment the panel appears, so its preview is asked for
+        // then rather than on the first arrow key.
+        refreshPreview()
     }
 
     private func closePicker() {
         activePicker = nil
+        previewStyle = .none
+        // Drop anything in flight, so a read that lands after the panel has gone does not
+        // redraw a dismissed view.
+        previewLoader.cancel()
         searchRoot = nil
         symbolRows = []
         search.cancel()
@@ -328,7 +374,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         var session = PickerSession(title: kind.title, items: [], source: .dynamic)
         session.pageSize = 10
         activePicker = session
-        picker.present(session)
+        previewStyle = kind.previewStyle
+        picker.present(session, previewHeight: previewHeight(for: kind))
 
         symbolIndex.symbols(forProjectAt: root) { [weak self] result in
             guard let self, var open = self.activePicker else { return }
@@ -336,6 +383,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 open.replaceRows([PickerItem(id: "none", title: reason, isEnabled: false)])
                 self.activePicker = open
                 self.picker.update(open)
+                self.refreshPreview()
                 return
             }
             var symbols = result.symbols
@@ -347,6 +395,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                                                  isEnabled: false)])
                     self.activePicker = open
                     self.picker.update(open)
+                    self.refreshPreview()
+                self.refreshPreview()
                     return
                 }
             }
@@ -369,6 +419,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         })
         activePicker = open
         picker.update(open)
+        refreshPreview()
     }
 
     /// Feed the query to ripgrep and put the hits back into the open picker.
@@ -386,6 +437,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             })
             self.activePicker = session
             self.picker.update(session)
+            self.refreshPreview()
         }
     }
 

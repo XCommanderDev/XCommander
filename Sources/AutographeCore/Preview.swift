@@ -117,25 +117,52 @@ public struct SyntaxToken: Hashable, Sendable {
     }
 }
 
+/// One coloured run inside a drawn line, as a **UTF-16 range** into that line's text.
+///
+/// Core does this conversion, not the view. sourcekitd reports UTF-8 byte offsets into the
+/// whole file; `NSAttributedString` counts UTF-16 within one line; and tabs are expanded before
+/// drawing, which moves every offset on an indented line. Three conversions that have to agree,
+/// so they happen once, here, where they are tested — rather than in a `draw(_:)` that nobody
+/// can put a breakpoint in usefully.
+public struct PreviewSpan: Hashable, Sendable {
+    public let role: SyntaxRole
+    public let start: Int
+    public let length: Int
+
+    public init(role: SyntaxRole, start: Int, length: Int) {
+        self.role = role
+        self.start = start
+        self.length = length
+    }
+}
+
+/// One line as the pane draws it: already tab-expanded, with its colour runs resolved.
+public struct PreviewLine: Hashable, Sendable {
+    public let number: Int
+    public let text: String
+    public let spans: [PreviewSpan]
+
+    public init(number: Int, text: String, spans: [PreviewSpan] = []) {
+        self.number = number
+        self.text = text
+        self.spans = spans
+    }
+}
+
 /// Text in context: what a search hit or a symbol shows.
 public struct TextPreview: Hashable, Sendable {
-    public let lines: [String]
-    /// The file line that `lines[0]` is.
-    public let firstLine: Int
+    public let lines: [PreviewLine]
     /// The file line to mark — not an index into `lines`.
     public let focusLine: Int?
-    /// Byte offsets are into the whole file, so a token is placed by finding its line.
-    public let tokens: [SyntaxToken]
     /// True when the file has more lines than the window shows, so the pane can say so
     /// instead of implying the file ends here.
     public let hasMore: Bool
 
-    public init(lines: [String], firstLine: Int, focusLine: Int?,
-                tokens: [SyntaxToken] = [], hasMore: Bool = false) {
+    public var firstLine: Int { lines.first?.number ?? 1 }
+
+    public init(lines: [PreviewLine], focusLine: Int?, hasMore: Bool = false) {
         self.lines = lines
-        self.firstLine = firstLine
         self.focusLine = focusLine
-        self.tokens = tokens
         self.hasMore = hasMore
     }
 }
@@ -222,9 +249,14 @@ public typealias PreviewResult = Result<PreviewBody, PreviewUnavailable>
 
 /// Turning a parsed file into the window the pane shows.
 ///
-/// Pure, so the slicing is tested rather than eyeballed through a panel: which lines, which
-/// tokens survive the cut, and whether the file continues past the bottom edge.
+/// Pure, so the slicing and the three offset conversions are tested rather than eyeballed
+/// through a panel that ignores the mouse and vanishes on Escape.
 public enum PreviewBuilder {
+
+    /// A tab drawn as a tab lands on `NSAttributedString`'s default stops, which do not line
+    /// up with a monospaced gutter, so indented Swift comes out ragged. Expanding first means
+    /// the spans are computed against the text that is actually drawn.
+    public static let tabWidth = 4
 
     /// - Parameter capacity: how many lines the pane has room for.
     public static func text(lines: LineTable, bytes: [UInt8], tokens: [SyntaxToken],
@@ -233,20 +265,89 @@ public enum PreviewBuilder {
                                           total: lines.lineCount,
                                           capacity: capacity)
         guard let last = window.lastLine else {
-            return TextPreview(lines: [], firstLine: 1, focusLine: nil)
+            return TextPreview(lines: [], focusLine: nil)
         }
-        let text = lines.text(ofLines: window.firstLine...last, in: bytes)
 
-        // Only the tokens that land on a drawn line. The pane would otherwise walk every
-        // token in the file on every redraw to find the handful it can paint.
-        let kept = tokens.filter { token in
+        // Tokens grouped by the line they start on, so each line is built in one pass rather
+        // than by walking every token in the file once per line.
+        var byLine: [Int: [SyntaxToken]] = [:]
+        for token in tokens {
             let line = lines.line(atByteOffset: token.offset)
-            return line >= window.firstLine && line <= last
+            guard line >= window.firstLine, line <= last else { continue }
+            byLine[line, default: []].append(token)
         }
-        return TextPreview(lines: text,
-                           firstLine: window.firstLine,
+
+        var drawn: [PreviewLine] = []
+        drawn.reserveCapacity(window.count)
+        for number in window.firstLine...last {
+            guard let range = lines.byteRange(ofLine: number, in: bytes) else { continue }
+            let raw = Array(bytes[range])
+            let (text, spans) = expand(raw,
+                                       lineStart: range.lowerBound,
+                                       tokens: byLine[number] ?? [])
+            drawn.append(PreviewLine(number: number, text: text, spans: spans))
+        }
+
+        return TextPreview(lines: drawn,
                            focusLine: focusLine.map { min(max($0, 1), lines.lineCount) },
-                           tokens: kept,
                            hasMore: lines.lineCount > window.count)
+    }
+
+    /// Expand tabs and resolve each token to a UTF-16 range in the expanded text.
+    ///
+    /// Done together because they cannot be done apart: expanding a tab to four spaces moves
+    /// everything after it, so a span computed before expansion points at the wrong glyph and
+    /// a span computed after expansion has no byte offset to start from.
+    private static func expand(_ raw: [UInt8], lineStart: Int,
+                               tokens: [SyntaxToken]) -> (String, [PreviewSpan]) {
+        // UTF-16 length of the expanded text at each byte offset in the raw line.
+        var utf16AtByte = [Int](repeating: 0, count: raw.count + 1)
+        var out = ""
+        var utf16Count = 0
+        var byte = 0
+        while byte < raw.count {
+            utf16AtByte[byte] = utf16Count
+            if raw[byte] == 0x09 {
+                let spaces = tabWidth - (utf16Count % tabWidth)
+                out += String(repeating: " ", count: spaces)
+                utf16Count += spaces
+                byte += 1
+                continue
+            }
+            // Copy one whole UTF-8 scalar, so a multi-byte character is never split.
+            let width = utf8Width(raw[byte])
+            let end = min(byte + width, raw.count)
+            let piece = String(decoding: raw[byte..<end], as: UTF8.self)
+            out += piece
+            // Every byte of the scalar maps to the scalar's own start, so a token offset that
+            // lands inside a character still resolves to a drawable position.
+            for inner in byte..<end { utf16AtByte[inner] = utf16Count }
+            utf16Count += piece.utf16.count
+            byte = end
+        }
+        utf16AtByte[raw.count] = utf16Count
+
+        let spans: [PreviewSpan] = tokens.compactMap { token in
+            guard token.role != .plain else { return nil }
+            let start = token.offset - lineStart
+            guard start >= 0, start < raw.count else { return nil }
+            let end = min(start + token.length, raw.count)
+            guard end > start else { return nil }
+            let from = utf16AtByte[start]
+            let to = utf16AtByte[end]
+            guard to > from else { return nil }
+            return PreviewSpan(role: token.role, start: from, length: to - from)
+        }
+        return (out, spans)
+    }
+
+    private static func utf8Width(_ byte: UInt8) -> Int {
+        switch byte {
+        case 0x00...0x7F: 1
+        case 0xC0...0xDF: 2
+        case 0xE0...0xEF: 3
+        case 0xF0...0xF7: 4
+        default: 1
+        }
     }
 }

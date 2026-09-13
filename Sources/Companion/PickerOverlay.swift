@@ -24,13 +24,39 @@ final class PickerOverlay {
 
     var isVisible: Bool { window?.isVisible ?? false }
 
+    /// How tall the preview region is for this presentation, decided once when the picker
+    /// opens and never changed while it is open.
+    ///
+    /// **The panel must not resize under the cursor.** A pane that appears and disappears as
+    /// the selection crosses a row with nothing to preview is the single most jarring thing
+    /// this feature could do, so the height is a property of the *picker*, not of the row.
+    private(set) var previewHeight: CGFloat = 0
+
     func present(_ session: PickerSession) {
+        present(session, previewHeight: 0)
+    }
+
+    /// Present with a preview pane of a given height, which is fixed for this presentation.
+    func present(_ session: PickerSession, previewHeight: CGFloat) {
         ensureWindow()
+        self.previewHeight = previewHeight
+        view?.previewHeight = previewHeight
+        view?.preview = previewHeight > 0 ? .failure(.loading) : nil
         view?.session = session
         view?.needsDisplay = true
         reposition()
         window?.orderFrontRegardless()
     }
+
+    /// The pane's content changed; the panel's shape did not.
+    func showPreview(_ result: PreviewResult?) {
+        guard isVisible, previewHeight > 0 else { return }
+        view?.preview = result
+        view?.needsDisplay = true
+    }
+
+    /// How many lines of source the pane has room for, which is what the loader slices to.
+    var previewCapacity: Int { view?.previewLineCapacity ?? 0 }
 
     func update(_ session: PickerSession) {
         guard isVisible else { return }
@@ -53,7 +79,7 @@ final class PickerOverlay {
     private func reposition() {
         guard let window else { return }
         let width: CGFloat = 720
-        let height: CGFloat = 380
+        let height: CGFloat = Self.listHeight + previewHeight
         let target: NSRect
         if let ax = context.focusedWindowFrame() {
             let primaryTop = NSScreen.screens.first?.frame.maxY ?? 0
@@ -69,9 +95,17 @@ final class PickerOverlay {
         view?.frame = window.contentView?.bounds ?? .zero
     }
 
+    /// The query line and eight rows: exactly what the panel was before there was a preview.
+    ///
+    /// The preview is added *below* this rather than carved out of it, so the list keeps its
+    /// size whether the pane is showing or not — and `visibleRowCount` and
+    /// `PickerSession.pageSize` can never come to disagree, which deletes a paging bug by
+    /// layout instead of by care.
+    static let listHeight: CGFloat = 380
+
     private func ensureWindow() {
         guard window == nil else { return }
-        let panel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 720, height: 380),
+        let panel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 720, height: Self.listHeight),
                             styleMask: [.borderless, .nonactivatingPanel],
                             backing: .buffered, defer: false)
         panel.isOpaque = false
@@ -115,6 +149,11 @@ final class PickerOverlay {
 final class PickerView: NSView {
 
     var session: PickerSession?
+
+    /// What the pane draws, or nil when this picker has no pane at all.
+    var preview: PreviewResult?
+    /// Fixed for the life of a presentation. See `PickerOverlay.previewHeight`.
+    var previewHeight: CGFloat = 0
 
     override var isFlipped: Bool { true }
 
@@ -176,7 +215,41 @@ final class PickerView: NSView {
         }
     }
 
-    var visibleRowCount: Int { Int((bounds.height - padding * 2 - queryHeight) / rowHeight) }
+    private let previewFont = NSFont.monospacedSystemFont(ofSize: 11, weight: .regular)
+    private let gutterFont = NSFont.monospacedDigitSystemFont(ofSize: 10, weight: .regular)
+    private let previewPadding: CGFloat = 10
+
+    /// The list's own height, which does not change when a preview is showing: the pane is
+    /// added below the list rather than taken out of it.
+    private var listHeight: CGFloat { bounds.height - previewHeight }
+
+    var visibleRowCount: Int { Int((listHeight - padding * 2 - queryHeight) / rowHeight) }
+
+    /// How many source lines fit in the pane. The loader slices to exactly this, so nothing is
+    /// read that cannot be drawn.
+    var previewLineCapacity: Int {
+        guard previewHeight > 0 else { return 0 }
+        let usable = previewHeight - previewPadding * 2
+        return max(0, Int(usable / previewLineHeight))
+    }
+
+    private var previewLineHeight: CGFloat { ceil(previewFont.boundingRectForFont.height) + 2 }
+
+    /// One colour per role. **System colours, never literals**, so the pane follows light and
+    /// dark and the user's accent without a second palette — and so it never pretends to be
+    /// Xcode's theme, which we cannot read and should not imitate badly.
+    private static func colour(for role: SyntaxRole) -> NSColor {
+        switch role {
+        case .keyword:    .systemPink
+        case .string:     .systemRed
+        case .number:     .systemOrange
+        case .comment:    .systemGreen
+        case .docComment: .systemGray
+        case .typeName:   .systemPurple
+        case .attribute:  .systemTeal
+        case .plain:      .labelColor
+        }
+    }
 
     override func draw(_ dirtyRect: NSRect) {
         guard let session else { return }
@@ -209,6 +282,8 @@ final class PickerView: NSView {
 
         NSColor.separatorColor.setFill()
         NSRect(x: 0, y: padding + queryHeight, width: bounds.width, height: 1).fill()
+
+        drawPreview()
 
         // Scroll the window of rows so the selection is always shown.
         let capacity = max(1, visibleRowCount)
@@ -297,5 +372,121 @@ final class PickerView: NSView {
             .font: detailFont, .foregroundColor: NSColor.tertiaryLabelColor,
         ])
         count.draw(at: NSPoint(x: bounds.width - padding - count.size().width, y: padding - 4))
+    }
+
+    // MARK: - the preview pane
+
+    /// The band below the list. Its frame is always drawn when this picker has one, even when
+    /// there is nothing to put in it: a pane that collapses on a row with no preview would move
+    /// the layout under the cursor, which is the thing this feature must never do.
+    private func drawPreview() {
+        guard previewHeight > 0 else { return }
+        let top = listHeight
+
+        NSColor.separatorColor.setFill()
+        NSRect(x: 0, y: top, width: bounds.width, height: 1).fill()
+
+        let body = NSRect(x: 0, y: top + 1, width: bounds.width, height: previewHeight - 1)
+        switch preview {
+        case .success(.text(let text)):
+            draw(text, in: body)
+        case .success(.outline(let nodes)):
+            draw(outline: nodes, in: body)
+        case .failure(let reason):
+            draw(message: reason.message, in: body, dimmed: reason == .loading)
+        case nil:
+            break
+        }
+    }
+
+    /// Source, with a line-number gutter and the focus line marked.
+    ///
+    /// Deliberately dumb: every offset, every tab and every colour run was resolved in Core by
+    /// `PreviewBuilder`, so this walks lines and spans and does no arithmetic of its own.
+    private func draw(_ text: TextPreview, in rect: NSRect) {
+        guard !text.lines.isEmpty else {
+            draw(message: "empty file", in: rect, dimmed: true)
+            return
+        }
+        let lineHeight = previewLineHeight
+        // The gutter is sized to the largest number it will show, so the code does not shuffle
+        // sideways as the window moves down a long file.
+        let widest = NSAttributedString(string: "\(text.firstLine + text.lines.count)",
+                                        attributes: [.font: gutterFont]).size().width
+        let gutterWidth = ceil(widest) + 8
+        let codeX = padding + gutterWidth + 8
+        // Only dim the surroundings when there is a focus line to set them against.
+        let hasFocus = text.focusLine != nil
+
+        var y = rect.minY + previewPadding
+        for line in text.lines {
+            let isFocus = line.number == text.focusLine
+
+            if isFocus {
+                // The same band the selected row uses, so the two marks read as one idea.
+                let band = NSRect(x: 8, y: y - 2, width: bounds.width - 16, height: lineHeight)
+                NSColor.controlAccentColor.withAlphaComponent(0.18).setFill()
+                NSBezierPath(roundedRect: band, xRadius: 4, yRadius: 4).fill()
+            }
+
+            let gutter = NSAttributedString(string: "\(line.number)", attributes: [
+                .font: gutterFont,
+                .foregroundColor: isFocus ? NSColor.secondaryLabelColor : NSColor.tertiaryLabelColor,
+            ])
+            gutter.draw(at: NSPoint(x: padding + gutterWidth - gutter.size().width, y: y + 1))
+
+            draw(line, at: NSPoint(x: codeX, y: y),
+                 width: bounds.width - codeX - padding,
+                 dimmed: hasFocus && !isFocus, height: lineHeight)
+            y += lineHeight
+        }
+
+        if text.hasMore {
+            let more = NSAttributedString(string: "⋯", attributes: [
+                .font: gutterFont, .foregroundColor: NSColor.quaternaryLabelColor,
+            ])
+            more.draw(at: NSPoint(x: bounds.width - padding - more.size().width,
+                                  y: rect.maxY - previewPadding - lineHeight))
+        }
+    }
+
+    /// One line, with its colour runs applied.
+    ///
+    /// Truncated and never wrapped: one 400-character line must not eat the pane.
+    private func draw(_ line: PreviewLine, at origin: NSPoint, width: CGFloat,
+                      dimmed: Bool, height: CGFloat) {
+        let base = dimmed ? NSColor.secondaryLabelColor : NSColor.labelColor
+        let attributed = NSMutableAttributedString(string: line.text, attributes: [
+            .font: previewFont, .foregroundColor: base,
+        ])
+        let length = attributed.length
+        for span in line.spans {
+            let range = NSRange(location: span.start, length: span.length)
+            guard range.location >= 0, range.location + range.length <= length else { continue }
+            var colour = Self.colour(for: span.role)
+            // Away from the focus line the colour recedes rather than disappears: the shape of
+            // the code stays readable while the answer stays the brightest thing in the pane.
+            if dimmed { colour = colour.withAlphaComponent(0.5) }
+            attributed.addAttribute(.foregroundColor, value: colour, range: range)
+        }
+
+        let truncation = NSMutableParagraphStyle()
+        truncation.lineBreakMode = .byTruncatingTail
+        attributed.addAttribute(.paragraphStyle, value: truncation,
+                                range: NSRange(location: 0, length: length))
+        attributed.draw(with: NSRect(x: origin.x, y: origin.y, width: width, height: height),
+                        options: [.usesLineFragmentOrigin])
+    }
+
+    private func draw(message: String, in rect: NSRect, dimmed: Bool) {
+        let attributed = NSAttributedString(string: message, attributes: [
+            .font: rowFont,
+            .foregroundColor: dimmed ? NSColor.tertiaryLabelColor : NSColor.secondaryLabelColor,
+        ])
+        attributed.draw(at: NSPoint(x: padding, y: rect.minY + previewPadding))
+    }
+
+    private func draw(outline nodes: [OutlineNode], in rect: NSRect) {
+        draw(message: "\(nodes.count) declarations", in: rect, dimmed: true)
     }
 }

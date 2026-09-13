@@ -21,18 +21,18 @@ final class PreviewLoader {
 
     /// Beyond this we do not read at all. A generated JSON in the file index can be tens of
     /// megabytes and the pane wants forty lines.
-    private static let maxBytes = 1_000_000
+    nonisolated private static let maxBytes = 1_000_000
     /// A NUL in the first few kilobytes means binary. Cheap, and right about every file the
     /// index actually offers — a compiled `.plist` and a `.strings` in UTF-16 both trip it.
-    private static let sniffBytes = 8_000
-    private static let debounceInterval: TimeInterval = 0.06
+    nonisolated private static let sniffBytes = 8_000
+    nonisolated private static let debounceInterval: TimeInterval = 0.06
 
     /// Only Swift gets a sourcekitd parse. Everything else in the file index previews as plain
     /// text, which is the right answer rather than a gap: a Markdown file coloured as Swift
     /// would be worse than a Markdown file not coloured at all.
-    private static let parsableExtensions: Set<String> = ["swift"]
+    nonisolated private static let parsableExtensions: Set<String> = ["swift"]
 
-    private struct Parsed {
+    nonisolated private struct Parsed {
         let bytes: [UInt8]
         let lines: LineTable
         let tokens: [SyntaxToken]
@@ -126,7 +126,7 @@ final class PreviewLoader {
     }
 
     /// Off the main thread. Everything that can refuse a file refuses it here, with a reason.
-    private static func read(path: String) -> Result<Parsed, PreviewUnavailable> {
+    nonisolated private static func read(path: String) -> Result<Parsed, PreviewUnavailable> {
         let fm = FileManager.default
         let attributes = try? fm.attributesOfItem(atPath: path)
         let size = (attributes?[.size] as? NSNumber)?.intValue ?? 0
