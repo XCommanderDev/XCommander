@@ -37,6 +37,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var searchRoot: URL?
     /// The symbols behind an open symbol picker, filtered by our own matcher.
     private var symbolRows: [ProjectSymbol] = []
+    /// The hits behind the open search picker's rows, by row id.
+    ///
+    /// A row's id carries the file and the line, which is all `choose` needs to open it. The
+    /// preview needs one thing more — *where in the line* the hit is — so the matches are kept
+    /// beside the rows rather than encoded into the id, which would change a format four other
+    /// things parse.
+    private var searchMatches: [String: SearchMatch] = [:]
 
     /// Fires when an armed sequence has gone unresolved for `session.timeout`.
     private var sequenceTimer: Timer?
@@ -271,9 +278,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     ///
     /// Decided here, once, before the panel is shown — the panel never resizes while it is
     /// open, so this is the only moment the question is asked.
-    private static let previewPaneHeight: CGFloat = 240
+    private static let previewPaneWidth: CGFloat = 620
 
-    private func previewHeight(for kind: PickerKind) -> CGFloat {
+    private func previewWidth(for kind: PickerKind) -> CGFloat {
         guard kind.previewStyle != .none else { return 0 }
         // Resolved, because `FileIndex` yields symlink-resolved paths: an unresolved root
         // would fail the containment test for every row and the pane would only ever say so.
@@ -284,12 +291,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Xcode's own window decides, falling back to the screen when it will not say — the
         // same fallback `PickerOverlay.reposition` uses to place the panel.
-        let available = context.focusedWindowFrame()?.height
-            ?? NSScreen.main?.visibleFrame.height ?? 0
-        let panel = PickerOverlay.listHeight + Self.previewPaneHeight
-        guard SettingsWindow.previewMode.showsPreview(inWindowOfHeight: Double(available),
-                                                      panelHeight: Double(panel)) else { return 0 }
-        return Self.previewPaneHeight
+        let available = context.focusedWindowFrame()?.width
+            ?? NSScreen.main?.visibleFrame.width ?? 0
+        let panel = PickerOverlay.listWidth + Self.previewPaneWidth
+        guard SettingsWindow.previewMode.showsPreview(inWindowOfWidth: Double(available),
+                                                      panelWidth: Double(panel)) else { return 0 }
+        return Self.previewPaneWidth
     }
 
     /// What a row wants previewed, including the one case `PreviewRequest` cannot answer.
@@ -301,7 +308,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     ///
     /// Returns nil after putting a reason in the pane, so the frame never collapses.
     private func previewRequest(for item: PickerItem) -> PreviewRequest? {
-        if let request = PreviewRequest.of(item, style: previewStyle) { return request }
+        if let request = PreviewRequest.of(item, style: previewStyle) {
+            // Mark the searched-for text, which the row id does not carry.
+            if case .text(let path, let line, _) = request,
+               let match = searchMatches[item.id], match.end > match.start {
+                return .text(path: path, focusLine: line,
+                             highlight: match.start..<match.end)
+            }
+            return request
+        }
         guard case .tab = PickerTarget.parse(item.id) else {
             picker.showPreview(.failure(.noOutline))
             return nil
@@ -364,7 +379,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             session.pageSize = 10
             activePicker = session
             previewStyle = kind.previewStyle
-            picker.present(session, previewHeight: previewHeight(for: kind))
+            picker.present(session, previewWidth: previewWidth(for: kind))
             return
         case .documentSymbols, .projectSymbols:
             openSymbolPicker(kind)
@@ -380,7 +395,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         s.pageSize = 10
         activePicker = s
         previewStyle = kind.previewStyle
-        picker.present(s, previewHeight: previewHeight(for: kind))
+        picker.present(s, previewWidth: previewWidth(for: kind))
         // The first row is selected the moment the panel appears, so its preview is asked for
         // then rather than on the first arrow key.
         refreshPreview()
@@ -389,6 +404,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func closePicker() {
         activePicker = nil
         previewStyle = .none
+        searchMatches = [:]
         // Drop anything in flight, so a read that lands after the panel has gone does not
         // redraw a dismissed view.
         previewLoader.cancel()
@@ -412,7 +428,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         session.pageSize = 10
         activePicker = session
         previewStyle = kind.previewStyle
-        picker.present(session, previewHeight: previewHeight(for: kind))
+        picker.present(session, previewWidth: previewWidth(for: kind))
 
         symbolIndex.symbols(forProjectAt: root) { [weak self] result in
             guard let self, var open = self.activePicker else { return }
@@ -464,6 +480,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard let root = searchRoot else { return }
         search.search(query, in: root) { [weak self] matches in
             guard let self, var session = self.activePicker, session.source == .dynamic else { return }
+            self.searchMatches = Dictionary(
+                matches.map { ("match:\($0.path):\($0.line)", $0) },
+                uniquingKeysWith: { first, _ in first })
             session.replaceRows(matches.map { match in
                 PickerItem(id: "match:\(match.path):\(match.line)",
                            // The line itself is the row, because that is what you are

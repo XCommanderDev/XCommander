@@ -24,24 +24,24 @@ final class PickerOverlay {
 
     var isVisible: Bool { window?.isVisible ?? false }
 
-    /// How tall the preview region is for this presentation, decided once when the picker
-    /// opens and never changed while it is open.
+    /// How wide the preview pane is for this presentation, decided once when the picker opens
+    /// and never changed while it is open.
     ///
-    /// **The panel must not resize under the cursor.** A pane that appears and disappears as
-    /// the selection crosses a row with nothing to preview is the single most jarring thing
-    /// this feature could do, so the height is a property of the *picker*, not of the row.
-    private(set) var previewHeight: CGFloat = 0
+    /// **The panel must not resize under the cursor.** A pane that appeared and disappeared as
+    /// the selection moved would be the most jarring thing this feature could do, so the width
+    /// is a property of the *picker*, not of the row.
+    private(set) var previewWidth: CGFloat = 0
 
     func present(_ session: PickerSession) {
-        present(session, previewHeight: 0)
+        present(session, previewWidth: 0)
     }
 
-    /// Present with a preview pane of a given height, which is fixed for this presentation.
-    func present(_ session: PickerSession, previewHeight: CGFloat) {
+    /// Present with a preview pane of a given width, which is fixed for this presentation.
+    func present(_ session: PickerSession, previewWidth: CGFloat) {
         ensureWindow()
-        self.previewHeight = previewHeight
-        view?.previewHeight = previewHeight
-        view?.preview = previewHeight > 0 ? .failure(.loading) : nil
+        self.previewWidth = previewWidth
+        view?.previewWidth = previewWidth
+        view?.preview = previewWidth > 0 ? .failure(.loading) : nil
         view?.session = session
         view?.needsDisplay = true
         reposition()
@@ -50,7 +50,7 @@ final class PickerOverlay {
 
     /// The pane's content changed; the panel's shape did not.
     func showPreview(_ result: PreviewResult?) {
-        guard isVisible, previewHeight > 0 else { return }
+        guard isVisible, previewWidth > 0 else { return }
         view?.preview = result
         view?.needsDisplay = true
     }
@@ -78,8 +78,8 @@ final class PickerOverlay {
     /// and every other command palette sits. Falls back to the screen if Xcode will not say.
     private func reposition() {
         guard let window else { return }
-        let width: CGFloat = 720
-        let height: CGFloat = Self.listHeight + previewHeight
+        let width: CGFloat = Self.listWidth + previewWidth
+        let height: CGFloat = Self.panelHeight
         let target: NSRect
         if let ax = context.focusedWindowFrame() {
             let primaryTop = NSScreen.screens.first?.frame.maxY ?? 0
@@ -95,17 +95,18 @@ final class PickerOverlay {
         view?.frame = window.contentView?.bounds ?? .zero
     }
 
-    /// The query line and eight rows: exactly what the panel was before there was a preview.
+    /// Exactly what the panel was before there was a preview.
     ///
-    /// The preview is added *below* this rather than carved out of it, so the list keeps its
-    /// size whether the pane is showing or not — and `visibleRowCount` and
-    /// `PickerSession.pageSize` can never come to disagree, which deletes a paging bug by
-    /// layout instead of by care.
-    static let listHeight: CGFloat = 380
+    /// The pane is added to the *right* of this rather than carved out of it, so the list keeps
+    /// its width and its row count whether the pane is showing or not — which is also why
+    /// `visibleRowCount` and `PickerSession.pageSize` can never come to disagree.
+    static let listWidth: CGFloat = 720
+    static let panelHeight: CGFloat = 380
 
     private func ensureWindow() {
         guard window == nil else { return }
-        let panel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 720, height: Self.listHeight),
+        let panel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: Self.listWidth,
+                                                height: Self.panelHeight),
                             styleMask: [.borderless, .nonactivatingPanel],
                             backing: .buffered, defer: false)
         panel.isOpaque = false
@@ -152,8 +153,8 @@ final class PickerView: NSView {
 
     /// What the pane draws, or nil when this picker has no pane at all.
     var preview: PreviewResult?
-    /// Fixed for the life of a presentation. See `PickerOverlay.previewHeight`.
-    var previewHeight: CGFloat = 0
+    /// Fixed for the life of a presentation. See `PickerOverlay.previewWidth`.
+    var previewWidth: CGFloat = 0
 
     override var isFlipped: Bool { true }
 
@@ -226,17 +227,17 @@ final class PickerView: NSView {
     private let outlineNameBoldFont = NSFont.systemFont(ofSize: 11.5, weight: .semibold)
     private let outlineSummaryFont = NSFont.systemFont(ofSize: 10.5)
 
-    /// The list's own height, which does not change when a preview is showing: the pane is
-    /// added below the list rather than taken out of it.
-    private var listHeight: CGFloat { bounds.height - previewHeight }
+    /// The list's own width, which does not change when a preview is showing: the pane is
+    /// added beside the list rather than taken out of it.
+    private var listWidth: CGFloat { bounds.width - previewWidth }
 
-    var visibleRowCount: Int { Int((listHeight - padding * 2 - queryHeight) / rowHeight) }
+    var visibleRowCount: Int { Int((bounds.height - padding * 2 - queryHeight) / rowHeight) }
 
     /// How many source lines fit in the pane. The loader slices to exactly this, so nothing is
     /// read that cannot be drawn.
     var previewLineCapacity: Int {
-        guard previewHeight > 0 else { return 0 }
-        let usable = previewHeight - previewPadding * 2
+        guard previewWidth > 0 else { return 0 }
+        let usable = bounds.height - previewPadding * 2
         return max(0, Int(usable / previewLineHeight))
     }
 
@@ -288,7 +289,7 @@ final class PickerView: NSView {
         }
 
         NSColor.separatorColor.setFill()
-        NSRect(x: 0, y: padding + queryHeight, width: bounds.width, height: 1).fill()
+        NSRect(x: 0, y: padding + queryHeight, width: listWidth, height: 1).fill()
 
         drawPreview()
 
@@ -307,7 +308,7 @@ final class PickerView: NSView {
             if isSelected {
                 // Softer than a solid accent band, and rounded so it reads as a row rather
                 // than a stripe across the window.
-                let band = NSRect(x: 8, y: y - 4, width: bounds.width - 16, height: rowHeight)
+                let band = NSRect(x: 8, y: y - 4, width: listWidth - 16, height: rowHeight)
                 NSColor.controlAccentColor.withAlphaComponent(0.18).setFill()
                 NSBezierPath(roundedRect: band, xRadius: 6, yRadius: 6).fill()
             }
@@ -344,7 +345,7 @@ final class PickerView: NSView {
                 ])
             }
             let detailWidth = detail.map { $0.size().width + columnGap } ?? 0
-            let available = max(40, bounds.width - padding - textX - detailWidth)
+            let available = max(40, listWidth - padding - textX - detailWidth)
 
             let truncation = NSMutableParagraphStyle()
             truncation.lineBreakMode = .byTruncatingTail
@@ -354,7 +355,7 @@ final class PickerView: NSView {
                        options: [.usesLineFragmentOrigin])
 
             if let detail {
-                detail.draw(at: NSPoint(x: bounds.width - padding - detail.size().width, y: y + 2))
+                detail.draw(at: NSPoint(x: listWidth - padding - detail.size().width, y: y + 2))
             }
             y += rowHeight
         }
@@ -369,7 +370,7 @@ final class PickerView: NSView {
         let count = NSAttributedString(string: "\(session.rows.count)", attributes: [
             .font: detailFont, .foregroundColor: NSColor.tertiaryLabelColor,
         ])
-        count.draw(at: NSPoint(x: bounds.width - padding - count.size().width, y: padding - 4))
+        count.draw(at: NSPoint(x: listWidth - padding - count.size().width, y: padding - 4))
     }
 
     // MARK: - the preview pane
@@ -378,13 +379,13 @@ final class PickerView: NSView {
     /// there is nothing to put in it: a pane that collapses on a row with no preview would move
     /// the layout under the cursor, which is the thing this feature must never do.
     private func drawPreview() {
-        guard previewHeight > 0 else { return }
-        let top = listHeight
+        guard previewWidth > 0 else { return }
 
         NSColor.separatorColor.setFill()
-        NSRect(x: 0, y: top, width: bounds.width, height: 1).fill()
+        NSRect(x: listWidth, y: 0, width: 1, height: bounds.height).fill()
 
-        let body = NSRect(x: 0, y: top + 1, width: bounds.width, height: previewHeight - 1)
+        let body = NSRect(x: listWidth + 1, y: 0,
+                          width: previewWidth - 1, height: bounds.height)
         switch preview {
         case .success(.text(let text)):
             draw(text, in: body)
@@ -412,7 +413,7 @@ final class PickerView: NSView {
         let widest = NSAttributedString(string: "\(text.firstLine + text.lines.count)",
                                         attributes: [.font: gutterFont]).size().width
         let gutterWidth = ceil(widest) + 8
-        let codeX = padding + gutterWidth + 8
+        let codeX = rect.minX + padding + gutterWidth + 8
         // Only dim the surroundings when there is a focus line to set them against.
         let hasFocus = text.focusLine != nil
 
@@ -422,7 +423,8 @@ final class PickerView: NSView {
 
             if isFocus {
                 // The same band the selected row uses, so the two marks read as one idea.
-                let band = NSRect(x: 8, y: y - 2, width: bounds.width - 16, height: lineHeight)
+                let band = NSRect(x: rect.minX + 6, y: y - 2,
+                                  width: rect.width - 12, height: lineHeight)
                 NSColor.controlAccentColor.withAlphaComponent(0.18).setFill()
                 NSBezierPath(roundedRect: band, xRadius: 4, yRadius: 4).fill()
             }
@@ -431,10 +433,11 @@ final class PickerView: NSView {
                 .font: gutterFont,
                 .foregroundColor: isFocus ? NSColor.secondaryLabelColor : NSColor.tertiaryLabelColor,
             ])
-            gutter.draw(at: NSPoint(x: padding + gutterWidth - gutter.size().width, y: y + 1))
+            gutter.draw(at: NSPoint(x: rect.minX + padding + gutterWidth - gutter.size().width,
+                                    y: y + 1))
 
             draw(line, at: NSPoint(x: codeX, y: y),
-                 width: bounds.width - codeX - padding,
+                 width: rect.maxX - codeX - padding,
                  dimmed: hasFocus && !isFocus, height: lineHeight)
             y += lineHeight
         }
@@ -443,7 +446,7 @@ final class PickerView: NSView {
             let more = NSAttributedString(string: "⋯", attributes: [
                 .font: gutterFont, .foregroundColor: NSColor.quaternaryLabelColor,
             ])
-            more.draw(at: NSPoint(x: bounds.width - padding - more.size().width,
+            more.draw(at: NSPoint(x: rect.maxX - padding - more.size().width,
                                   y: rect.maxY - previewPadding - lineHeight))
         }
     }
@@ -458,6 +461,22 @@ final class PickerView: NSView {
             .font: previewFont, .foregroundColor: base,
         ])
         let length = attributed.length
+
+        // The searched-for text, marked the way every other editor's picker marks it. Drawn
+        // as a background so it reads as "this is the hit" rather than as another syntax role.
+        if let highlight = line.highlight, highlight.upperBound <= length {
+            let before = attributed.attributedSubstring(
+                from: NSRange(location: 0, length: highlight.lowerBound)).size().width
+            let hit = attributed.attributedSubstring(
+                from: NSRange(location: highlight.lowerBound, length: highlight.count)).size().width
+            if origin.x + before < origin.x + width {
+                let box = NSRect(x: origin.x + before - 1, y: origin.y,
+                                 width: min(hit + 2, width - before), height: height - 1)
+                NSColor.systemYellow.withAlphaComponent(dimmed ? 0.18 : 0.32).setFill()
+                NSBezierPath(roundedRect: box, xRadius: 3, yRadius: 3).fill()
+            }
+        }
+
         for span in line.spans {
             let range = NSRange(location: span.start, length: span.length)
             guard range.location >= 0, range.location + range.length <= length else { continue }
@@ -466,6 +485,16 @@ final class PickerView: NSView {
             // the code stays readable while the answer stays the brightest thing in the pane.
             if dimmed { colour = colour.withAlphaComponent(0.5) }
             attributed.addAttribute(.foregroundColor, value: colour, range: range)
+        }
+
+        // Text under the mark goes back to label colour, for the same reason the row list
+        // drops the accent off matched characters on a selected row: a syntax colour over a
+        // tinted box is two marks fighting, and the one that loses is the word you searched
+        // for. The box says "here"; the text just has to be readable.
+        if let highlight = line.highlight, highlight.upperBound <= length {
+            attributed.addAttribute(.foregroundColor, value: NSColor.labelColor,
+                                    range: NSRange(location: highlight.lowerBound,
+                                                   length: highlight.count))
         }
 
         let truncation = NSMutableParagraphStyle()
@@ -481,7 +510,7 @@ final class PickerView: NSView {
             .font: rowFont,
             .foregroundColor: dimmed ? NSColor.tertiaryLabelColor : NSColor.secondaryLabelColor,
         ])
-        attributed.draw(at: NSPoint(x: padding, y: rect.minY + previewPadding))
+        attributed.draw(at: NSPoint(x: rect.minX + padding, y: rect.minY + previewPadding))
     }
 
     /// The rounded, tinted square Xcode uses in its own completion list.
@@ -520,7 +549,7 @@ final class PickerView: NSView {
 
         var y = rect.minY + previewPadding
         for (node, depth) in shown {
-            let indent = padding + CGFloat(min(depth, 3)) * outlineIndent
+            let indent = rect.minX + padding + CGFloat(min(depth, 3)) * outlineIndent
             // Always at full tint. `enabled` means "you cannot use this row" in the list above,
             // and a badge dimmed for being internal says exactly the wrong thing — in an app
             // target nothing is public, so the whole outline came out looking disabled.
@@ -543,7 +572,7 @@ final class PickerView: NSView {
             let number = NSAttributedString(string: "\(node.line)", attributes: [
                 .font: gutterFont, .foregroundColor: NSColor.quaternaryLabelColor,
             ])
-            let numberX = bounds.width - padding - number.size().width
+            let numberX = rect.maxX - padding - number.size().width
             number.draw(at: NSPoint(x: numberX, y: y + 2))
 
             if let summary = node.summary {
@@ -567,7 +596,7 @@ final class PickerView: NSView {
             let more = NSAttributedString(string: "+\(total - shown.count) more", attributes: [
                 .font: gutterFont, .foregroundColor: NSColor.quaternaryLabelColor,
             ])
-            more.draw(at: NSPoint(x: padding, y: y + 2))
+            more.draw(at: NSPoint(x: rect.minX + padding, y: y + 2))
         }
     }
 }

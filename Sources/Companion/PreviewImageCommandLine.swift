@@ -28,10 +28,11 @@ enum PreviewImageCommandLine {
         let lines = LineTable(bytes: bytes)
         let parsed = SourceKit.shared.parse(path: path, lines: lines, bytes: bytes)
 
-        let previewHeight: CGFloat = 240
-        let view = PickerView(frame: NSRect(x: 0, y: 0, width: 720,
-                                            height: PickerOverlay.listHeight + previewHeight))
-        view.previewHeight = previewHeight
+        let previewWidth: CGFloat = 620
+        let view = PickerView(frame: NSRect(x: 0, y: 0,
+                                            width: PickerOverlay.listWidth + previewWidth,
+                                            height: PickerOverlay.panelHeight))
+        view.previewWidth = previewWidth
 
         // A plausible list to sit above the pane: the rows the picker would show for this file.
         let name = (path as NSString).lastPathComponent
@@ -52,9 +53,19 @@ enum PreviewImageCommandLine {
                                            tokens: parsed?.tokens ?? [],
                                            outline: parsed?.outline ?? [],
                                            isSource: SourceKit.canParse(path))
+        // A stand-in for the searched term, so the mark can be judged: the first run of
+        // non-space characters on the focus line.
+        var highlight: Range<Int>?
+        if let line, let range = lines.byteRange(ofLine: line, in: bytes) {
+            let raw = Array(bytes[range])
+            if let from = raw.firstIndex(where: { $0 != 0x20 && $0 != 0x09 }) {
+                let to = raw[from...].firstIndex(where: { $0 == 0x20 }) ?? raw.count
+                highlight = from..<to
+            }
+        }
         let request: PreviewRequest = line == nil
             ? .outline(path: path)
-            : .text(path: path, focusLine: line)
+            : .text(path: path, focusLine: line, highlight: highlight)
         view.preview = PreviewBuilder.body(for: request, from: source,
                                            capacity: view.previewLineCapacity)
 
@@ -68,7 +79,8 @@ enum PreviewImageCommandLine {
         NSGraphicsContext.restoreGraphicsState()
 
         view.cacheDisplay(in: view.bounds, to: rep)
-        guard let png = rep.representation(using: .png, properties: [:]) else { return false }
+        guard let png = rep.representation(using: NSBitmapImageRep.FileType.png,
+                                           properties: [:]) else { return false }
         do {
             try png.write(to: URL(fileURLWithPath: output))
             print("wrote \(output)  \(Int(view.bounds.width))×\(Int(view.bounds.height))"

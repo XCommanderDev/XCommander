@@ -22,14 +22,18 @@ public enum PreviewStyle: Hashable, Sendable {
 /// at every call site.
 public enum PreviewRequest: Hashable, Sendable {
     /// Lines of a file, centred on `focusLine` when the row named one.
-    case text(path: String, focusLine: Int?)
+    ///
+    /// `highlight` is the byte range of the matched text *within that line*, which is what
+    /// `SearchMatch` already records — so the pane can mark the term you searched for, the way
+    /// every other editor's picker does, rather than leaving you to find it.
+    case text(path: String, focusLine: Int?, highlight: Range<Int>? = nil)
     /// The file's declarations.
     case outline(path: String)
 
     /// The path either shape is about, which is also the cache key.
     public var path: String {
         switch self {
-        case .text(let path, _): path
+        case .text(let path, _, _): path
         case .outline(let path): path
         }
     }
@@ -44,7 +48,7 @@ public enum PreviewRequest: Hashable, Sendable {
         guard style != .none else { return nil }
         guard case .file(let path, let line) = PickerTarget.parse(item.id) else { return nil }
         return switch style {
-        case .text: .text(path: path, focusLine: line)
+        case .text: .text(path: path, focusLine: line, highlight: nil)
         case .outline: .outline(path: path)
         case .none: nil
         }
@@ -141,11 +145,15 @@ public struct PreviewLine: Hashable, Sendable {
     public let number: Int
     public let text: String
     public let spans: [PreviewSpan]
+    /// The searched-for text, as a UTF-16 range into `text`. Set on the matched line only.
+    public let highlight: Range<Int>?
 
-    public init(number: Int, text: String, spans: [PreviewSpan] = []) {
+    public init(number: Int, text: String, spans: [PreviewSpan] = [],
+                highlight: Range<Int>? = nil) {
         self.number = number
         self.text = text
         self.spans = spans
+        self.highlight = highlight
     }
 }
 
@@ -310,10 +318,10 @@ public enum PreviewBuilder {
     public static func body(for request: PreviewRequest, from source: Source,
                             capacity: Int) -> PreviewResult {
         switch request {
-        case .text(_, let focusLine):
+        case .text(_, let focusLine, let highlight):
             return .success(.text(text(lines: source.lines, bytes: source.bytes,
                                        tokens: source.tokens, focusLine: focusLine,
-                                       capacity: capacity)))
+                                       capacity: capacity, highlight: highlight)))
         case .outline:
             guard source.outline.isEmpty else { return .success(.outline(source.outline)) }
             // A README or a JSON has no declarations and never will. Telling the user that is
@@ -330,7 +338,8 @@ public enum PreviewBuilder {
 
     /// - Parameter capacity: how many lines the pane has room for.
     public static func text(lines: LineTable, bytes: [UInt8], tokens: [SyntaxToken],
-                            focusLine: Int?, capacity: Int) -> TextPreview {
+                            focusLine: Int?, capacity: Int,
+                            highlight: Range<Int>? = nil) -> TextPreview {
         let window = PreviewWindow.around(line: focusLine,
                                           total: lines.lineCount,
                                           capacity: capacity)
@@ -352,10 +361,13 @@ public enum PreviewBuilder {
         for number in window.firstLine...last {
             guard let range = lines.byteRange(ofLine: number, in: bytes) else { continue }
             let raw = Array(bytes[range])
-            let (text, spans) = expand(raw,
-                                       lineStart: range.lowerBound,
-                                       tokens: byLine[number] ?? [])
-            drawn.append(PreviewLine(number: number, text: text, spans: spans))
+            // The highlight is a range within the matched line, so it applies to that line
+            // and no other — a second line that happens to contain the word is not the hit.
+            let (text, spans, mark) = expand(raw,
+                                             lineStart: range.lowerBound,
+                                             tokens: byLine[number] ?? [],
+                                             highlight: number == focusLine ? highlight : nil)
+            drawn.append(PreviewLine(number: number, text: text, spans: spans, highlight: mark))
         }
 
         return TextPreview(lines: drawn,
@@ -368,8 +380,8 @@ public enum PreviewBuilder {
     /// Done together because they cannot be done apart: expanding a tab to four spaces moves
     /// everything after it, so a span computed before expansion points at the wrong glyph and
     /// a span computed after expansion has no byte offset to start from.
-    private static func expand(_ raw: [UInt8], lineStart: Int,
-                               tokens: [SyntaxToken]) -> (String, [PreviewSpan]) {
+    private static func expand(_ raw: [UInt8], lineStart: Int, tokens: [SyntaxToken],
+                               highlight: Range<Int>?) -> (String, [PreviewSpan], Range<Int>?) {
         // UTF-16 length of the expanded text at each byte offset in the raw line.
         var utf16AtByte = [Int](repeating: 0, count: raw.count + 1)
         var out = ""
@@ -408,7 +420,17 @@ public enum PreviewBuilder {
             guard to > from else { return nil }
             return PreviewSpan(role: token.role, start: from, length: to - from)
         }
-        return (out, spans)
+        // The match range is in bytes within the line, so it goes through the same map the
+        // tokens do — a tab before the hit would otherwise put the mark in the wrong place.
+        var mark: Range<Int>?
+        if let highlight,
+           highlight.lowerBound >= 0, highlight.upperBound <= raw.count,
+           highlight.lowerBound < highlight.upperBound {
+            let from = utf16AtByte[highlight.lowerBound]
+            let to = utf16AtByte[highlight.upperBound]
+            if to > from { mark = from..<to }
+        }
+        return (out, spans, mark)
     }
 
     private static func utf8Width(_ byte: UInt8) -> Int {

@@ -102,16 +102,26 @@ struct PreviewTests {
         #expect(PreviewRequest.of(PickerItem(id: "file:/tmp/a.swift", title: "a"), style: .none) == nil)
     }
 
-    @Test("every picker has decided what it shows, and the answer matches the question it leaves")
-    func everyPickerHasAPolicy() {
-        // Rows that are locations want context; rows that name a file want its shape; rows
-        // that are the answer want nothing.
+    @Test("only the picker whose rows are locations gets a pane")
+    func onlySearchPreviews() {
+        // A search hit is one line torn out of a file and the surrounding lines are the
+        // decision. Every other row is already its own answer, and a pane beside it is
+        // furniture.
         #expect(PickerKind.projectSearch.previewStyle == .text)
-        #expect(PickerKind.documentSymbols.previewStyle == .text)
-        #expect(PickerKind.files.previewStyle == .outline)
-        #expect(PickerKind.buffers.previewStyle == .outline)
-        #expect(PickerKind.commands.previewStyle == .none)
-        #expect(PickerKind.recentProjects.previewStyle == .none)
+        for kind in PickerKind.allCases where kind != .projectSearch {
+            #expect(kind.previewStyle == .none, "\(kind.rawValue) should not preview")
+        }
+    }
+
+    @Test("a search row carries the matched range so the pane can mark it")
+    func highlightTravels() {
+        let request = PreviewRequest.text(path: "/a.swift", focusLine: 12, highlight: 4..<9)
+        guard case .text(let path, let line, let highlight) = request else {
+            Issue.record("expected text"); return
+        }
+        #expect(path == "/a.swift")
+        #expect(line == 12)
+        #expect(highlight == 4..<9)
     }
 
     // MARK: - the outline
@@ -266,6 +276,31 @@ struct PreviewBuilderTests {
                       count: span.length)
     }
 
+    @Test("the matched text is marked, on the matched line only")
+    func highlightPlacement() {
+        let (lines, bytes) = parts("let a = 1\nlet needle = 2\nlet needle = 3\n")
+        // Byte offsets of "needle" within line 2, which is what SearchMatch records.
+        let p = PreviewBuilder.text(lines: lines, bytes: bytes, tokens: [],
+                                    focusLine: 2, capacity: 3, highlight: 4..<10)
+        let marked = p.lines.first { $0.number == 2 }!
+        let mark = marked.highlight!
+        #expect(utf16Slice(marked.text, PreviewSpan(role: .plain, start: mark.lowerBound,
+                                                    length: mark.count)) == "needle")
+        // Line 3 contains the same word and is not the hit.
+        #expect(p.lines.first { $0.number == 3 }?.highlight == nil)
+    }
+
+    @Test("a tab before the match does not shift the mark off it")
+    func highlightAfterTab() {
+        let (lines, bytes) = parts("\tlet needle = 2\n")
+        let p = PreviewBuilder.text(lines: lines, bytes: bytes, tokens: [],
+                                    focusLine: 1, capacity: 1, highlight: 5..<11)
+        let line = p.lines[0]
+        let mark = line.highlight!
+        #expect(utf16Slice(line.text, PreviewSpan(role: .plain, start: mark.lowerBound,
+                                                  length: mark.count)) == "needle")
+    }
+
     @Test("plain tokens are dropped rather than drawn in a colour")
     func plainDropped() {
         let (lines, bytes) = parts()
@@ -356,25 +391,25 @@ struct OutlineFittingTests {
 @Suite("Preview mode")
 struct PreviewModeTests {
 
-    private let panel = 620.0
+    private let panel = 1180.0
 
     @Test("off never shows one, however much room there is")
     func off() {
-        #expect(!PreviewMode.off.showsPreview(inWindowOfHeight: 2000, panelHeight: panel))
+        #expect(!PreviewMode.off.showsPreview(inWindowOfWidth: 3000, panelWidth: panel))
     }
 
     @Test("on always shows one, however little")
     func on() {
-        #expect(PreviewMode.on.showsPreview(inWindowOfHeight: 300, panelHeight: panel))
+        #expect(PreviewMode.on.showsPreview(inWindowOfWidth: 700, panelWidth: panel))
     }
 
     @Test("auto needs the panel to fit with room to spare")
     func auto() {
-        // A 13-inch laptop in a half-height tile is the case this exists for.
-        #expect(!PreviewMode.auto.showsPreview(inWindowOfHeight: 600, panelHeight: panel))
-        #expect(!PreviewMode.auto.showsPreview(inWindowOfHeight: panel + 159, panelHeight: panel))
-        #expect(PreviewMode.auto.showsPreview(inWindowOfHeight: panel + 160, panelHeight: panel))
-        #expect(PreviewMode.auto.showsPreview(inWindowOfHeight: 1100, panelHeight: panel))
+        // A narrow Xcode window beside a browser is the case this exists for.
+        #expect(!PreviewMode.auto.showsPreview(inWindowOfWidth: 900, panelWidth: panel))
+        #expect(!PreviewMode.auto.showsPreview(inWindowOfWidth: panel + 79, panelWidth: panel))
+        #expect(PreviewMode.auto.showsPreview(inWindowOfWidth: panel + 80, panelWidth: panel))
+        #expect(PreviewMode.auto.showsPreview(inWindowOfWidth: 1800, panelWidth: panel))
     }
 
     @Test("the default is the one that cannot embarrass itself")

@@ -63,9 +63,13 @@ public enum PickerKind: String, Hashable, Sendable, CaseIterable {
     /// (a command, a destination) needs no pane.
     public var previewStyle: PreviewStyle {
         switch self {
-        case .projectSearch, .documentSymbols, .projectSymbols: .text
-        case .files, .buffers: .outline
-        case .commands, .destinations, .schemes, .themes, .syntaxColoring, .recentProjects: .none
+        // **Only the project search.** A preview earns a pane when the row is a *location* —
+        // one line torn out of a file, where the surrounding lines are the decision. Every
+        // other picker's row is already the answer: a file name tells you the file, a command
+        // tells you the command, and a pane beside them is furniture.
+        case .projectSearch: .text
+        case .files, .buffers, .documentSymbols, .projectSymbols,
+             .commands, .destinations, .schemes, .themes, .syntaxColoring, .recentProjects: .none
         }
     }
 
