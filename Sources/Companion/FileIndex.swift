@@ -43,11 +43,31 @@ final class FileIndex {
         root = newRoot
         lastScan = Date()
         items = newRoot.map(scan) ?? []
+        rebuildNameIndex()
     }
 
     /// Called every time a file is chosen from a picker. Without this call the ranking
     /// below has no input and the whole mechanism is decoration — which is exactly what it
     /// was until the wiring was noticed.
+    /// File name → the paths that answer to it.
+    ///
+    /// **For the buffer picker's preview.** An editor tab knows only a file name — see
+    /// `EditorTab` for why there is no path to be had — so the only way to preview one
+    /// without touching Xcode is to look the name up in the list we already walked. Two
+    /// `main.swift` in different targets genuinely cannot be told apart this way, which is
+    /// why this returns every match and the caller says so rather than guessing.
+    private var byName: [String: [String]] = [:]
+
+    private func rebuildNameIndex() {
+        byName.removeAll(keepingCapacity: true)
+        for item in items {
+            guard case .file(let path, _) = PickerTarget.parse(item.id) else { continue }
+            byName[(path as NSString).lastPathComponent, default: []].append(path)
+        }
+    }
+
+    func paths(named name: String) -> [String] { byName[name] ?? [] }
+
     func note(_ path: String) {
         let existing = frecency[path]
         frecency[path] = Score(count: (existing?.count ?? 0) + 1, last: Date())

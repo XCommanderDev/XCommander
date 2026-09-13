@@ -271,6 +271,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     ///
     /// Decided here, once, before the panel is shown — the panel never resizes while it is
     /// open, so this is the only moment the question is asked.
+    private static let previewPaneHeight: CGFloat = 240
+
     private func previewHeight(for kind: PickerKind) -> CGFloat {
         guard kind.previewStyle != .none else { return 0 }
         // Resolved, because `FileIndex` yields symlink-resolved paths: an unresolved root
@@ -279,7 +281,46 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Nothing to read means nothing to preview, and a pane that can only ever say so is
         // worse than no pane.
         guard previewLoader.projectRoot != nil else { return 0 }
-        return 240
+
+        // Xcode's own window decides, falling back to the screen when it will not say — the
+        // same fallback `PickerOverlay.reposition` uses to place the panel.
+        let available = context.focusedWindowFrame()?.height
+            ?? NSScreen.main?.visibleFrame.height ?? 0
+        let panel = PickerOverlay.listHeight + Self.previewPaneHeight
+        guard SettingsWindow.previewMode.showsPreview(inWindowOfHeight: Double(available),
+                                                      panelHeight: Double(panel)) else { return 0 }
+        return Self.previewPaneHeight
+    }
+
+    /// What a row wants previewed, including the one case `PreviewRequest` cannot answer.
+    ///
+    /// An editor tab is addressed by coordinates and carries only a file name, so it has no
+    /// path to preview. Resolving that name through the file index is the only way to show
+    /// one **without touching Xcode** — pressing the tab would render it perfectly and would
+    /// also switch the user's editor under them, which is the thing this feature does not do.
+    ///
+    /// Returns nil after putting a reason in the pane, so the frame never collapses.
+    private func previewRequest(for item: PickerItem) -> PreviewRequest? {
+        if let request = PreviewRequest.of(item, style: previewStyle) { return request }
+        guard case .tab = PickerTarget.parse(item.id) else {
+            picker.showPreview(.failure(.noOutline))
+            return nil
+        }
+        let candidates = fileIndex.paths(named: item.title)
+        switch candidates.count {
+        case 1:
+            return .outline(path: candidates[0])
+        case 0:
+            // Open but not in the project: a file from another package, or a header.
+            picker.showPreview(.failure(.unreadable))
+            return nil
+        default:
+            // Honest rather than arbitrary. Two `main.swift` in different targets are
+            // indistinguishable from a tab title, and previewing the wrong one silently is
+            // worse than saying there are two.
+            picker.showPreview(.failure(.ambiguous(candidates: candidates.count)))
+            return nil
+        }
     }
 
     /// Ask for whatever the current selection wants shown. Safe to call on every keystroke.
@@ -288,11 +329,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             picker.showPreview(nil)
             return
         }
-        guard let request = PreviewRequest.of(item, style: previewStyle) else {
-            // A row with nothing behind it — the frame stays, and says so.
-            picker.showPreview(.failure(.noOutline))
-            return
-        }
+        guard let request = previewRequest(for: item) else { return }
         previewLoader.request(request, capacity: picker.previewCapacity) { [weak self] result in
             self?.picker.showPreview(result)
         }

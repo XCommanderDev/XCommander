@@ -351,3 +351,40 @@ struct OutlineFittingTests {
         #expect(OutlineNode.fitting([], capacity: 10).isEmpty)
     }
 }
+
+/// When a pane is shown at all.
+@Suite("Preview mode")
+struct PreviewModeTests {
+
+    private let panel = 620.0
+
+    @Test("off never shows one, however much room there is")
+    func off() {
+        #expect(!PreviewMode.off.showsPreview(inWindowOfHeight: 2000, panelHeight: panel))
+    }
+
+    @Test("on always shows one, however little")
+    func on() {
+        #expect(PreviewMode.on.showsPreview(inWindowOfHeight: 300, panelHeight: panel))
+    }
+
+    @Test("auto needs the panel to fit with room to spare")
+    func auto() {
+        // A 13-inch laptop in a half-height tile is the case this exists for.
+        #expect(!PreviewMode.auto.showsPreview(inWindowOfHeight: 600, panelHeight: panel))
+        #expect(!PreviewMode.auto.showsPreview(inWindowOfHeight: panel + 159, panelHeight: panel))
+        #expect(PreviewMode.auto.showsPreview(inWindowOfHeight: panel + 160, panelHeight: panel))
+        #expect(PreviewMode.auto.showsPreview(inWindowOfHeight: 1100, panelHeight: panel))
+    }
+
+    @Test("the default is the one that cannot embarrass itself")
+    func theDefault() {
+        #expect(PreviewMode.default == .auto)
+        #expect(PreviewMode.auto.note == nil)
+    }
+
+    @Test("every mode reads as an answer to a question in a settings window")
+    func titles() {
+        for mode in PreviewMode.allCases { #expect(!mode.title.isEmpty) }
+    }
+}
