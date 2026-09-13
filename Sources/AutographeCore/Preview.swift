@@ -165,6 +165,7 @@ public struct PreviewLine: Hashable, Sendable {
     /// matched line alone misaligns it against the rest. Cutting its middle keeps the left edge
     /// where every other line's is, keeps the start of the line — which is what tells you where
     /// you are — and brings the hit into view. The `…` says what happened.
+    ///
     /// - Parameter contentHead: how many characters of *code* to keep, not counting the line's
     ///   indentation. Indentation is not information — a line that begins with eight spaces
     ///   would otherwise spend a third of its head budget on whitespace and show you
