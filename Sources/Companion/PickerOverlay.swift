@@ -89,9 +89,20 @@ final class PickerOverlay {
         } else {
             target = NSScreen.main?.visibleFrame ?? .zero
         }
-        let x = target.midX - width / 2
-        let y = target.maxY - height - 120
-        window.setFrame(NSRect(x: x, y: y, width: width, height: height), display: true)
+        // Clamped to the screen, which matters more now the panel is 1340pt wide with a pane
+        // attached. Its width is fixed for the life of the presentation — it must not resize
+        // under the hand using it — so Xcode narrowed *while the picker is open* leaves the
+        // panel overhanging the window, which is fine. Leaving the screen is not.
+        let visible = (NSScreen.screens.first { $0.frame.intersects(target) } ?? NSScreen.main)?
+            .visibleFrame ?? target
+        let placed = PanelPlacement.frame(
+            width: Double(width), height: Double(height), topInset: 120,
+            centredOn: PaneRect(x: Double(target.minX), y: Double(target.minY),
+                                width: Double(target.width), height: Double(target.height)),
+            within: PaneRect(x: Double(visible.minX), y: Double(visible.minY),
+                             width: Double(visible.width), height: Double(visible.height)))
+        window.setFrame(NSRect(x: placed.x, y: placed.y,
+                               width: placed.width, height: placed.height), display: true)
         view?.frame = window.contentView?.bounds ?? .zero
     }
 
