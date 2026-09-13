@@ -24,13 +24,30 @@ final class PickerOverlay {
 
     var isVisible: Bool { window?.isVisible ?? false }
 
-    /// How wide the preview pane is for this presentation, decided once when the picker opens
-    /// and never changed while it is open.
+    /// How wide the preview pane is.
     ///
-    /// **The panel must not resize under the cursor.** A pane that appeared and disappeared as
-    /// the selection moved would be the most jarring thing this feature could do, so the width
-    /// is a property of the *picker*, not of the row.
+    /// **Never changes because the selection moved** — a pane that appeared and disappeared as
+    /// the cursor crossed rows would be the most jarring thing this feature could do, so the
+    /// width is a property of the picker and not of the row.
+    ///
+    /// **Does change when the user resizes Xcode**, which is a different thing entirely: they
+    /// caused it, the cause is obvious, and every other window on the machine reflows. A panel
+    /// that instead kept a width its window can no longer hold — overhanging Xcode and pinned
+    /// against the screen edge — is tidy in principle and wrong on screen.
     private(set) var previewWidth: CGFloat = 0
+
+    /// Adopt a new pane width, for a window that changed shape under an open picker.
+    ///
+    /// - Returns: whether it changed, so the caller only re-requests a preview when it did.
+    @discardableResult
+    func setPreviewWidth(_ width: CGFloat) -> Bool {
+        guard isVisible, width != previewWidth else { return false }
+        previewWidth = width
+        view?.previewWidth = width
+        if width == 0 { view?.preview = nil }
+        view?.needsDisplay = true
+        return true
+    }
 
     func present(_ session: PickerSession) {
         present(session, previewWidth: 0)

@@ -28,6 +28,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let previewLoader = PreviewLoader()
     /// The style the open picker previews in, so every selection change knows what to ask for.
     private var previewStyle: PreviewStyle = .none
+    /// Which picker is open, so a window resize can ask the pane question again.
+    private var activePickerKind: PickerKind?
     private var fileIndex = FileIndex()
     private var history = DocumentHistory()
     private var tracker: WindowTracker!
@@ -84,6 +86,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         tracker = WindowTracker(context: context)
         tracker.onGeometryChanged = { [weak self] in
             self?.whichKey.followWindow()
+            // Decide the pane question again *before* repositioning, so the panel is placed at
+            // the width it is about to have rather than the one it had.
+            self?.reviewPreviewWidth()
             self?.picker.followWindow()
         }
         tracker.onDocumentChanged = { [weak self] url in self?.history.record(url) }
@@ -338,6 +343,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    /// Xcode changed shape under an open picker: ask whether the pane still fits.
+    ///
+    /// The same rule that decided at open time, applied again — so narrowing Xcode drops the
+    /// pane and the panel returns to exactly what it is without one, and widening it brings the
+    /// pane back. `auto` is then honestly named: it tracks the window rather than sampling it
+    /// once.
+    private func reviewPreviewWidth() {
+        guard picker.isVisible, let kind = activePickerKind else { return }
+        guard picker.setPreviewWidth(previewWidth(for: kind)) else { return }
+        // The pane it had was built for the old width, and its column budget just changed.
+        refreshPreview()
+    }
+
     /// Ask for whatever the current selection wants shown. Safe to call on every keystroke.
     private func refreshPreview() {
         guard previewStyle != .none, let item = activePicker?.selectedItem else {
@@ -380,6 +398,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             session.pageSize = 10
             activePicker = session
             previewStyle = kind.previewStyle
+            activePickerKind = kind
             picker.present(session, previewWidth: previewWidth(for: kind))
             return
         case .documentSymbols, .projectSymbols:
@@ -396,6 +415,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         s.pageSize = 10
         activePicker = s
         previewStyle = kind.previewStyle
+        activePickerKind = kind
         picker.present(s, previewWidth: previewWidth(for: kind))
         // The first row is selected the moment the panel appears, so its preview is asked for
         // then rather than on the first arrow key.
@@ -405,6 +425,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func closePicker() {
         activePicker = nil
         previewStyle = .none
+        activePickerKind = nil
         searchMatches = [:]
         // Drop anything in flight, so a read that lands after the panel has gone does not
         // redraw a dismissed view.
@@ -429,6 +450,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         session.pageSize = 10
         activePicker = session
         previewStyle = kind.previewStyle
+        activePickerKind = kind
         picker.present(session, previewWidth: previewWidth(for: kind))
 
         symbolIndex.symbols(forProjectAt: root) { [weak self] result in
