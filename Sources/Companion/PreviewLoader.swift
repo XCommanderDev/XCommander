@@ -37,6 +37,10 @@ final class PreviewLoader {
         let lines: LineTable
         let tokens: [SyntaxToken]
         let outline: [OutlineNode]
+        /// Whether sourcekitd looked at this file at all. A Markdown file has no declarations
+        /// because it cannot have any, which is a different answer from a Swift file that
+        /// happens to declare nothing.
+        let isSource: Bool
         let modified: Date?
     }
 
@@ -149,6 +153,7 @@ final class PreviewLoader {
             outline = parsed.outline
         }
         return .success(Parsed(bytes: bytes, lines: lines, tokens: tokens, outline: outline,
+                               isSource: parsableExtensions.contains(ext),
                                modified: attributes?[.modificationDate] as? Date))
     }
 
@@ -162,7 +167,19 @@ final class PreviewLoader {
                                                       focusLine: focusLine,
                                                       capacity: capacity)))
         case .outline:
-            guard !parsed.outline.isEmpty else { return .failure(.noOutline) }
+            guard !parsed.outline.isEmpty else {
+                // A README or a JSON file has no declarations and never will. Telling the user
+                // that is useless; its opening lines are not, and they answer the same
+                // question the outline was asked — what is this file?
+                guard parsed.isSource else {
+                    return .success(.text(PreviewBuilder.text(lines: parsed.lines,
+                                                              bytes: parsed.bytes,
+                                                              tokens: parsed.tokens,
+                                                              focusLine: nil,
+                                                              capacity: capacity)))
+                }
+                return .failure(.noOutline)
+            }
             return .success(.outline(parsed.outline))
         }
     }

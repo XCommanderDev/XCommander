@@ -206,6 +206,32 @@ public struct OutlineNode: Hashable, Sendable, Identifiable {
     public static func flatten(_ nodes: [OutlineNode], depth: Int = 0) -> [(node: OutlineNode, depth: Int)] {
         nodes.flatMap { [($0, depth)] + flatten($0.children, depth: depth + 1) }
     }
+
+    /// The rows to draw when the outline is taller than the pane.
+    ///
+    /// **Breadth before depth, and this is the difference between the feature working and
+    /// not.** A depth-first cut of a file with two enums at the top spends the whole pane on
+    /// their cases and never reaches the type the file is named after — so the pane answers
+    /// "is this the right file?" with everything except the answer. Filling by depth shows
+    /// every top-level declaration first, then nests only into whatever room is left.
+    ///
+    /// The survivors come back in document order, because the pane is a table of contents and
+    /// a table of contents is in the order of the thing it describes.
+    public static func fitting(_ nodes: [OutlineNode],
+                               capacity: Int) -> [(node: OutlineNode, depth: Int)] {
+        let flat = flatten(nodes)
+        guard capacity > 0 else { return [] }
+        guard flat.count > capacity else { return flat }
+
+        // Indices chosen shallowest-first; document order breaks ties because `enumerated`
+        // preserves it and the sort below is stable on the index.
+        let chosen = flat.enumerated()
+            .sorted { ($0.element.depth, $0.offset) < ($1.element.depth, $1.offset) }
+            .prefix(capacity)
+            .map(\.offset)
+        let keep = Set(chosen)
+        return flat.enumerated().filter { keep.contains($0.offset) }.map(\.element)
+    }
 }
 
 /// Text or outline. An enum rather than one struct with unused fields, because the two shapes

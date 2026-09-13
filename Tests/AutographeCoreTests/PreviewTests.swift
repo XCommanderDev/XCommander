@@ -293,3 +293,61 @@ struct PreviewBuilderTests {
         #expect(!p.hasMore)
     }
 }
+
+/// Choosing which declarations survive when the outline is taller than the pane.
+@Suite("Outline fitting")
+struct OutlineFittingTests {
+
+    /// Two enums with cases, then the type the file is actually named after — the shape that
+    /// made a depth-first cut useless.
+    private let tree = [
+        OutlineNode(name: "SessionOutcome", kind: .enum, line: 4, children: [
+            OutlineNode(name: "passThrough", kind: .enumConstant, line: 6),
+            OutlineNode(name: "awaiting", kind: .enumConstant, line: 8),
+            OutlineNode(name: "fired", kind: .enumConstant, line: 11),
+        ]),
+        OutlineNode(name: "CancelReason", kind: .enum, line: 22, children: [
+            OutlineNode(name: "escape", kind: .enumConstant, line: 23),
+            OutlineNode(name: "timedOut", kind: .enumConstant, line: 30),
+        ]),
+        OutlineNode(name: "KeymapSession", kind: .struct, line: 38, children: [
+            OutlineNode(name: "press", kind: .instanceMethod, line: 60),
+        ]),
+    ]
+
+    @Test("everything fits when there is room, in document order")
+    func everything() {
+        let fitted = OutlineNode.fitting(tree, capacity: 99)
+        #expect(fitted.count == 9)
+        #expect(fitted.first?.node.name == "SessionOutcome")
+        #expect(fitted.last?.node.name == "press")
+    }
+
+    @Test("a tight pane shows every top-level declaration rather than one branch")
+    func breadthBeforeDepth() {
+        let fitted = OutlineNode.fitting(tree, capacity: 3)
+        #expect(fitted.map(\.node.name) == ["SessionOutcome", "CancelReason", "KeymapSession"])
+        #expect(fitted.allSatisfy { $0.depth == 0 })
+    }
+
+    @Test("room left over nests into the first children, still in document order")
+    func nestsWithSpareRoom() {
+        let fitted = OutlineNode.fitting(tree, capacity: 5)
+        #expect(fitted.map(\.node.name)
+                == ["SessionOutcome", "passThrough", "awaiting", "CancelReason", "KeymapSession"])
+        #expect(fitted.map(\.depth) == [0, 1, 1, 0, 0])
+    }
+
+    @Test("the type the file is named after survives a cut that depth-first would have lost")
+    func theWholePoint() {
+        // Depth-first would spend all four rows inside the first enum.
+        let fitted = OutlineNode.fitting(tree, capacity: 4)
+        #expect(fitted.contains { $0.node.name == "KeymapSession" })
+    }
+
+    @Test("no room shows nothing rather than crashing")
+    func noRoom() {
+        #expect(OutlineNode.fitting(tree, capacity: 0).isEmpty)
+        #expect(OutlineNode.fitting([], capacity: 10).isEmpty)
+    }
+}

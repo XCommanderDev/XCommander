@@ -218,6 +218,13 @@ final class PickerView: NSView {
     private let previewFont = NSFont.monospacedSystemFont(ofSize: 11, weight: .regular)
     private let gutterFont = NSFont.monospacedDigitSystemFont(ofSize: 10, weight: .regular)
     private let previewPadding: CGFloat = 10
+    private let outlineRowHeight: CGFloat = 18
+    private let outlineBadgeSize: CGFloat = 14
+    private let outlineIndent: CGFloat = 14
+    private let outlineBadgeFont = NSFont.systemFont(ofSize: 8, weight: .bold)
+    private let outlineNameFont = NSFont.systemFont(ofSize: 11.5)
+    private let outlineNameBoldFont = NSFont.systemFont(ofSize: 11.5, weight: .semibold)
+    private let outlineSummaryFont = NSFont.systemFont(ofSize: 10.5)
 
     /// The list's own height, which does not change when a preview is showing: the pane is
     /// added below the list rather than taken out of it.
@@ -309,18 +316,9 @@ final class PickerView: NSView {
             // completion list, tinted by what the row is.
             var textX = padding
             if let icon = row.item.icon {
-                let box = NSRect(x: padding, y: y - 1, width: badgeSize, height: badgeSize)
-                let tint = Self.colour(for: icon.tint)
-                let enabled = row.item.isEnabled
-                tint.withAlphaComponent(enabled ? 0.22 : 0.10).setFill()
-                NSBezierPath(roundedRect: box, xRadius: 4, yRadius: 4).fill()
-                let glyph = NSAttributedString(string: icon.glyph, attributes: [
-                    .font: badgeFont,
-                    .foregroundColor: enabled ? tint : tint.withAlphaComponent(0.45),
-                ])
-                let size = glyph.size()
-                glyph.draw(at: NSPoint(x: box.midX - size.width / 2,
-                                       y: box.midY - size.height / 2))
+                drawBadge(icon, in: NSRect(x: padding, y: y - 1,
+                                           width: badgeSize, height: badgeSize),
+                          enabled: row.item.isEnabled, font: badgeFont)
                 textX = padding + badgeSize + badgeGap
             }
 
@@ -486,7 +484,86 @@ final class PickerView: NSView {
         attributed.draw(at: NSPoint(x: padding, y: rect.minY + previewPadding))
     }
 
+    /// The rounded, tinted square Xcode uses in its own completion list.
+    ///
+    /// Shared by the row list and the outline pane deliberately: the pane has to read as part
+    /// of this window, and two copies of this drawing would drift the first time one is
+    /// touched.
+    private func drawBadge(_ icon: RowIcon, in box: NSRect, enabled: Bool, font: NSFont) {
+        let tint = Self.colour(for: icon.tint)
+        tint.withAlphaComponent(enabled ? 0.22 : 0.10).setFill()
+        NSBezierPath(roundedRect: box, xRadius: 4, yRadius: 4).fill()
+        let glyph = NSAttributedString(string: icon.glyph, attributes: [
+            .font: font,
+            .foregroundColor: enabled ? tint : tint.withAlphaComponent(0.45),
+        ])
+        let size = glyph.size()
+        glyph.draw(at: NSPoint(x: box.midX - size.width / 2, y: box.midY - size.height / 2))
+    }
+
+    /// What is *in* a file, rather than its first forty lines.
+    ///
+    /// The answer to "is this the file I meant" is its declarations, and — because sourcekitd
+    /// gives us the documentation range for each one — the first sentence of what each is for.
+    /// That last column is the part a Vim picker cannot show: a syntactic tree does not know
+    /// that the lines above a function belong to it.
     private func draw(outline nodes: [OutlineNode], in rect: NSRect) {
-        draw(message: "\(nodes.count) declarations", in: rect, dimmed: true)
+        let total = OutlineNode.flatten(nodes).count
+        guard total > 0 else {
+            draw(message: "no declarations", in: rect, dimmed: true)
+            return
+        }
+        let capacity = max(0, Int((rect.height - previewPadding * 2) / outlineRowHeight))
+        guard capacity > 0 else { return }
+        // Keep one row back for the "+N more" line when the file does not fit.
+        let shown = OutlineNode.fitting(nodes, capacity: total > capacity ? capacity - 1 : capacity)
+
+        var y = rect.minY + previewPadding
+        for (node, depth) in shown {
+            let indent = padding + CGFloat(min(depth, 3)) * outlineIndent
+            drawBadge(node.icon,
+                      in: NSRect(x: indent, y: y + 1, width: outlineBadgeSize, height: outlineBadgeSize),
+                      enabled: node.isPublic, font: outlineBadgeFont)
+            let nameX = indent + outlineBadgeSize + 7
+
+            // Public is the shape of the file's API, so it is the thing that reads at full
+            // weight; everything else is still there and recedes.
+            let name = NSAttributedString(string: node.name, attributes: [
+                .font: node.isPublic ? outlineNameBoldFont : outlineNameFont,
+                .foregroundColor: node.isPublic ? NSColor.labelColor : NSColor.secondaryLabelColor,
+            ])
+            name.draw(at: NSPoint(x: nameX, y: y + 1))
+
+            // The line number sits where the list puts its detail column, right-aligned, so
+            // the eye finds it in the same place in both halves of the window.
+            let number = NSAttributedString(string: "\(node.line)", attributes: [
+                .font: gutterFont, .foregroundColor: NSColor.quaternaryLabelColor,
+            ])
+            let numberX = bounds.width - padding - number.size().width
+            number.draw(at: NSPoint(x: numberX, y: y + 2))
+
+            if let summary = node.summary {
+                let x = nameX + name.size().width + 8
+                let available = numberX - x - 8
+                if available > 40 {
+                    let truncation = NSMutableParagraphStyle()
+                    truncation.lineBreakMode = .byTruncatingTail
+                    NSAttributedString(string: summary, attributes: [
+                        .font: outlineSummaryFont,
+                        .foregroundColor: NSColor.tertiaryLabelColor,
+                        .paragraphStyle: truncation,
+                    ]).draw(with: NSRect(x: x, y: y + 2, width: available, height: outlineRowHeight),
+                            options: [.usesLineFragmentOrigin])
+                }
+            }
+            y += outlineRowHeight
+        }
+
+        if total > shown.count {
+            let more = NSAttributedString(string: "+\(total - shown.count) more", attributes: [
+                .font: gutterFont, .foregroundColor: NSColor.quaternaryLabelColor,
+            ])
+            more.draw(at: NSPoint(x: padding, y: y + 2))
+        }
     }
 }
