@@ -217,3 +217,36 @@ public enum PreviewUnavailable: Hashable, Sendable, Error {
 
 /// What the loader hands the view: one or the other, always something to draw.
 public typealias PreviewResult = Result<PreviewBody, PreviewUnavailable>
+
+// MARK: - assembling what the pane draws
+
+/// Turning a parsed file into the window the pane shows.
+///
+/// Pure, so the slicing is tested rather than eyeballed through a panel: which lines, which
+/// tokens survive the cut, and whether the file continues past the bottom edge.
+public enum PreviewBuilder {
+
+    /// - Parameter capacity: how many lines the pane has room for.
+    public static func text(lines: LineTable, bytes: [UInt8], tokens: [SyntaxToken],
+                            focusLine: Int?, capacity: Int) -> TextPreview {
+        let window = PreviewWindow.around(line: focusLine,
+                                          total: lines.lineCount,
+                                          capacity: capacity)
+        guard let last = window.lastLine else {
+            return TextPreview(lines: [], firstLine: 1, focusLine: nil)
+        }
+        let text = lines.text(ofLines: window.firstLine...last, in: bytes)
+
+        // Only the tokens that land on a drawn line. The pane would otherwise walk every
+        // token in the file on every redraw to find the handful it can paint.
+        let kept = tokens.filter { token in
+            let line = lines.line(atByteOffset: token.offset)
+            return line >= window.firstLine && line <= last
+        }
+        return TextPreview(lines: text,
+                           firstLine: window.firstLine,
+                           focusLine: focusLine.map { min(max($0, 1), lines.lineCount) },
+                           tokens: kept,
+                           hasMore: lines.lineCount > window.count)
+    }
+}

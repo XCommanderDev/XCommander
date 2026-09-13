@@ -148,3 +148,70 @@ struct PreviewTests {
         #expect(PreviewUnavailable.ambiguous(candidates: 3).message.contains("3"))
     }
 }
+
+/// Slicing a parsed file down to what the pane draws.
+@Suite("Preview builder")
+struct PreviewBuilderTests {
+
+    private let source = """
+    import Foundation
+    struct A {
+        let x = 1
+        func go() {}
+    }
+    // trailing
+    """
+
+    private func parts() -> (LineTable, [UInt8]) {
+        let bytes = Array(source.utf8)
+        return (LineTable(bytes: bytes), bytes)
+    }
+
+    @Test("a window smaller than the file reports that the file continues")
+    func hasMore() {
+        let (lines, bytes) = parts()
+        let p = PreviewBuilder.text(lines: lines, bytes: bytes, tokens: [],
+                                    focusLine: 1, capacity: 3)
+        #expect(p.lines.count == 3)
+        #expect(p.hasMore)
+    }
+
+    @Test("a window bigger than the file does not claim there is more")
+    func noMore() {
+        let (lines, bytes) = parts()
+        let p = PreviewBuilder.text(lines: lines, bytes: bytes, tokens: [],
+                                    focusLine: nil, capacity: 50)
+        #expect(p.lines.count == 6)
+        #expect(!p.hasMore)
+    }
+
+    @Test("only tokens on drawn lines survive the cut")
+    func tokensClipped() {
+        let (lines, bytes) = parts()
+        // One token on line 1, one on the last line.
+        let first = SyntaxToken(role: .keyword, offset: 0, length: 6)
+        let lastLineStart = lines.lineStarts[5]
+        let last = SyntaxToken(role: .comment, offset: lastLineStart, length: 3)
+        let p = PreviewBuilder.text(lines: lines, bytes: bytes, tokens: [first, last],
+                                    focusLine: 1, capacity: 2)
+        #expect(p.tokens.map(\.role) == [.keyword])
+    }
+
+    @Test("the focus line survives into the result, clamped to the file")
+    func focusKept() {
+        let (lines, bytes) = parts()
+        #expect(PreviewBuilder.text(lines: lines, bytes: bytes, tokens: [],
+                                    focusLine: 4, capacity: 3).focusLine == 4)
+        #expect(PreviewBuilder.text(lines: lines, bytes: bytes, tokens: [],
+                                    focusLine: 900, capacity: 3).focusLine == 6)
+    }
+
+    @Test("an empty file produces an empty pane rather than a crash")
+    func emptyFile() {
+        let lines = LineTable(bytes: [])
+        let p = PreviewBuilder.text(lines: lines, bytes: [], tokens: [],
+                                    focusLine: 3, capacity: 10)
+        #expect(p.lines.isEmpty)
+        #expect(!p.hasMore)
+    }
+}
