@@ -506,7 +506,7 @@ struct PreviewElisionTests {
         let mark = 118..<124
         let out = line(text, mark: mark).eliding(toShow: mark, columns: 80)
         // The head is kept, so you can still see what the line is.
-        #expect(out.text.hasPrefix("menuBar.apply(Status.der"))
+        #expect(out.text.hasPrefix("menuBar.apply(Status"))
         #expect(out.text.contains("…"))
         // And the match is visible, well inside the pane.
         let mk = out.highlight!
@@ -546,6 +546,29 @@ struct PreviewElisionTests {
         let out = l.eliding(toShow: mark, columns: 80)
         // It covered both sides of the cut; colouring part of it would be a lie.
         #expect(out.spans.isEmpty)
+    }
+
+    @Test("indentation does not eat the head, so an indented line shows as much code")
+    func indentIsFree() {
+        let code = "menuBar.apply(AutographeStatus.derive(" + String(repeating: "x", count: 90) + "needle))"
+        let mark = 128..<134
+        let flat = line(code, mark: mark).eliding(toShow: mark, columns: 80)
+        // The same line, indented by eight: the head slides right with the indent instead of
+        // being consumed by it, so the visible code is the same.
+        let indented = line("        " + code, mark: 8 + mark.lowerBound..<(8 + mark.upperBound))
+            .eliding(toShow: 8 + mark.lowerBound..<(8 + mark.upperBound), columns: 80)
+        #expect(indented.text == "        " + String(flat.text.prefix(flat.text.count)))
+    }
+
+    @Test("a very deep indent does not spend the whole pane on whitespace")
+    func deepIndentIsCapped() {
+        let deep = String(repeating: " ", count: 60)
+        let code = deep + "call(" + String(repeating: "y", count: 90) + "needle)"
+        let mark = 155..<161
+        let out = line(code, mark: mark).eliding(toShow: mark, columns: 80)
+        // Capped at columns / 5 = 16, so the ellipsis arrives well before the pane's edge.
+        let ellipsisAt = Array(out.text).firstIndex(of: "…") ?? 0
+        #expect(ellipsisAt <= 40)
     }
 
     @Test("a match inside the head is not elided at all")

@@ -165,8 +165,16 @@ public struct PreviewLine: Hashable, Sendable {
     /// matched line alone misaligns it against the rest. Cutting its middle keeps the left edge
     /// where every other line's is, keeps the start of the line — which is what tells you where
     /// you are — and brings the hit into view. The `…` says what happened.
-    func eliding(toShow mark: Range<Int>, columns: Int, head: Int = 24) -> PreviewLine {
+    /// - Parameter contentHead: how many characters of *code* to keep, not counting the line's
+    ///   indentation. Indentation is not information — a line that begins with eight spaces
+    ///   would otherwise spend a third of its head budget on whitespace and show you
+    ///   `menuBar.apply(Au` where it could have shown `menuBar.apply(AutographeSt`.
+    func eliding(toShow mark: Range<Int>, columns: Int, contentHead: Int = 20) -> PreviewLine {
         let units = Array(text.utf16)
+        // Leading whitespace is free, up to a point: a deeply nested line must not spend the
+        // whole pane getting to its first token, so the allowance is capped.
+        let indent = min(units.prefix { $0 == 32 || $0 == 9 }.count, max(0, columns / 5))
+        let head = indent + contentHead
         guard columns > head + 12, mark.upperBound > columns, mark.lowerBound > head else {
             return self
         }
