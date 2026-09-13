@@ -521,16 +521,20 @@ final class PickerView: NSView {
         var y = rect.minY + previewPadding
         for (node, depth) in shown {
             let indent = padding + CGFloat(min(depth, 3)) * outlineIndent
+            // Always at full tint. `enabled` means "you cannot use this row" in the list above,
+            // and a badge dimmed for being internal says exactly the wrong thing — in an app
+            // target nothing is public, so the whole outline came out looking disabled.
             drawBadge(node.icon,
                       in: NSRect(x: indent, y: y + 1, width: outlineBadgeSize, height: outlineBadgeSize),
-                      enabled: node.isPublic, font: outlineBadgeFont)
+                      enabled: true, font: outlineBadgeFont)
             let nameX = indent + outlineBadgeSize + 7
 
-            // Public is the shape of the file's API, so it is the thing that reads at full
-            // weight; everything else is still there and recedes.
+            // Public reads at full weight, so the shape of a library's API is visible without
+            // reading the names — but everything stays at label colour, because in an app
+            // target nothing is public and a whole file at secondary is just faint.
             let name = NSAttributedString(string: node.name, attributes: [
                 .font: node.isPublic ? outlineNameBoldFont : outlineNameFont,
-                .foregroundColor: node.isPublic ? NSColor.labelColor : NSColor.secondaryLabelColor,
+                .foregroundColor: NSColor.labelColor,
             ])
             name.draw(at: NSPoint(x: nameX, y: y + 1))
 
