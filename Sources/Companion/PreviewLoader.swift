@@ -27,11 +27,6 @@ final class PreviewLoader {
     nonisolated private static let sniffBytes = 8_000
     nonisolated private static let debounceInterval: TimeInterval = 0.06
 
-    /// Only Swift gets a sourcekitd parse. Everything else in the file index previews as plain
-    /// text, which is the right answer rather than a gap: a Markdown file coloured as Swift
-    /// would be worse than a Markdown file not coloured at all.
-    nonisolated private static let parsableExtensions: Set<String> = ["swift"]
-
     nonisolated private struct Parsed {
         let bytes: [UInt8]
         let lines: LineTable
@@ -144,44 +139,28 @@ final class PreviewLoader {
         guard String(data: data, encoding: .utf8) != nil else { return .failure(.unreadable) }
 
         let lines = LineTable(bytes: bytes)
-        let ext = (path as NSString).pathExtension.lowercased()
         var tokens: [SyntaxToken] = []
         var outline: [OutlineNode] = []
-        if parsableExtensions.contains(ext),
-           let parsed = SourceKit.shared.parse(path: path, lines: lines, bytes: bytes) {
+        // The gate lives in SourceKit, so the app and the render tool cannot disagree about
+        // which files get parsed — and a Markdown file cannot come back with a class in it.
+        if let parsed = SourceKit.shared.parse(path: path, lines: lines, bytes: bytes) {
             tokens = parsed.tokens
             outline = parsed.outline
         }
         return .success(Parsed(bytes: bytes, lines: lines, tokens: tokens, outline: outline,
-                               isSource: parsableExtensions.contains(ext),
+                               isSource: SourceKit.canParse(path),
                                modified: attributes?[.modificationDate] as? Date))
     }
 
     private func build(_ request: PreviewRequest, from parsed: Parsed,
                        capacity: Int) -> PreviewResult {
-        switch request {
-        case .text(_, let focusLine):
-            return .success(.text(PreviewBuilder.text(lines: parsed.lines,
-                                                      bytes: parsed.bytes,
-                                                      tokens: parsed.tokens,
-                                                      focusLine: focusLine,
-                                                      capacity: capacity)))
-        case .outline:
-            guard !parsed.outline.isEmpty else {
-                // A README or a JSON file has no declarations and never will. Telling the user
-                // that is useless; its opening lines are not, and they answer the same
-                // question the outline was asked — what is this file?
-                guard parsed.isSource else {
-                    return .success(.text(PreviewBuilder.text(lines: parsed.lines,
-                                                              bytes: parsed.bytes,
-                                                              tokens: parsed.tokens,
-                                                              focusLine: nil,
-                                                              capacity: capacity)))
-                }
-                return .failure(.noOutline)
-            }
-            return .success(.outline(parsed.outline))
-        }
+        PreviewBuilder.body(for: request,
+                            from: PreviewBuilder.Source(lines: parsed.lines,
+                                                        bytes: parsed.bytes,
+                                                        tokens: parsed.tokens,
+                                                        outline: parsed.outline,
+                                                        isSource: parsed.isSource),
+                            capacity: capacity)
     }
 
     // MARK: - cache

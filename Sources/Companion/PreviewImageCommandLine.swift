@@ -46,16 +46,17 @@ enum PreviewImageCommandLine {
         session.pageSize = 8
         view.session = session
 
-        if let line {
-            let text = PreviewBuilder.text(lines: lines, bytes: bytes,
+        // Through the same decision the loader makes, so what this shows cannot drift from
+        // what the app draws.
+        let source = PreviewBuilder.Source(lines: lines, bytes: bytes,
                                            tokens: parsed?.tokens ?? [],
-                                           focusLine: line, capacity: view.previewLineCapacity)
-            view.preview = .success(.text(text))
-        } else if let outline = parsed?.outline, !outline.isEmpty {
-            view.preview = .success(.outline(outline))
-        } else {
-            view.preview = .failure(.noOutline)
-        }
+                                           outline: parsed?.outline ?? [],
+                                           isSource: SourceKit.canParse(path))
+        let request: PreviewRequest = line == nil
+            ? .outline(path: path)
+            : .text(path: path, focusLine: line)
+        view.preview = PreviewBuilder.body(for: request, from: source,
+                                           capacity: view.previewLineCapacity)
 
         guard let rep = view.bitmapImageRepForCachingDisplay(in: view.bounds) else { return false }
         // The panel's material is not part of the view, so stand in for it: the pane is judged

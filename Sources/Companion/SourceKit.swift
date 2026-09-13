@@ -150,12 +150,25 @@ final class SourceKit: @unchecked Sendable {
         return Int(dictInt?(variant, key) ?? 0)
     }
 
+    /// Which files sourcekitd is allowed to see.
+    ///
+    /// **The gate matters more than it looks.** sourcekitd parses whatever it is handed as
+    /// Swift and answers confidently: a Markdown file comes back with a stray `class` in it
+    /// because some sentence happened to parse. There is no error to catch — the defence is
+    /// not asking. Everything else previews as plain text, which is the right answer for a
+    /// README rather than a gap.
+    static let parsableExtensions: Set<String> = ["swift"]
+
+    static func canParse(_ path: String) -> Bool {
+        parsableExtensions.contains((path as NSString).pathExtension.lowercased())
+    }
+
     /// Parse one file. Returns nil when sourcekitd is unavailable or the file is not Swift.
     ///
     /// Synchronous and **not** for the main thread: call it from the loader's background queue.
     func parse(path: String, lines: LineTable,
                bytes: [UInt8]) -> (tokens: [SyntaxToken], outline: [OutlineNode])? {
-        guard load() else { return nil }
+        guard Self.canParse(path), load() else { return nil }
         lock.lock()
         defer { lock.unlock() }
         guard let fromYAML, let send, let responseValue else { return nil }

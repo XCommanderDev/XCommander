@@ -388,3 +388,59 @@ struct PreviewModeTests {
         for mode in PreviewMode.allCases { #expect(!mode.title.isEmpty) }
     }
 }
+
+/// What the pane shows for a request — the decision the app and the render tool share.
+@Suite("Preview body")
+struct PreviewBodyTests {
+
+    private func source(_ text: String, outline: [OutlineNode], isSource: Bool) -> PreviewBuilder.Source {
+        let bytes = Array(text.utf8)
+        return PreviewBuilder.Source(lines: LineTable(bytes: bytes), bytes: bytes,
+                                     tokens: [], outline: outline, isSource: isSource)
+    }
+
+    @Test("a file with declarations shows them")
+    func outlineWins() {
+        let s = source("struct A {}", outline: [OutlineNode(name: "A", kind: .struct, line: 1)],
+                       isSource: true)
+        guard case .success(.outline(let nodes)) =
+            PreviewBuilder.body(for: .outline(path: "/a.swift"), from: s, capacity: 10) else {
+            Issue.record("expected an outline"); return
+        }
+        #expect(nodes.count == 1)
+    }
+
+    @Test("a file that cannot have declarations shows its opening lines instead of refusing")
+    func markdownFallsBackToText() {
+        // "no declarations" is true of a README and useless; its first lines answer the same
+        // question the outline was asked.
+        let s = source("# Title\nSome prose.\n", outline: [], isSource: false)
+        guard case .success(.text(let text)) =
+            PreviewBuilder.body(for: .outline(path: "/a.md"), from: s, capacity: 10) else {
+            Issue.record("expected a text fallback"); return
+        }
+        #expect(text.lines.first?.text == "# Title")
+        #expect(text.focusLine == nil)
+    }
+
+    @Test("a source file that genuinely declares nothing says so")
+    func emptySwiftSaysSo() {
+        let s = source("// just a comment\n", outline: [], isSource: true)
+        guard case .failure(let reason) =
+            PreviewBuilder.body(for: .outline(path: "/a.swift"), from: s, capacity: 10) else {
+            Issue.record("expected a reason"); return
+        }
+        #expect(reason == .noOutline)
+    }
+
+    @Test("a text request always shows text, whatever the file declares")
+    func textRequest() {
+        let s = source("let a = 1\nlet b = 2\n",
+                       outline: [OutlineNode(name: "a", kind: .variable, line: 1)], isSource: true)
+        guard case .success(.text(let text)) =
+            PreviewBuilder.body(for: .text(path: "/a.swift", focusLine: 2), from: s, capacity: 10) else {
+            Issue.record("expected text"); return
+        }
+        #expect(text.focusLine == 2)
+    }
+}

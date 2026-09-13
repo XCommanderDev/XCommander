@@ -284,6 +284,50 @@ public enum PreviewBuilder {
     /// the spans are computed against the text that is actually drawn.
     public static let tabWidth = 4
 
+    /// Everything a parsed file offers the pane, so the decision of *what* to show is made
+    /// once and cannot differ between the running app and the tool used to look at it.
+    public struct Source: Sendable {
+        public let lines: LineTable
+        public let bytes: [UInt8]
+        public let tokens: [SyntaxToken]
+        public let outline: [OutlineNode]
+        /// Whether this file is one sourcekitd can parse at all. A Markdown file has no
+        /// declarations because it cannot have any, which is a different answer from a Swift
+        /// file that happens to declare nothing.
+        public let isSource: Bool
+
+        public init(lines: LineTable, bytes: [UInt8], tokens: [SyntaxToken],
+                    outline: [OutlineNode], isSource: Bool) {
+            self.lines = lines
+            self.bytes = bytes
+            self.tokens = tokens
+            self.outline = outline
+            self.isSource = isSource
+        }
+    }
+
+    /// What the pane shows for a request against a parsed file.
+    public static func body(for request: PreviewRequest, from source: Source,
+                            capacity: Int) -> PreviewResult {
+        switch request {
+        case .text(_, let focusLine):
+            return .success(.text(text(lines: source.lines, bytes: source.bytes,
+                                       tokens: source.tokens, focusLine: focusLine,
+                                       capacity: capacity)))
+        case .outline:
+            guard source.outline.isEmpty else { return .success(.outline(source.outline)) }
+            // A README or a JSON has no declarations and never will. Telling the user that is
+            // useless; its opening lines are not, and they answer the same question the
+            // outline was asked — what is this file?
+            guard source.isSource else {
+                return .success(.text(text(lines: source.lines, bytes: source.bytes,
+                                           tokens: source.tokens, focusLine: nil,
+                                           capacity: capacity)))
+            }
+            return .failure(.noOutline)
+        }
+    }
+
     /// - Parameter capacity: how many lines the pane has room for.
     public static func text(lines: LineTable, bytes: [UInt8], tokens: [SyntaxToken],
                             focusLine: Int?, capacity: Int) -> TextPreview {
