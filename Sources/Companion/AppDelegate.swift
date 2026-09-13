@@ -41,6 +41,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var xcodeIsFrontmost = false
     private var hasAccessibility = false
     private var accessibilityPollTimer: Timer?
+    private let firstRun = FirstRunWindow()
 
     private let log = Logger(subsystem: "com.wassimans.AutographeForXcode", category: "app")
 
@@ -508,16 +509,38 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func requestAccessibilityThenStart() {
         hasAccessibility = AXIsProcessTrusted()
         if hasAccessibility { start(); return }
+        updateStatus()
+        // Before either branch below, because a user who grants it from System Settings
+        // without touching our window should still be picked up within the second.
+        pollForAccessibility()
+
+        // Say what we are about to ask for, and why, before macOS asks in its own words.
+        // On every launch after the first, the prompt goes straight up: the explanation has
+        // been given, and the menu's `Open Accessibility Settings…` is the way back.
+        if FirstRunWindow.shouldShow {
+            firstRun.onContinue = { Self.promptForAccessibility() }
+            firstRun.show()
+        } else {
+            Self.promptForAccessibility()
+        }
+    }
+
+    /// Prompts once per app identity — granted, refused or dismissed, it is spent. The constant
+    /// `kAXTrustedCheckOptionPrompt` is imported as a mutable global, which Swift 6 will not let
+    /// us touch, so use its documented value.
+    private static func promptForAccessibility() {
         let options = ["AXTrustedCheckOptionPrompt": true]
         _ = AXIsProcessTrustedWithOptions(options as CFDictionary)
-        updateStatus()
+    }
 
+    private func pollForAccessibility() {
         let timer = Timer(timeInterval: 1.0, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated {
                 guard let self, AXIsProcessTrusted() else { return }
                 self.accessibilityPollTimer?.invalidate()
                 self.accessibilityPollTimer = nil
                 self.hasAccessibility = true
+                self.firstRun.close()
                 self.start()
             }
         }
