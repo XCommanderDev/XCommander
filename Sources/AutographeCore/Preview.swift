@@ -155,6 +155,49 @@ public struct PreviewLine: Hashable, Sendable {
         self.spans = spans
         self.highlight = highlight
     }
+
+    /// The same line with its middle cut out, so a match further right than the pane is wide
+    /// becomes visible without moving the line's left edge.
+    ///
+    /// **Why not scroll.** Scrolling every line by the same amount keeps them aligned and
+    /// destroys the context: the neighbouring lines are usually shorter than the shift, so they
+    /// scroll to nothing and the pane shows one line and a column of blanks. Scrolling the
+    /// matched line alone misaligns it against the rest. Cutting its middle keeps the left edge
+    /// where every other line's is, keeps the start of the line — which is what tells you where
+    /// you are — and brings the hit into view. The `…` says what happened.
+    func eliding(toShow mark: Range<Int>, columns: Int, head: Int = 24) -> PreviewLine {
+        let units = Array(text.utf16)
+        guard columns > head + 12, mark.upperBound > columns, mark.lowerBound > head else {
+            return self
+        }
+        // Enough of the line before the match to read it in context, but never back past the
+        // head we are keeping anyway.
+        let tail = max(head + 1, mark.lowerBound - 8)
+        guard tail < units.count else { return self }
+
+        let ellipsis = "…"
+        let kept = String(utf16CodeUnits: Array(units[0..<min(head, units.count)]),
+                          count: min(head, units.count))
+            + ellipsis
+            + String(utf16CodeUnits: Array(units[tail...]), count: units.count - tail)
+        // Everything from `tail` onward moves left by this much; the head does not move.
+        let delta = tail - head - ellipsis.utf16.count
+
+        func rebase(_ start: Int, _ length: Int) -> (Int, Int)? {
+            let end = start + length
+            if end <= head { return (start, length) }                 // wholly in the head
+            if start >= tail { return (start - delta, length) }       // wholly in the tail
+            return nil                                               // spans the cut
+        }
+        return PreviewLine(
+            number: number,
+            text: kept,
+            spans: spans.compactMap { span in
+                guard let (start, length) = rebase(span.start, span.length) else { return nil }
+                return PreviewSpan(role: span.role, start: start, length: length)
+            },
+            highlight: rebase(mark.lowerBound, mark.count).map { $0.0..<($0.0 + $0.1) })
+    }
 }
 
 /// Text in context: what a search hit or a symbol shows.
@@ -316,12 +359,13 @@ public enum PreviewBuilder {
 
     /// What the pane shows for a request against a parsed file.
     public static func body(for request: PreviewRequest, from source: Source,
-                            capacity: Int) -> PreviewResult {
+                            capacity: Int, columns: Int = 0) -> PreviewResult {
         switch request {
         case .text(_, let focusLine, let highlight):
             return .success(.text(text(lines: source.lines, bytes: source.bytes,
                                        tokens: source.tokens, focusLine: focusLine,
-                                       capacity: capacity, highlight: highlight)))
+                                       capacity: capacity, highlight: highlight,
+                                       columns: columns)))
         case .outline:
             guard source.outline.isEmpty else { return .success(.outline(source.outline)) }
             // A README or a JSON has no declarations and never will. Telling the user that is
@@ -337,9 +381,12 @@ public enum PreviewBuilder {
     }
 
     /// - Parameter capacity: how many lines the pane has room for.
+    /// - Parameter columns: how many characters of the monospaced pane are visible. Used only
+    ///   to decide whether the match needs scrolling into view; 0 disables that.
     public static func text(lines: LineTable, bytes: [UInt8], tokens: [SyntaxToken],
                             focusLine: Int?, capacity: Int,
-                            highlight: Range<Int>? = nil) -> TextPreview {
+                            highlight: Range<Int>? = nil,
+                            columns: Int = 0) -> TextPreview {
         let window = PreviewWindow.around(line: focusLine,
                                           total: lines.lineCount,
                                           capacity: capacity)
@@ -370,7 +417,16 @@ public enum PreviewBuilder {
             drawn.append(PreviewLine(number: number, text: text, spans: spans, highlight: mark))
         }
 
-        return TextPreview(lines: drawn,
+        // A long line truncates at the pane's right edge, and a match past that edge is
+        // invisible — the pane then highlights a line that appears not to contain what was
+        // searched for, which is the exact opposite of its job. Only the matched line is
+        // touched, and only by cutting its middle: see `PreviewLine.eliding`.
+        let shown = columns > 0 ? drawn.map { line -> PreviewLine in
+            guard line.number == focusLine, let mark = line.highlight else { return line }
+            return line.eliding(toShow: mark, columns: columns)
+        } : drawn
+
+        return TextPreview(lines: shown,
                            focusLine: focusLine.map { min(max($0, 1), lines.lineCount) },
                            hasMore: lines.lineCount > window.count)
     }

@@ -479,3 +479,88 @@ struct PreviewBodyTests {
         #expect(text.focusLine == 2)
     }
 }
+
+/// Bringing a match into view when it sits further right than the pane is wide.
+///
+/// Without this the pane highlights a line that appears not to contain what was searched for:
+/// the line truncates at the right edge and the mark is past it. That is the pane failing at
+/// the one thing it exists for.
+@Suite("Preview elision")
+struct PreviewElisionTests {
+
+    private func line(_ text: String, mark: Range<Int>) -> PreviewLine {
+        PreviewLine(number: 1, text: text, spans: [], highlight: mark)
+    }
+
+    @Test("a match that already fits is left alone")
+    func fits() {
+        let l = line("let needle = 1", mark: 4..<10)
+        #expect(l.eliding(toShow: 4..<10, columns: 80).text == "let needle = 1")
+    }
+
+    @Test("a far match is brought into view, and the line still starts where it did")
+    func elides() {
+        let text = "menuBar.apply(Status.derive(" + String(repeating: "x", count: 90) + "needle))"
+        let mark = 118..<124
+        let out = line(text, mark: mark).eliding(toShow: mark, columns: 80)
+        // The head is kept, so you can still see what the line is.
+        #expect(out.text.hasPrefix("menuBar.apply(Status.der"))
+        #expect(out.text.contains("…"))
+        // And the match is visible, well inside the pane.
+        let mk = out.highlight!
+        #expect(mk.upperBound <= 80)
+        #expect(utf16Slice(out.text, PreviewSpan(role: .plain, start: mk.lowerBound,
+                                                 length: mk.count)) == "needle")
+    }
+
+    @Test("context immediately before the match survives the cut")
+    func keepsContextBeforeMatch() {
+        let text = String(repeating: "a", count: 100) + "KEY: needle"
+        let mark = 105..<111
+        let out = line(text, mark: mark).eliding(toShow: mark, columns: 80)
+        #expect(out.text.contains("KEY: needle"))
+    }
+
+    @Test("only the matched line is touched, so the pane keeps its context")
+    func othersUntouched() {
+        // The bug this replaced scrolled every line, and the short neighbours scrolled to
+        // nothing — one useful line and a column of blanks.
+        let long = String(repeating: "z", count: 120) + "needle"
+        let bytes = Array((long + "\nshort line\n").utf8)
+        let lines = LineTable(bytes: bytes)
+        let p = PreviewBuilder.text(lines: lines, bytes: bytes, tokens: [],
+                                    focusLine: 1, capacity: 4,
+                                    highlight: 120..<126, columns: 80)
+        #expect(p.lines[1].text == "short line")
+    }
+
+    @Test("a span straddling the cut is dropped rather than drawn in the wrong place")
+    func straddlingSpanDropped() {
+        let text = String(repeating: "b", count: 100) + "let needle = 1"
+        let mark = 104..<110
+        let l = PreviewLine(number: 1, text: text,
+                            spans: [PreviewSpan(role: .keyword, start: 20, length: 60)],
+                            highlight: mark)
+        let out = l.eliding(toShow: mark, columns: 80)
+        // It covered both sides of the cut; colouring part of it would be a lie.
+        #expect(out.spans.isEmpty)
+    }
+
+    @Test("a match inside the head is not elided at all")
+    func matchInHead() {
+        let text = "let needle = " + String(repeating: "c", count: 200)
+        let mark = 4..<10
+        #expect(l1(text, mark).eliding(toShow: mark, columns: 80).text == text)
+    }
+
+    private func l1(_ t: String, _ m: Range<Int>) -> PreviewLine {
+        PreviewLine(number: 1, text: t, spans: [], highlight: m)
+    }
+
+    private func utf16Slice(_ text: String, _ span: PreviewSpan) -> String? {
+        let units = Array(text.utf16)
+        guard span.start + span.length <= units.count else { return nil }
+        return String(utf16CodeUnits: Array(units[span.start..<(span.start + span.length)]),
+                      count: span.length)
+    }
+}

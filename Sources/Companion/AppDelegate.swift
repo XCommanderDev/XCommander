@@ -345,7 +345,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
         guard let request = previewRequest(for: item) else { return }
-        previewLoader.request(request, capacity: picker.previewCapacity) { [weak self] result in
+        previewLoader.request(request, capacity: picker.previewCapacity,
+                              columns: picker.previewColumns) { [weak self] result in
             self?.picker.showPreview(result)
         }
     }

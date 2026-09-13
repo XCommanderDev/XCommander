@@ -67,7 +67,8 @@ enum PreviewImageCommandLine {
             ? .outline(path: path)
             : .text(path: path, focusLine: line, highlight: highlight)
         view.preview = PreviewBuilder.body(for: request, from: source,
-                                           capacity: view.previewLineCapacity)
+                                           capacity: view.previewLineCapacity,
+                                           columns: view.previewColumnCapacity)
 
         guard let rep = view.bitmapImageRepForCachingDisplay(in: view.bounds) else { return false }
         // The panel's material is not part of the view, so stand in for it: the pane is judged

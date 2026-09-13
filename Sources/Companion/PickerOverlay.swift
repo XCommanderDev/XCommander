@@ -58,6 +58,9 @@ final class PickerOverlay {
     /// How many lines of source the pane has room for, which is what the loader slices to.
     var previewCapacity: Int { view?.previewLineCapacity ?? 0 }
 
+    /// Characters of the pane that are visible, for scrolling a far-right match into view.
+    var previewColumns: Int { view?.previewColumnCapacity ?? 0 }
+
     func update(_ session: PickerSession) {
         guard isVisible else { return }
         view?.session = session
@@ -253,6 +256,17 @@ final class PickerView: NSView {
     }
 
     private var previewLineHeight: CGFloat { ceil(previewFont.boundingRectForFont.height) + 2 }
+
+    /// How many characters of the pane are visible. The font is monospaced, so one advance
+    /// width answers it — and the gutter is allowed for generously, since guessing a few
+    /// columns short only scrolls the match slightly further in than it needed to be.
+    var previewColumnCapacity: Int {
+        guard previewWidth > 0 else { return 0 }
+        let advance = previewFont.maximumAdvancement.width
+        guard advance > 0 else { return 0 }
+        let usable = previewWidth - padding * 2 - 44
+        return max(0, Int(usable / advance))
+    }
 
     /// One colour per role. **System colours, never literals**, so the pane follows light and
     /// dark and the user's accent without a second palette — and so it never pretends to be

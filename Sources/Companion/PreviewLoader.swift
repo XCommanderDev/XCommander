@@ -60,7 +60,7 @@ final class PreviewLoader {
     var projectRoot: String?
 
     /// Ask for a preview. Safe to call on every selection change; most calls do no work.
-    func request(_ request: PreviewRequest, capacity: Int,
+    func request(_ request: PreviewRequest, capacity: Int, columns: Int,
                  completion: @escaping @MainActor (PreviewResult) -> Void) {
         generation += 1
         let generation = generation
@@ -74,7 +74,7 @@ final class PreviewLoader {
         // Already parsed and still fresh: answer now. No debounce, no flicker, no queue hop —
         // this is the arrow-key case and it should feel like the list itself.
         if let parsed = cached(path) {
-            completion(build(request, from: parsed, capacity: capacity))
+            completion(build(request, from: parsed, capacity: capacity, columns: columns))
             return
         }
 
@@ -82,7 +82,8 @@ final class PreviewLoader {
         let timer = Timer(timeInterval: Self.debounceInterval, repeats: false) { [weak self] _ in
             MainActor.assumeIsolated {
                 guard let self, generation == self.generation else { return }
-                self.load(request, capacity: capacity, generation: generation, completion: completion)
+                self.load(request, capacity: capacity, columns: columns,
+                          generation: generation, completion: completion)
             }
         }
         debounce = timer
@@ -104,7 +105,7 @@ final class PreviewLoader {
 
     // MARK: - the work
 
-    private func load(_ request: PreviewRequest, capacity: Int, generation: Int,
+    private func load(_ request: PreviewRequest, capacity: Int, columns: Int, generation: Int,
                       completion: @escaping @MainActor (PreviewResult) -> Void) {
         let path = request.path
         queue.async { [weak self] in
@@ -117,7 +118,7 @@ final class PreviewLoader {
                         completion(.failure(reason))
                     case .success(let parsed):
                         self.store(parsed, for: path)
-                        completion(self.build(request, from: parsed, capacity: capacity))
+                        completion(self.build(request, from: parsed, capacity: capacity, columns: columns))
                     }
                 }
             }
@@ -153,14 +154,14 @@ final class PreviewLoader {
     }
 
     private func build(_ request: PreviewRequest, from parsed: Parsed,
-                       capacity: Int) -> PreviewResult {
+                       capacity: Int, columns: Int) -> PreviewResult {
         PreviewBuilder.body(for: request,
                             from: PreviewBuilder.Source(lines: parsed.lines,
                                                         bytes: parsed.bytes,
                                                         tokens: parsed.tokens,
                                                         outline: parsed.outline,
                                                         isSource: parsed.isSource),
-                            capacity: capacity)
+                            capacity: capacity, columns: columns)
     }
 
     // MARK: - cache
