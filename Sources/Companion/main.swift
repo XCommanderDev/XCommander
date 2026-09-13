@@ -10,10 +10,19 @@ import AutographeCore
 //
 //   Autographe --check <file>...    validate configs, print diagnostics, exit non-zero on error
 //   Autographe --print-reference    the whole contract: sections, key syntax, command ids
+//   Autographe --preview <file> [n] what the preview pane would draw, as text
 if let mode = CommandLine.arguments.dropFirst().first,
    mode == "--check" || mode == "--print-reference" {
     let files = Array(CommandLine.arguments.dropFirst(2))
     exit(ConfigCommandLine.run(mode: mode, files: files) ? 0 : 1)
+}
+if CommandLine.arguments.dropFirst().first == "--preview" {
+    let arguments = Array(CommandLine.arguments.dropFirst(2))
+    guard let path = arguments.first else {
+        FileHandle.standardError.write(Data("usage: --preview <file> [line]\n".utf8))
+        exit(1)
+    }
+    exit(PreviewCommandLine.run(path: path, line: arguments.dropFirst().first.flatMap(Int.init)) ? 0 : 1)
 }
 
 // A menu-bar app: no Dock icon, no main menu, no window until the overlay wants one.

@@ -13,15 +13,19 @@ let package = Package(
     products: [
         .library(name: "AutographeCore", targets: ["AutographeCore"]),
         .library(name: "CIndexStore", targets: ["CIndexStore"]),
+        .library(name: "CSourceKit", targets: ["CSourceKit"]),
         .executable(name: "Companion", targets: ["Companion"]),
     ],
     targets: [
         .target(name: "AutographeCore"),
         // Types only, for Xcode's index store. No library is linked: see the header.
         .target(name: "CIndexStore"),
+        // Types only, for sourcekitd. Exists because its variant is a by-value
+        // struct, which Swift will not put through @convention(c).
+        .target(name: "CSourceKit"),
         .executableTarget(
             name: "Companion",
-            dependencies: ["AutographeCore", "CIndexStore"],
+            dependencies: ["AutographeCore", "CIndexStore", "CSourceKit"],
             // SwiftPM cannot build an asset catalogue or an Icon Composer document, and it
             // does not own the Info.plist either: `tools/xc.sh` assembles the .app and runs
             // `actool` over these by hand. Excluding them silences the "unhandled files"
