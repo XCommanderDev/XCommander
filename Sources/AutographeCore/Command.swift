@@ -55,6 +55,24 @@ public enum PickerKind: String, Hashable, Sendable, CaseIterable {
     case documentSymbols   // declarations in the current file, from Xcode's index
     case projectSymbols    // declarations across the project, from Xcode's index
 
+    /// Which shape of preview this picker's rows want, if any.
+    ///
+    /// Exhaustive with no `default` on purpose: the day a twelfth picker is added the compiler
+    /// asks which of the three it is, which is the only thing that keeps a policy like this
+    /// from rotting. The rule is the question the list leaves open — a row that *is* the answer
+    /// (a command, a destination) needs no pane.
+    public var previewStyle: PreviewStyle {
+        switch self {
+        // **Only the project search.** A preview earns a pane when the row is a *location* —
+        // one line torn out of a file, where the surrounding lines are the decision. Every
+        // other picker's row is already the answer: a file name tells you the file, a command
+        // tells you the command, and a pane beside them is furniture.
+        case .projectSearch: .text
+        case .files, .buffers, .documentSymbols, .projectSymbols,
+             .commands, .destinations, .schemes, .themes, .syntaxColoring, .recentProjects: .none
+        }
+    }
+
     public var title: String {
         switch self {
         case .commands: "Commands"

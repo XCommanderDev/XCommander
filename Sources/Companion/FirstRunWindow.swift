@@ -25,10 +25,11 @@ import SwiftUI
 ///   and narrow. Reassurance that is not checkable reads as marketing, which is worse than
 ///   saying nothing.
 ///
-/// Shown once, ever. A window that returns every launch is a window people learn to dismiss
-/// without reading, and by then it has spent the only attention it was ever going to get.
+/// Shown once, ever — but *once seen*, not once drawn. An agent app has no Dock icon and no
+/// way to bring a window back, so a first run that was buried behind Xcode before anyone read
+/// it must come back on the next launch rather than being marked spent.
 @MainActor
-final class FirstRunWindow {
+final class FirstRunWindow: NSObject, NSWindowDelegate {
 
     private enum Key {
         static let seen = "firstRunSeen"
@@ -47,7 +48,6 @@ final class FirstRunWindow {
     private var window: NSWindow?
 
     func show() {
-        UserDefaults.standard.set(true, forKey: Key.seen)
         if window == nil { build() }
         window?.center()
         window?.makeKeyAndOrderFront(nil)
@@ -62,14 +62,30 @@ final class FirstRunWindow {
         window?.close()
     }
 
+    /// The window reached someone. Written here rather than in `show()` because those are not
+    /// the same event: a window drawn behind another app was never read, and marking it spent
+    /// would cost the user the only explanation this app offers.
+    private func markSeen() {
+        UserDefaults.standard.set(true, forKey: Key.seen)
+    }
+
+    /// Covers the red close button as well as both of ours.
+    func windowWillClose(_ notification: Notification) {
+        markSeen()
+    }
+
     private func build() {
         let content = FirstRunView(
             leader: SettingsWindow.leader.title,
             onContinue: { [weak self] in
+                self?.markSeen()
                 self?.close()
                 self?.onContinue?()
             },
-            onLater: { [weak self] in self?.close() })
+            onLater: { [weak self] in
+                self?.markSeen()
+                self?.close()
+            })
 
         let controller = NSHostingController(rootView: content)
         controller.sizingOptions = [.preferredContentSize]
@@ -78,6 +94,11 @@ final class FirstRunWindow {
         window.titlebarAppearsTransparent = true
         window.titleVisibility = .hidden
         window.isReleasedWhenClosed = false
+        // Above other applications. Without this, anything that takes focus in the second
+        // after launch buries the window, and an app with no Dock icon has no way to raise it
+        // again — the one explanation it offers would be lost behind Xcode.
+        window.level = .floating
+        window.delegate = self
         self.window = window
     }
 }

@@ -32,6 +32,7 @@ final class SettingsWindow {
         static let delay = "overlayDelay"
         static let timeout = "sequenceTimeout"
         static let leader = "leaderChoice"
+        static let preview = "pickerPreview"
     }
 
     /// The accessors below are what the rest of the app reads; the panes bind to the same keys
@@ -65,6 +66,17 @@ final class SettingsWindow {
             return stored > 0 ? stored : defaultSequenceTimeout
         }
         set { UserDefaults.standard.set(newValue, forKey: Key.timeout) }
+    }
+
+    /// Whether the pickers show a preview pane. Same guarded read as the leader: an unknown
+    /// stored value falls back rather than being trusted.
+    static var previewMode: PreviewMode {
+        get {
+            guard let raw = UserDefaults.standard.string(forKey: Key.preview),
+                  let mode = PreviewMode(rawValue: raw) else { return .default }
+            return mode
+        }
+        set { UserDefaults.standard.set(newValue.rawValue, forKey: Key.preview) }
     }
 
     /// The chosen leader, as one of the vetted options. An unknown stored value falls back to
@@ -154,6 +166,7 @@ private struct GeneralPane: View {
 
     @AppStorage(SettingsWindow.Key.enabled) private var isEnabled = true
     @AppStorage(SettingsWindow.Key.leader) private var leader = LeaderChoice.default
+    @AppStorage(SettingsWindow.Key.preview) private var preview = PreviewMode.default
 
     /// Not a stored setting: the login item lives in `SMAppService`, and this mirrors it.
     @State private var launchesAtLogin = SMAppService.mainApp.status == .enabled
@@ -177,6 +190,20 @@ private struct GeneralPane: View {
                     }
                 }
                 Toggle("Enabled while Xcode is frontmost", isOn: $isEnabled)
+
+                // Three states rather than a switch, because the panel grows downward to
+                // make room and a short Xcode window cannot take it. See `PreviewMode`.
+                LabeledContent("Preview") {
+                    Explained(preview.note) {
+                        Picker("Preview", selection: $preview) {
+                            ForEach(PreviewMode.allCases, id: \.self) { mode in
+                                Text(mode.title).tag(mode)
+                            }
+                        }
+                        .labelsHidden()
+                        .frame(width: 230, alignment: .leading)
+                    }
+                }
             }
 
             Section {

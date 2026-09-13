@@ -25,6 +25,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Exactly one of these is active at a time. The keymap session drives the which-key
     /// panel; a picker, once open, takes every key until it is chosen or cancelled.
     private var activePicker: PickerSession?
+    private let previewLoader = PreviewLoader()
+    /// The style the open picker previews in, so every selection change knows what to ask for.
+    private var previewStyle: PreviewStyle = .none
+    /// Which picker is open, so a window resize can ask the pane question again.
+    private var activePickerKind: PickerKind?
     private var fileIndex = FileIndex()
     private var history = DocumentHistory()
     private var tracker: WindowTracker!
@@ -34,6 +39,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var searchRoot: URL?
     /// The symbols behind an open symbol picker, filtered by our own matcher.
     private var symbolRows: [ProjectSymbol] = []
+    /// The hits behind the open search picker's rows, by row id.
+    ///
+    /// A row's id carries the file and the line, which is all `choose` needs to open it. The
+    /// preview needs one thing more — *where in the line* the hit is — so the matches are kept
+    /// beside the rows rather than encoded into the id, which would change a format four other
+    /// things parse.
+    private var searchMatches: [String: SearchMatch] = [:]
 
     /// Fires when an armed sequence has gone unresolved for `session.timeout`.
     private var sequenceTimer: Timer?
@@ -74,6 +86,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         tracker = WindowTracker(context: context)
         tracker.onGeometryChanged = { [weak self] in
             self?.whichKey.followWindow()
+            // Decide the pane question again *before* repositioning, so the panel is placed at
+            // the width it is about to have rather than the one it had.
+            self?.reviewPreviewWidth()
             self?.picker.followWindow()
         }
         tracker.onDocumentChanged = { [weak self] url in self?.history.record(url) }
@@ -186,6 +201,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             if current.source == .dynamic {
                 if symbolRows.isEmpty { runSearch(current.query) } else { applySymbolQuery(current.query) }
             }
+            // `.updated` covers typing and arrow keys alike, so one hook here serves every
+            // way the selection can move.
+            refreshPreview()
         case .ignored:
             break
         case .cancelled:
@@ -261,6 +279,96 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: - pickers
 
+    /// How tall the pane is for a picker, and whether it has one at all.
+    ///
+    /// Decided here, once, before the panel is shown — the panel never resizes while it is
+    /// open, so this is the only moment the question is asked.
+    private static let previewPaneWidth: CGFloat = 620
+
+    private func previewWidth(for kind: PickerKind) -> CGFloat {
+        guard kind.previewStyle != .none else { return 0 }
+        // Resolved, because `FileIndex` yields symlink-resolved paths: an unresolved root
+        // would fail the containment test for every row and the pane would only ever say so.
+        previewLoader.projectRoot = projectRoot()?.resolvingSymlinksInPath().path
+        // Nothing to read means nothing to preview, and a pane that can only ever say so is
+        // worse than no pane.
+        guard previewLoader.projectRoot != nil else { return 0 }
+
+        // Xcode's own window decides, falling back to the screen when it will not say — the
+        // same fallback `PickerOverlay.reposition` uses to place the panel.
+        let available = context.focusedWindowFrame()?.width
+            ?? NSScreen.main?.visibleFrame.width ?? 0
+        let panel = PickerOverlay.listWidth + Self.previewPaneWidth
+        guard SettingsWindow.previewMode.showsPreview(inWindowOfWidth: Double(available),
+                                                      panelWidth: Double(panel)) else { return 0 }
+        return Self.previewPaneWidth
+    }
+
+    /// What a row wants previewed, including the one case `PreviewRequest` cannot answer.
+    ///
+    /// An editor tab is addressed by coordinates and carries only a file name, so it has no
+    /// path to preview. Resolving that name through the file index is the only way to show
+    /// one **without touching Xcode** — pressing the tab would render it perfectly and would
+    /// also switch the user's editor under them, which is the thing this feature does not do.
+    ///
+    /// Returns nil after putting a reason in the pane, so the frame never collapses.
+    private func previewRequest(for item: PickerItem) -> PreviewRequest? {
+        if let request = PreviewRequest.of(item, style: previewStyle) {
+            // Mark the searched-for text, which the row id does not carry.
+            if case .text(let path, let line, _) = request,
+               let match = searchMatches[item.id], match.end > match.start {
+                return .text(path: path, focusLine: line,
+                             highlight: match.start..<match.end)
+            }
+            return request
+        }
+        guard case .tab = PickerTarget.parse(item.id) else {
+            picker.showPreview(.failure(.noOutline))
+            return nil
+        }
+        let candidates = fileIndex.paths(named: item.title)
+        switch candidates.count {
+        case 1:
+            return .outline(path: candidates[0])
+        case 0:
+            // Open but not in the project: a file from another package, or a header.
+            picker.showPreview(.failure(.unreadable))
+            return nil
+        default:
+            // Honest rather than arbitrary. Two `main.swift` in different targets are
+            // indistinguishable from a tab title, and previewing the wrong one silently is
+            // worse than saying there are two.
+            picker.showPreview(.failure(.ambiguous(candidates: candidates.count)))
+            return nil
+        }
+    }
+
+    /// Xcode changed shape under an open picker: ask whether the pane still fits.
+    ///
+    /// The same rule that decided at open time, applied again — so narrowing Xcode drops the
+    /// pane and the panel returns to exactly what it is without one, and widening it brings the
+    /// pane back. `auto` is then honestly named: it tracks the window rather than sampling it
+    /// once.
+    private func reviewPreviewWidth() {
+        guard picker.isVisible, let kind = activePickerKind else { return }
+        guard picker.setPreviewWidth(previewWidth(for: kind)) else { return }
+        // The pane it had was built for the old width, and its column budget just changed.
+        refreshPreview()
+    }
+
+    /// Ask for whatever the current selection wants shown. Safe to call on every keystroke.
+    private func refreshPreview() {
+        guard previewStyle != .none, let item = activePicker?.selectedItem else {
+            picker.showPreview(nil)
+            return
+        }
+        guard let request = previewRequest(for: item) else { return }
+        previewLoader.request(request, capacity: picker.previewCapacity,
+                              columns: picker.previewColumns) { [weak self] result in
+            self?.picker.showPreview(result)
+        }
+    }
+
     private func openPicker(_ kind: PickerKind) {
         let items: [PickerItem]
         switch kind {
@@ -289,7 +397,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                                         items: [], source: .dynamic)
             session.pageSize = 10
             activePicker = session
-            picker.present(session)
+            previewStyle = kind.previewStyle
+            activePickerKind = kind
+            picker.present(session, previewWidth: previewWidth(for: kind))
             return
         case .documentSymbols, .projectSymbols:
             openSymbolPicker(kind)
@@ -304,11 +414,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         var s = PickerSession(title: kind.title, items: items)
         s.pageSize = 10
         activePicker = s
-        picker.present(s)
+        previewStyle = kind.previewStyle
+        activePickerKind = kind
+        picker.present(s, previewWidth: previewWidth(for: kind))
+        // The first row is selected the moment the panel appears, so its preview is asked for
+        // then rather than on the first arrow key.
+        refreshPreview()
     }
 
     private func closePicker() {
         activePicker = nil
+        previewStyle = .none
+        activePickerKind = nil
+        searchMatches = [:]
+        // Drop anything in flight, so a read that lands after the panel has gone does not
+        // redraw a dismissed view.
+        previewLoader.cancel()
         searchRoot = nil
         symbolRows = []
         search.cancel()
@@ -328,7 +449,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         var session = PickerSession(title: kind.title, items: [], source: .dynamic)
         session.pageSize = 10
         activePicker = session
-        picker.present(session)
+        previewStyle = kind.previewStyle
+        activePickerKind = kind
+        picker.present(session, previewWidth: previewWidth(for: kind))
 
         symbolIndex.symbols(forProjectAt: root) { [weak self] result in
             guard let self, var open = self.activePicker else { return }
@@ -336,6 +459,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 open.replaceRows([PickerItem(id: "none", title: reason, isEnabled: false)])
                 self.activePicker = open
                 self.picker.update(open)
+                self.refreshPreview()
                 return
             }
             var symbols = result.symbols
@@ -347,6 +471,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                                                  isEnabled: false)])
                     self.activePicker = open
                     self.picker.update(open)
+                    self.refreshPreview()
+                self.refreshPreview()
                     return
                 }
             }
@@ -369,6 +495,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         })
         activePicker = open
         picker.update(open)
+        refreshPreview()
     }
 
     /// Feed the query to ripgrep and put the hits back into the open picker.
@@ -376,6 +503,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard let root = searchRoot else { return }
         search.search(query, in: root) { [weak self] matches in
             guard let self, var session = self.activePicker, session.source == .dynamic else { return }
+            self.searchMatches = Dictionary(
+                matches.map { ("match:\($0.path):\($0.line)", $0) },
+                uniquingKeysWith: { first, _ in first })
             session.replaceRows(matches.map { match in
                 PickerItem(id: "match:\(match.path):\(match.line)",
                            // The line itself is the row, because that is what you are
@@ -386,6 +516,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             })
             self.activePicker = session
             self.picker.update(session)
+            self.refreshPreview()
         }
     }
 
