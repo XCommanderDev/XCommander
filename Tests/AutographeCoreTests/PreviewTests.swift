@@ -156,6 +156,8 @@ struct PreviewTests {
             #expect(!reason.message.isEmpty)
         }
         #expect(PreviewUnavailable.ambiguous(candidates: 3).message.contains("3"))
+        // A size that integer division would have printed as "1 MB".
+        #expect(PreviewUnavailable.tooLarge(bytes: 1_900_000).message.contains("1.9"))
     }
 }
 

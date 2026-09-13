@@ -21,7 +21,12 @@ final class PreviewLoader {
 
     /// Beyond this we do not read at all. A generated JSON in the file index can be tens of
     /// megabytes and the pane wants forty lines.
-    nonisolated private static let maxBytes = 1_000_000
+    ///
+    /// **Matched to ripgrep's `--max-filesize`**, deliberately. With a lower cap here, a search
+    /// can return hits in a file the preview then refuses to open — the list offers you a
+    /// result and the pane tells you it will not show it, which reads as a bug because it is
+    /// one. The two limits belong to the same decision, so they are the same number.
+    nonisolated static let maxBytes = 2_000_000
     /// A NUL in the first few kilobytes means binary. Cheap, and right about every file the
     /// index actually offers — a compiled `.plist` and a `.strings` in UTF-16 both trip it.
     nonisolated private static let sniffBytes = 8_000

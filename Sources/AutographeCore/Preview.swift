@@ -310,7 +310,10 @@ public enum PreviewUnavailable: Hashable, Sendable, Error {
     public var message: String {
         switch self {
         case .loading: "…"
-        case .tooLarge(let bytes): "too large to preview (\(bytes / 1_000_000) MB)"
+        case .tooLarge(let bytes):
+            // A decimal, because integer division prints a 1.9 MB file as "1 MB", which reads
+            // as an off-by-one in the limit rather than as the size of the file.
+            "too large to preview (\(String(format: "%.1f", Double(bytes) / 1_000_000)) MB)"
         case .binary: "binary file"
         case .unreadable: "could not be read as text"
         case .noOutline: "no declarations"
