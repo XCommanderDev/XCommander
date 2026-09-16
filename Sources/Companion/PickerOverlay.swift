@@ -148,14 +148,9 @@ final class PickerOverlay {
         panel.hidesOnDeactivate = false
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
 
-        // `.popover` rather than `.hudWindow`, plus an opaque backing colour.
-        //
-        // A heavily translucent panel takes its contrast from whatever is behind it, and
-        // what is behind this one is Xcode — whose theme is independent of the system
-        // appearance. In light mode over a dark editor the result was a grey haze with an
-        // invisible breadcrumb. Backing the material with the window colour makes the
-        // contrast a property of the panel rather than of the window under it, while the
-        // material still supplies the blur at the edges.
+        // Always dark, and backed near-opaque, for the reasons given on the which-key panel:
+        // the backdrop is Xcode, and the backdrop must not decide whether this is legible.
+        panel.appearance = NSAppearance(named: .darkAqua)
         let blur = NSVisualEffectView()
         blur.material = .popover
         blur.blendingMode = .behindWindow
@@ -165,6 +160,7 @@ final class PickerOverlay {
         blur.layer?.masksToBounds = true
 
         let backing = PanelBackingView()
+        backing.colour = Theme.pickerBackground
         backing.autoresizingMask = [.width, .height]
         blur.addSubview(backing)
 
@@ -205,29 +201,12 @@ final class PickerView: NSView {
     /// Row colours, kept in one place because getting them wrong is what made the first
     /// version read as a christmas tree.
     ///
-    /// Three rules. **Matched characters never use the accent colour on the selected row**,
-    /// because the selection band is already accent-tinted and accent-on-accent has no
-    /// contrast. **A disabled row gets no accent at all**, or an unavailable command looks
-    /// livelier than an available one. And the unmatched part of a title stays at full
-    /// label colour rather than dropping to secondary, so the highlight marks the match
-    /// instead of the rest of the row receding.
-    /// The one place a named tint becomes a colour.
-    ///
-    /// System colours rather than literals, so every one of these adapts to light and dark
-    /// and to the user's accent colour without a second palette.
-    private static func colour(for tint: IconTint) -> NSColor {
-        switch tint {
-        case .purple: .systemPurple
-        case .blue:   .systemBlue
-        case .teal:   .systemTeal
-        case .green:  .systemGreen
-        case .orange: .systemOrange
-        case .pink:   .systemPink
-        case .grey:   .secondaryLabelColor
-        case .accent: .controlAccentColor
-        }
-    }
-
+    /// Three rules. **Matched characters are marked by weight and an underline, not by a
+    /// colour**, so the mark survives the solid blue selection band, where any tint would
+    /// fight it. **A disabled row gets nothing bright at all**, or an unavailable command
+    /// looks livelier than an available one. And the unmatched part of a title stays at full
+    /// text colour rather than dropping to dim, so the highlight marks the match instead of
+    /// the rest of the row receding.
     private struct RowPalette {
         let text: NSColor
         let match: NSColor
@@ -236,13 +215,16 @@ final class PickerView: NSView {
         static func of(selected: Bool, enabled: Bool) -> RowPalette {
             switch (selected, enabled) {
             case (true, true):
-                RowPalette(text: .labelColor, match: .labelColor, detail: .secondaryLabelColor)
+                RowPalette(text: Theme.textStrong, match: Theme.textStrong,
+                           detail: Theme.textStrong.withAlphaComponent(0.75))
             case (false, true):
-                RowPalette(text: .labelColor, match: .controlAccentColor, detail: .tertiaryLabelColor)
+                RowPalette(text: Theme.text, match: Theme.textStrong, detail: Theme.textFaint)
             case (true, false):
-                RowPalette(text: .secondaryLabelColor, match: .secondaryLabelColor, detail: .tertiaryLabelColor)
+                RowPalette(text: Theme.textStrong.withAlphaComponent(0.6),
+                           match: Theme.textStrong.withAlphaComponent(0.6),
+                           detail: Theme.textStrong.withAlphaComponent(0.45))
             case (false, false):
-                RowPalette(text: .tertiaryLabelColor, match: .tertiaryLabelColor, detail: .quaternaryLabelColor)
+                RowPalette(text: Theme.textFaint, match: Theme.textFaint, detail: Theme.textFaint)
             }
         }
     }
@@ -285,22 +267,6 @@ final class PickerView: NSView {
         return max(0, Int(usable / advance))
     }
 
-    /// One colour per role. **System colours, never literals**, so the pane follows light and
-    /// dark and the user's accent without a second palette — and so it never pretends to be
-    /// Xcode's theme, which we cannot read and should not imitate badly.
-    private static func colour(for role: SyntaxRole) -> NSColor {
-        switch role {
-        case .keyword:    .systemPink
-        case .string:     .systemRed
-        case .number:     .systemOrange
-        case .comment:    .systemGreen
-        case .docComment: .systemGray
-        case .typeName:   .systemPurple
-        case .attribute:  .systemTeal
-        case .plain:      .labelColor
-        }
-    }
-
     override func draw(_ dirtyRect: NSRect) {
         guard let session else { return }
 
@@ -309,28 +275,28 @@ final class PickerView: NSView {
         // HUD material is legible in a mock-up and invisible on a real screen.
         NSAttributedString(string: session.title.uppercased(), attributes: [
             .font: titleFont,
-            .foregroundColor: NSColor.secondaryLabelColor,
+            .foregroundColor: Theme.textDim,
             .kern: 0.6,
         ]).draw(at: NSPoint(x: padding, y: padding - 4))
 
         let query = NSAttributedString(string: session.query, attributes: [
-            .font: queryFont, .foregroundColor: NSColor.labelColor,
+            .font: queryFont, .foregroundColor: Theme.textStrong,
         ])
         let queryY = padding + 12
         query.draw(at: NSPoint(x: padding, y: queryY))
 
         // A drawn caret, because there is no real text field here to blink one for us.
         let caretX = padding + query.size().width + 1
-        NSColor.controlAccentColor.setFill()
+        Theme.selection.setFill()
         NSRect(x: caretX, y: queryY + 2, width: 2, height: queryFont.pointSize + 2).fill()
 
         if session.query.isEmpty {
             NSAttributedString(string: "type to filter", attributes: [
-                .font: queryFont, .foregroundColor: NSColor.tertiaryLabelColor,
+                .font: queryFont, .foregroundColor: Theme.textFaint,
             ]).draw(at: NSPoint(x: caretX + 8, y: queryY))
         }
 
-        NSColor.separatorColor.setFill()
+        Theme.hairline.setFill()
         NSRect(x: 0, y: padding + queryHeight, width: listWidth, height: 1).fill()
 
         drawPreview()
@@ -348,10 +314,10 @@ final class PickerView: NSView {
             let palette = RowPalette.of(selected: isSelected, enabled: row.item.isEnabled)
 
             if isSelected {
-                // Softer than a solid accent band, and rounded so it reads as a row rather
-                // than a stripe across the window.
+                // A solid band, the way Open Quickly marks its row, rounded so it reads as a
+                // row rather than a stripe across the window.
                 let band = NSRect(x: 8, y: y - 4, width: listWidth - 16, height: rowHeight)
-                NSColor.controlAccentColor.withAlphaComponent(0.18).setFill()
+                Theme.selection.setFill()
                 NSBezierPath(roundedRect: band, xRadius: 6, yRadius: 6).fill()
             }
 
@@ -361,7 +327,7 @@ final class PickerView: NSView {
             if let icon = row.item.icon {
                 drawBadge(icon, in: NSRect(x: padding, y: y - 1,
                                            width: badgeSize, height: badgeSize),
-                          enabled: row.item.isEnabled, font: badgeFont)
+                          enabled: row.item.isEnabled, font: badgeFont, onSelection: isSelected)
                 textX = padding + badgeSize + badgeGap
             }
 
@@ -375,7 +341,8 @@ final class PickerView: NSView {
             for i in row.matched where i < utf16.count {
                 let start = String(utf16[0..<i]).utf16.count
                 let length = String(utf16[i]).utf16.count
-                title.addAttributes([.font: matchFont, .foregroundColor: palette.match],
+                title.addAttributes([.font: matchFont, .foregroundColor: palette.match,
+                                     .underlineStyle: NSUnderlineStyle.single.rawValue],
                                     range: NSRange(location: start, length: length))
             }
             // Measure the detail first, then give the title whatever is left. Drawing the
@@ -404,13 +371,13 @@ final class PickerView: NSView {
 
         if session.rows.isEmpty {
             NSAttributedString(string: "no matches", attributes: [
-                .font: rowFont, .foregroundColor: NSColor.secondaryLabelColor,
+                .font: rowFont, .foregroundColor: Theme.textDim,
             ]).draw(at: NSPoint(x: padding, y: padding + queryHeight + 8))
         }
 
         // A count, so a long list does not feel bottomless.
         let count = NSAttributedString(string: "\(session.rows.count)", attributes: [
-            .font: detailFont, .foregroundColor: NSColor.tertiaryLabelColor,
+            .font: detailFont, .foregroundColor: Theme.textFaint,
         ])
         count.draw(at: NSPoint(x: listWidth - padding - count.size().width, y: padding - 4))
     }
@@ -423,7 +390,7 @@ final class PickerView: NSView {
     private func drawPreview() {
         guard previewWidth > 0 else { return }
 
-        NSColor.separatorColor.setFill()
+        Theme.hairline.setFill()
         NSRect(x: listWidth, y: 0, width: 1, height: bounds.height).fill()
 
         let body = NSRect(x: listWidth + 1, y: 0,
@@ -464,16 +431,19 @@ final class PickerView: NSView {
             let isFocus = line.number == text.focusLine
 
             if isFocus {
-                // The same band the selected row uses, so the two marks read as one idea.
+                // The selection blue, softened, with a solid edge: the same idea as the
+                // selected row, quiet enough to read the code through.
                 let band = NSRect(x: rect.minX + 6, y: y - 2,
                                   width: rect.width - 12, height: lineHeight)
-                NSColor.controlAccentColor.withAlphaComponent(0.18).setFill()
+                Theme.focusLine.setFill()
                 NSBezierPath(roundedRect: band, xRadius: 4, yRadius: 4).fill()
+                Theme.selection.setFill()
+                NSRect(x: band.minX, y: band.minY, width: 2, height: band.height).fill()
             }
 
             let gutter = NSAttributedString(string: "\(line.number)", attributes: [
                 .font: gutterFont,
-                .foregroundColor: isFocus ? NSColor.secondaryLabelColor : NSColor.tertiaryLabelColor,
+                .foregroundColor: isFocus ? Theme.text : Theme.textFaint,
             ])
             gutter.draw(at: NSPoint(x: rect.minX + padding + gutterWidth - gutter.size().width,
                                     y: y + 1))
@@ -486,7 +456,7 @@ final class PickerView: NSView {
 
         if text.hasMore {
             let more = NSAttributedString(string: "⋯", attributes: [
-                .font: gutterFont, .foregroundColor: NSColor.quaternaryLabelColor,
+                .font: gutterFont, .foregroundColor: Theme.textFaint,
             ])
             more.draw(at: NSPoint(x: rect.maxX - padding - more.size().width,
                                   y: rect.maxY - previewPadding - lineHeight))
@@ -498,7 +468,7 @@ final class PickerView: NSView {
     /// Truncated and never wrapped: one 400-character line must not eat the pane.
     private func draw(_ line: PreviewLine, at origin: NSPoint, width: CGFloat,
                       dimmed: Bool, height: CGFloat) {
-        let base = dimmed ? NSColor.secondaryLabelColor : NSColor.labelColor
+        let base = dimmed ? Theme.textDim : Theme.text
         let attributed = NSMutableAttributedString(string: line.text, attributes: [
             .font: previewFont, .foregroundColor: base,
         ])
@@ -514,7 +484,7 @@ final class PickerView: NSView {
             if origin.x + before < origin.x + width {
                 let box = NSRect(x: origin.x + before - 1, y: origin.y,
                                  width: min(hit + 2, width - before), height: height - 1)
-                NSColor.systemYellow.withAlphaComponent(dimmed ? 0.18 : 0.32).setFill()
+                (dimmed ? Theme.searchMark.withAlphaComponent(0.16) : Theme.searchMark).setFill()
                 NSBezierPath(roundedRect: box, xRadius: 3, yRadius: 3).fill()
             }
         }
@@ -522,19 +492,19 @@ final class PickerView: NSView {
         for span in line.spans {
             let range = NSRange(location: span.start, length: span.length)
             guard range.location >= 0, range.location + range.length <= length else { continue }
-            var colour = Self.colour(for: span.role)
+            var colour = Theme.colour(for: span.role)
             // Away from the focus line the colour recedes rather than disappears: the shape of
             // the code stays readable while the answer stays the brightest thing in the pane.
             if dimmed { colour = colour.withAlphaComponent(0.5) }
             attributed.addAttribute(.foregroundColor, value: colour, range: range)
         }
 
-        // Text under the mark goes back to label colour, for the same reason the row list
-        // drops the accent off matched characters on a selected row: a syntax colour over a
-        // tinted box is two marks fighting, and the one that loses is the word you searched
-        // for. The box says "here"; the text just has to be readable.
+        // Text under the mark goes back to plain white, for the same reason the row list marks
+        // matched characters with weight rather than colour: a syntax colour over a tinted box
+        // is two marks fighting, and the one that loses is the word you searched for. The box
+        // says "here"; the text just has to be readable.
         if let highlight = line.highlight, highlight.upperBound <= length {
-            attributed.addAttribute(.foregroundColor, value: NSColor.labelColor,
+            attributed.addAttribute(.foregroundColor, value: Theme.textStrong,
                                     range: NSRange(location: highlight.lowerBound,
                                                    length: highlight.count))
         }
@@ -550,7 +520,7 @@ final class PickerView: NSView {
     private func draw(message: String, in rect: NSRect, dimmed: Bool) {
         let attributed = NSAttributedString(string: message, attributes: [
             .font: rowFont,
-            .foregroundColor: dimmed ? NSColor.tertiaryLabelColor : NSColor.secondaryLabelColor,
+            .foregroundColor: dimmed ? Theme.textFaint : Theme.textDim,
         ])
         attributed.draw(at: NSPoint(x: rect.minX + padding, y: rect.minY + previewPadding))
     }
@@ -560,8 +530,12 @@ final class PickerView: NSView {
     /// Shared by the row list and the outline pane deliberately: the pane has to read as part
     /// of this window, and two copies of this drawing would drift the first time one is
     /// touched.
-    private func drawBadge(_ icon: RowIcon, in box: NSRect, enabled: Bool, font: NSFont) {
-        let tint = Self.colour(for: icon.tint)
+    ///
+    /// On the selected row the badge turns white: every tint is a colour placed against dark
+    /// grey, and on the blue band half of them — the blues and teals first — disappear.
+    private func drawBadge(_ icon: RowIcon, in box: NSRect, enabled: Bool, font: NSFont,
+                           onSelection: Bool = false) {
+        let tint = onSelection ? Theme.textStrong : Theme.colour(for: icon.tint)
         tint.withAlphaComponent(enabled ? 0.22 : 0.10).setFill()
         NSBezierPath(roundedRect: box, xRadius: 4, yRadius: 4).fill()
         let glyph = NSAttributedString(string: icon.glyph, attributes: [
@@ -605,14 +579,14 @@ final class PickerView: NSView {
             // target nothing is public and a whole file at secondary is just faint.
             let name = NSAttributedString(string: node.name, attributes: [
                 .font: node.isPublic ? outlineNameBoldFont : outlineNameFont,
-                .foregroundColor: NSColor.labelColor,
+                .foregroundColor: Theme.text,
             ])
             name.draw(at: NSPoint(x: nameX, y: y + 1))
 
             // The line number sits where the list puts its detail column, right-aligned, so
             // the eye finds it in the same place in both halves of the window.
             let number = NSAttributedString(string: "\(node.line)", attributes: [
-                .font: gutterFont, .foregroundColor: NSColor.quaternaryLabelColor,
+                .font: gutterFont, .foregroundColor: Theme.textFaint,
             ])
             let numberX = rect.maxX - padding - number.size().width
             number.draw(at: NSPoint(x: numberX, y: y + 2))
@@ -625,7 +599,7 @@ final class PickerView: NSView {
                     truncation.lineBreakMode = .byTruncatingTail
                     NSAttributedString(string: summary, attributes: [
                         .font: outlineSummaryFont,
-                        .foregroundColor: NSColor.tertiaryLabelColor,
+                        .foregroundColor: Theme.textDim,
                         .paragraphStyle: truncation,
                     ]).draw(with: NSRect(x: x, y: y + 2, width: available, height: outlineRowHeight),
                             options: [.usesLineFragmentOrigin])
@@ -636,7 +610,7 @@ final class PickerView: NSView {
 
         if total > shown.count {
             let more = NSAttributedString(string: "+\(total - shown.count) more", attributes: [
-                .font: gutterFont, .foregroundColor: NSColor.quaternaryLabelColor,
+                .font: gutterFont, .foregroundColor: Theme.textFaint,
             ])
             more.draw(at: NSPoint(x: rect.minX + padding, y: y + 2))
         }

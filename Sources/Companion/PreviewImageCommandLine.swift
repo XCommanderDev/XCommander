@@ -72,10 +72,10 @@ enum PreviewImageCommandLine {
 
         guard let rep = view.bitmapImageRepForCachingDisplay(in: view.bounds) else { return false }
         // The panel's material is not part of the view, so stand in for it: the pane is judged
-        // against the window colour it will actually sit on.
+        // against the colour it will actually sit on.
         NSGraphicsContext.saveGraphicsState()
         NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
-        NSColor.windowBackgroundColor.setFill()
+        Theme.pickerBackground.withAlphaComponent(1).setFill()
         view.bounds.fill()
         NSGraphicsContext.restoreGraphicsState()
 

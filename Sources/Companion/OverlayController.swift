@@ -115,14 +115,18 @@ final class OverlayController {
         // full-screen Xcode, which an ordinary floating window will not do.
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
 
-        // `.popover` rather than `.hudWindow`, plus an opaque backing colour.
+        // Always dark, whatever the system appearance: the colours in `Theme` are drawn for a
+        // dark panel, and pinning the appearance keeps the material behind them dark too.
+        panel.appearance = NSAppearance(named: .darkAqua)
+
+        // `.popover` rather than `.hudWindow`, plus a near-opaque backing colour.
         //
         // A heavily translucent panel takes its contrast from whatever is behind it, and
         // what is behind this one is Xcode — whose theme is independent of the system
         // appearance. In light mode over a dark editor the result was a grey haze with an
-        // invisible breadcrumb. Backing the material with the window colour makes the
-        // contrast a property of the panel rather than of the window under it, while the
-        // material still supplies the blur at the edges.
+        // invisible breadcrumb. Backing the material makes the contrast a property of the
+        // panel rather than of the window under it, while the material still supplies the
+        // blur at the edges.
         let blur = NSVisualEffectView()
         blur.material = .popover
         blur.blendingMode = .behindWindow
@@ -132,6 +136,7 @@ final class OverlayController {
         blur.layer?.masksToBounds = true
 
         let backing = PanelBackingView()
+        backing.colour = Theme.whichKeyBackground
         backing.autoresizingMask = [.width, .height]
         blur.addSubview(backing)
 
@@ -156,11 +161,13 @@ final class WhichKeyView: NSView {
 
     private let rowHeight: CGFloat = 22
     private let padding: CGFloat = 14
+    /// The breadcrumb line and the dashed rule under it.
+    private let headerHeight: CGFloat = 30
     private let columnGap: CGFloat = 24
     private let keyFont = NSFont.monospacedSystemFont(ofSize: 12, weight: .semibold)
     private let titleFont = NSFont.systemFont(ofSize: 12)
-    /// Monospaced so the modifier glyphs line up, and tertiary rather than quaternary:
-    /// quaternary on a HUD material is legible in a design tool and invisible on screen.
+    /// Monospaced so the modifier glyphs line up, and dim rather than faint: the faintest
+    /// text colour is legible in a design tool and invisible on screen.
     private let shortcutFont = NSFont.monospacedSystemFont(ofSize: 11, weight: .regular)
 
     /// Lay the rows out in as many columns as fit, the way which-key does, so a group with
@@ -189,18 +196,28 @@ final class WhichKeyView: NSView {
 
     func preferredHeight(forWidth width: CGFloat) -> CGFloat {
         let layout = columns(forWidth: width)
-        return padding * 2 + 20 + CGFloat(layout.rowsPerColumn) * rowHeight
+        return padding * 2 + headerHeight + CGFloat(layout.rowsPerColumn) * rowHeight
     }
 
     override func draw(_ dirtyRect: NSRect) {
         let breadcrumb = NSAttributedString(string: panel.breadcrumb, attributes: [
             .font: NSFont.monospacedSystemFont(ofSize: 12, weight: .bold),
-            .foregroundColor: NSColor.labelColor,
+            .foregroundColor: Theme.breadcrumb,
         ])
         breadcrumb.draw(at: NSPoint(x: padding, y: padding))
 
+        // A dashed rule between what was pressed and what can come next, the way which-key
+        // separates its echo area from the keys.
+        let rule = NSBezierPath()
+        rule.move(to: NSPoint(x: padding, y: padding + 21.5))
+        rule.line(to: NSPoint(x: bounds.width - padding, y: padding + 21.5))
+        rule.lineWidth = 1
+        rule.setLineDash([3, 3], count: 2, phase: 0)
+        Theme.rule.setStroke()
+        rule.stroke()
+
         let layout = columns(forWidth: bounds.width)
-        let top = padding + 20
+        let top = padding + headerHeight
 
         for (i, row) in panel.rows.enumerated() {
             let column = i / layout.rowsPerColumn
@@ -209,29 +226,29 @@ final class WhichKeyView: NSView {
             let y = top + CGFloat(indexInColumn) * rowHeight
 
             let key = NSAttributedString(string: row.key, attributes: [
-                .font: keyFont, .foregroundColor: NSColor.labelColor,
+                .font: keyFont, .foregroundColor: Theme.key,
             ])
             key.draw(at: NSPoint(x: x, y: y))
             x += key.size().width + 6
 
             let arrow = NSAttributedString(string: "→", attributes: [
-                .font: titleFont, .foregroundColor: NSColor.tertiaryLabelColor,
+                .font: titleFont, .foregroundColor: Theme.textFaint,
             ])
             arrow.draw(at: NSPoint(x: x, y: y))
             x += arrow.size().width + 6
 
-            // Groups in the accent colour, commands in the label colour: the one visual
-            // distinction that tells you whether this key ends the sequence or continues it.
+            // Groups in purple, commands in the text colour: the one visual distinction that
+            // tells you whether this key ends the sequence or continues it.
             let title = NSAttributedString(string: row.label, attributes: [
                 .font: titleFont,
-                .foregroundColor: row.isGroup ? NSColor.controlAccentColor : NSColor.labelColor,
+                .foregroundColor: row.isGroup ? Theme.group : Theme.text,
             ])
             title.draw(at: NSPoint(x: x, y: y))
             x += title.size().width + 8
 
             if let shortcut = row.shortcut {
                 NSAttributedString(string: shortcut, attributes: [
-                    .font: shortcutFont, .foregroundColor: NSColor.tertiaryLabelColor,
+                    .font: shortcutFont, .foregroundColor: Theme.textDim,
                 ]).draw(at: NSPoint(x: x, y: y + 1))
             }
         }
