@@ -1,0 +1,578 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 110;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		CFC6AC49305B04B400E3037F /* XCommanderCore in Frameworks */ = {isa = PBXBuildFile; productRef = CFC6AC48305B04B400E3037F /* XCommanderCore */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		CFC6AC2C305B012300E3037F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CFC6AC15305B012100E3037F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CFC6AC1C305B012100E3037F;
+			remoteInfo = XCommander;
+		};
+		CFC6AC36305B012300E3037F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CFC6AC15305B012100E3037F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CFC6AC1C305B012100E3037F;
+			remoteInfo = XCommander;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		CFC6AC1D305B012100E3037F /* XCommander.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XCommander.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CFC6AC2B305B012300E3037F /* XCommanderTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = XCommanderTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CFC6AC35305B012300E3037F /* XCommanderUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = XCommanderUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		CFC6AC1F305B012100E3037F /* XCommander */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = XCommander;
+			sourceTree = "<group>";
+		};
+		CFC6AC2E305B012300E3037F /* XCommanderTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = XCommanderTests;
+			sourceTree = "<group>";
+		};
+		CFC6AC38305B012300E3037F /* XCommanderUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = XCommanderUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CFC6AC1A305B012100E3037F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+				CFC6AC49305B04B400E3037F /* XCommanderCore in Frameworks */,
+			);
+		};
+		CFC6AC28305B012300E3037F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
+		CFC6AC32305B012300E3037F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		CFC6AC14305B012100E3037F = {
+			isa = PBXGroup;
+			children = (
+				CFC6AC1F305B012100E3037F /* XCommander */,
+				CFC6AC2E305B012300E3037F /* XCommanderTests */,
+				CFC6AC38305B012300E3037F /* XCommanderUITests */,
+				CFC6AC1E305B012100E3037F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		CFC6AC1E305B012100E3037F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CFC6AC1D305B012100E3037F /* XCommander.app */,
+				CFC6AC2B305B012300E3037F /* XCommanderTests.xctest */,
+				CFC6AC35305B012300E3037F /* XCommanderUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		CFC6AC1C305B012100E3037F /* XCommander */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CFC6AC3D305B012300E3037F /* Build configuration list for PBXNativeTarget "XCommander" */;
+			buildPhases = (
+				CFC6AC19305B012100E3037F /* Sources */,
+				CFC6AC1A305B012100E3037F /* Frameworks */,
+				CFC6AC1B305B012100E3037F /* Resources */,
+			);
+			buildRules = (
+			);
+			fileSystemSynchronizedGroups = (
+				CFC6AC1F305B012100E3037F /* XCommander */,
+			);
+			name = XCommander;
+			packageProductDependencies = (
+				CFC6AC48305B04B400E3037F /* XCommanderCore */,
+			);
+			productName = XCommander;
+			productReference = CFC6AC1D305B012100E3037F /* XCommander.app */;
+			productType = "com.apple.product-type.application";
+		};
+		CFC6AC2A305B012300E3037F /* XCommanderTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CFC6AC40305B012300E3037F /* Build configuration list for PBXNativeTarget "XCommanderTests" */;
+			buildPhases = (
+				CFC6AC27305B012300E3037F /* Sources */,
+				CFC6AC28305B012300E3037F /* Frameworks */,
+				CFC6AC29305B012300E3037F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CFC6AC2D305B012300E3037F /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				CFC6AC2E305B012300E3037F /* XCommanderTests */,
+			);
+			name = XCommanderTests;
+			productName = XCommanderTests;
+			productReference = CFC6AC2B305B012300E3037F /* XCommanderTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		CFC6AC34305B012300E3037F /* XCommanderUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CFC6AC43305B012300E3037F /* Build configuration list for PBXNativeTarget "XCommanderUITests" */;
+			buildPhases = (
+				CFC6AC31305B012300E3037F /* Sources */,
+				CFC6AC32305B012300E3037F /* Frameworks */,
+				CFC6AC33305B012300E3037F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CFC6AC37305B012300E3037F /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				CFC6AC38305B012300E3037F /* XCommanderUITests */,
+			);
+			name = XCommanderUITests;
+			productName = XCommanderUITests;
+			productReference = CFC6AC35305B012300E3037F /* XCommanderUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CFC6AC15305B012100E3037F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2700;
+				LastUpgradeCheck = 2700;
+				TargetAttributes = {
+					CFC6AC1C305B012100E3037F = {
+						CreatedOnToolsVersion = 27.0;
+					};
+					CFC6AC2A305B012300E3037F = {
+						CreatedOnToolsVersion = 27.0;
+						TestTargetID = CFC6AC1C305B012100E3037F;
+					};
+					CFC6AC34305B012300E3037F = {
+						CreatedOnToolsVersion = 27.0;
+						TestTargetID = CFC6AC1C305B012100E3037F;
+					};
+				};
+			};
+			buildConfigurationList = CFC6AC18305B012100E3037F /* Build configuration list for PBXProject "XCommander" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = CFC6AC14305B012100E3037F;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				CFC6AC47305B04B400E3037F /* XCLocalSwiftPackageReference "XCommanderCore" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = CFC6AC1E305B012100E3037F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CFC6AC1C305B012100E3037F /* XCommander */,
+				CFC6AC2A305B012300E3037F /* XCommanderTests */,
+				CFC6AC34305B012300E3037F /* XCommanderUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		CFC6AC1B305B012100E3037F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		CFC6AC29305B012300E3037F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		CFC6AC33305B012300E3037F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CFC6AC19305B012100E3037F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
+		CFC6AC27305B012300E3037F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
+		CFC6AC31305B012300E3037F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		CFC6AC2D305B012300E3037F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CFC6AC1C305B012100E3037F /* XCommander */;
+			targetProxy = CFC6AC2C305B012300E3037F /* PBXContainerItemProxy */;
+		};
+		CFC6AC37305B012300E3037F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CFC6AC1C305B012100E3037F /* XCommander */;
+			targetProxy = CFC6AC36305B012300E3037F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		CFC6AC3B305B012300E3037F /* Debug configuration for PBXProject "XCommander" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = D3XY49J59H;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.6;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		CFC6AC3C305B012300E3037F /* Release configuration for PBXProject "XCommander" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = D3XY49J59H;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.6;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		CFC6AC3E305B012300E3037F /* Debug configuration for PBXNativeTarget "XCommander" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = D3XY49J59H;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainNibFile = MainMenu;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				INFOPLIST_KEY_NSViewGestureRecognizerIsExclusive = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.wassimans.XCommander;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		CFC6AC3F305B012300E3037F /* Release configuration for PBXNativeTarget "XCommander" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = D3XY49J59H;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainNibFile = MainMenu;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				INFOPLIST_KEY_NSViewGestureRecognizerIsExclusive = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.wassimans.XCommander;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		CFC6AC41305B012300E3037F /* Debug configuration for PBXNativeTarget "XCommanderTests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = D3XY49J59H;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.6;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.wassimans.XCommanderTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/XCommander.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/XCommander";
+			};
+			name = Debug;
+		};
+		CFC6AC42305B012300E3037F /* Release configuration for PBXNativeTarget "XCommanderTests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = D3XY49J59H;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.6;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.wassimans.XCommanderTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/XCommander.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/XCommander";
+			};
+			name = Release;
+		};
+		CFC6AC44305B012300E3037F /* Debug configuration for PBXNativeTarget "XCommanderUITests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = D3XY49J59H;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.wassimans.XCommanderUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = XCommander;
+			};
+			name = Debug;
+		};
+		CFC6AC45305B012300E3037F /* Release configuration for PBXNativeTarget "XCommanderUITests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = D3XY49J59H;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.wassimans.XCommanderUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = XCommander;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CFC6AC18305B012100E3037F /* Build configuration list for PBXProject "XCommander" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CFC6AC3B305B012300E3037F /* Debug configuration for PBXProject "XCommander" */,
+				CFC6AC3C305B012300E3037F /* Release configuration for PBXProject "XCommander" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		CFC6AC3D305B012300E3037F /* Build configuration list for PBXNativeTarget "XCommander" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CFC6AC3E305B012300E3037F /* Debug configuration for PBXNativeTarget "XCommander" */,
+				CFC6AC3F305B012300E3037F /* Release configuration for PBXNativeTarget "XCommander" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		CFC6AC40305B012300E3037F /* Build configuration list for PBXNativeTarget "XCommanderTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CFC6AC41305B012300E3037F /* Debug configuration for PBXNativeTarget "XCommanderTests" */,
+				CFC6AC42305B012300E3037F /* Release configuration for PBXNativeTarget "XCommanderTests" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		CFC6AC43305B012300E3037F /* Build configuration list for PBXNativeTarget "XCommanderUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CFC6AC44305B012300E3037F /* Debug configuration for PBXNativeTarget "XCommanderUITests" */,
+				CFC6AC45305B012300E3037F /* Release configuration for PBXNativeTarget "XCommanderUITests" */,
+			);
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		CFC6AC47305B04B400E3037F /* XCLocalSwiftPackageReference "XCommanderCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = XCommanderCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		CFC6AC48305B04B400E3037F /* XCommanderCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = XCommanderCore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = CFC6AC15305B012100E3037F /* Project object */;
+	validationLevel = 1;
+}
