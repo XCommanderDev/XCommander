@@ -21,8 +21,26 @@ public enum XcodeNavigator: String, Hashable, Sendable, CaseIterable {
     case breakpoints = "Breakpoints"
     case reports = "Reports"
 
-    /// Where this navigator lives in Xcode's menu bar.
-    public var menuPath: [String] { ["View", "Navigators", rawValue] }
+    /// The action that shows this navigator.
+    ///
+    /// Each navigator has its own, and several are named for what Xcode calls the thing
+    /// internally rather than for the menu title: `Project` is `toggleStructureNavigator:`,
+    /// `Reports` is `toggleLogsNavigator:`, `Source Control` is
+    /// `toggleWorkingCopiesNavigator:`. Which is the argument for identifiers in one line —
+    /// three of these nine titles have already drifted from the code behind them.
+    public var menuRef: MenuRef {
+        switch self {
+        case .project: MenuRef("toggleStructureNavigator:")
+        case .sourceControl: MenuRef("toggleWorkingCopiesNavigator:")
+        case .bookmarks: MenuRef("toggleBookmarksNavigator:")
+        case .find: MenuRef("toggleFindNavigator:")
+        case .issues: MenuRef("toggleIssuesNavigator:")
+        case .tests: MenuRef("toggleTestNavigator:")
+        case .debug: MenuRef("toggleDebuggerNavigator:")
+        case .breakpoints: MenuRef("toggleBreakpointsNavigator:")
+        case .reports: MenuRef("toggleLogsNavigator:")
+        }
+    }
 
     public var title: String {
         switch self {
@@ -56,7 +74,7 @@ public enum XcodeNavigator: String, Hashable, Sendable, CaseIterable {
     /// The command that shows this navigator. A plain menu command, like everything else
     /// that Xcode's menu bar can already do.
     public var command: Command {
-        .menu(commandID, title, menuPath)
+        .menu(commandID, title, menuRef)
     }
 }
 

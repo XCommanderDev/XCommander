@@ -29,6 +29,11 @@ public enum SpecialKey: String, Hashable, Sendable, CaseIterable {
     case escape, space, tab, `return`, delete
     case left, right, up, down
     case home, end, pageUp, pageDown
+    /// The function row. Added for Xcode's debugger, which is the only part of the menu bar
+    /// that uses it: `Debug > Step Over`, `Step Into` and `Step Out` are F6, F7 and F8.
+    /// Without these the panel showed those three commands with no shortcut at all, which
+    /// under-taught Xcode's own bindings — the opposite of what the dimmed column is for.
+    case f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12
 
     public var display: String {
         switch self {
@@ -45,6 +50,18 @@ public enum SpecialKey: String, Hashable, Sendable, CaseIterable {
         case .end:    "↘"
         case .pageUp: "⇞"
         case .pageDown: "⇟"
+        case .f1: "F1"
+        case .f2: "F2"
+        case .f3: "F3"
+        case .f4: "F4"
+        case .f5: "F5"
+        case .f6: "F6"
+        case .f7: "F7"
+        case .f8: "F8"
+        case .f9: "F9"
+        case .f10: "F10"
+        case .f11: "F11"
+        case .f12: "F12"
         }
     }
 }

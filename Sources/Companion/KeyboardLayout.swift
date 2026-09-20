@@ -128,6 +128,19 @@ enum KeyboardLayout {
         case .end:      0x77
         case .pageUp:   0x74
         case .pageDown: 0x79
+        // The function row's codes are not contiguous, which is why they are written out.
+        case .f1:  0x7A
+        case .f2:  0x78
+        case .f3:  0x63
+        case .f4:  0x76
+        case .f5:  0x60
+        case .f6:  0x61
+        case .f7:  0x62
+        case .f8:  0x64
+        case .f9:  0x65
+        case .f10: 0x6D
+        case .f11: 0x67
+        case .f12: 0x6F
         }
     }
 

@@ -1,4 +1,5 @@
 import AppKit
+import XcodeMenus
 import AutographeCore
 
 /// The status item. Small, but it is the only surface the app has when something is wrong,
@@ -39,6 +40,8 @@ final class MenuBarController {
     var leaderDisplay: String = "" { didSet { apply(status, force: true) } }
 
     private(set) var status: CompanionStatus = .idle
+    fileprivate let xcodeChangesEntry = NSMenuItem(title: "", action: nil, keyEquivalent: "")
+    fileprivate let xcodeChangesSeparator = NSMenuItem.separator()
 
     init() {
         item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -72,6 +75,16 @@ final class MenuBarController {
         // cannot live in the settings window: with no Accessibility permission the app sees
         // no keys, so the menu is the only surface a user has. It is hidden in every other
         // state, which is what keeps the ordinary menu to three items.
+        // Same rule as the permissions entry: present only when it is the answer to
+        // something. Xcode changing under the user is news exactly once per Xcode, and a
+        // line they can ignore beats a sheet they must dismiss.
+        xcodeChangesEntry.action = #selector(openXcodeChanges)
+        xcodeChangesEntry.target = self
+        xcodeChangesSeparator.isHidden = true
+        xcodeChangesEntry.isHidden = true
+        menu.addItem(xcodeChangesSeparator)
+        menu.addItem(xcodeChangesEntry)
+
         permissionsEntry.action = #selector(openSettings)
         permissionsEntry.target = self
         permissionsSeparator.isHidden = true
@@ -164,4 +177,28 @@ final class MenuBarController {
     @objc private func quit() { onQuit?() }
     @objc private func reload() { onReloadMenus?() }
     @objc private func openSettings() { onOpenAccessibilitySettings?() }
+}
+
+extension MenuBarController {
+
+    /// Show, or clear, the one line that says Xcode changed underneath the user.
+    ///
+    /// Clicking it opens the Markdown report rather than showing a sheet: the report is a
+    /// file in their config directory, which is where this audience already keeps things
+    /// they want to read on their own terms.
+    func announceXcodeChanges(_ summary: String?) {
+        guard let summary else {
+            xcodeChangesEntry.isHidden = true
+            xcodeChangesSeparator.isHidden = true
+            return
+        }
+        xcodeChangesEntry.title = summary
+        xcodeChangesEntry.toolTip = "Open \(ChangeReport.url.path)"
+        xcodeChangesEntry.isHidden = false
+        xcodeChangesSeparator.isHidden = false
+    }
+
+    @objc fileprivate func openXcodeChanges() {
+        NSWorkspace.shared.open(ChangeReport.url)
+    }
 }

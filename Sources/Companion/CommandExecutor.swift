@@ -92,21 +92,29 @@ final class CommandExecutor {
         case .shortcut(let key):
             return post(key) ? .posted(key) : .unavailable("could not post \(key.display)")
 
-        case .menuPath(let path):
-            guard let item = context.menuItem(at: path) else {
+        case .popupMenu(let ref):
+            // Xcode offers these nowhere else, so there is no menu-bar path and no shortcut
+            // to fall back to: either the toolbar control is there or the command cannot run.
+            guard context.pressPopupItem(ref) else {
+                return .unavailable("\(command.title) needs Xcode's \(ref.button) button, which is not on screen")
+            }
+            return .pressed([ref.button, command.title])
+
+        case .menu(let ref):
+            guard let item = context.menuItem(for: ref) else {
                 // Xcode's menu tree is context-dependent: the Editor menu has 6 items with
-                // no source editor focused and 150 with a .swift file open. A missing path
+                // no source editor focused and 150 with a .swift file open. A missing item
                 // is a normal state, not a bug.
-                return .unavailable("\(path.joined(separator: " > ")) is not in the menu right now")
+                return .unavailable("\(command.title) is not in the menu right now")
             }
             guard item.isEnabled else {
                 return .unavailable("\(command.title) is disabled right now")
             }
             // Silent first. Only if the press is refused do we fall back to the keystroke,
             // which works but blinks the menu title.
-            if context.press(item) { return .pressed(path) }
+            if context.press(item) { return .pressed(item.path) }
             if let key = item.shortcut, post(key) { return .posted(key) }
-            return .unavailable("could not run \(path.joined(separator: " > "))")
+            return .unavailable("could not run \(command.title)")
         }
     }
 

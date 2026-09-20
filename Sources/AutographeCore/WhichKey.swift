@@ -11,18 +11,18 @@ public struct WhichKeyRow: Hashable, Sendable, Comparable, Identifiable {
     /// Filled in by the app, not by Core: what a menu path is bound to is a fact about the
     /// running Xcode and the user's keyboard layout, and Core knows about neither.
     public var shortcut: String?
-    /// The menu path behind a leaf, so the app can look its shortcut up.
-    public var menuPath: [String]?
+    /// The menu item behind a leaf, so the app can look its shortcut up.
+    public var menuRef: MenuRef?
 
     public var id: String { key }
 
     public init(key: String, title: String, isGroup: Bool,
-                shortcut: String? = nil, menuPath: [String]? = nil) {
+                shortcut: String? = nil, menuRef: MenuRef? = nil) {
         self.key = key
         self.title = title
         self.isGroup = isGroup
         self.shortcut = shortcut
-        self.menuPath = menuPath
+        self.menuRef = menuRef
     }
 
     /// What the panel prints: `+build` for a group, `build` for a command.

@@ -1,4 +1,5 @@
 import AppKit
+import XcodeMenus
 import AutographeCore
 import SwiftUI
 
@@ -74,9 +75,20 @@ final class FirstRunWindow: NSObject, NSWindowDelegate {
         markSeen()
     }
 
+    /// Nil when the Xcode on this Mac is one the app supports, or when there is no Xcode to
+    /// ask — an absent Xcode is not a problem to warn about at first run.
+    private static func xcodeNotice() -> String? {
+        guard let release = MenuScanner.runningRelease(), release.major > 0,
+              !release.isSupported else { return nil }
+        return "You have Xcode \(release.version). Autographe needs Xcode "
+            + "\(XcodeRelease.minimumMajor) or later — most of its commands will be missing "
+            + "until you upgrade."
+    }
+
     private func build() {
         let content = FirstRunView(
             leader: SettingsWindow.leader.title,
+            xcodeNotice: Self.xcodeNotice(),
             onContinue: { [weak self] in
                 self?.markSeen()
                 self?.close()
@@ -113,6 +125,10 @@ final class FirstRunWindow: NSObject, NSWindowDelegate {
 private struct FirstRunView: View {
 
     let leader: String
+    /// Set when the Xcode on this Mac is older than the app supports. Said here because
+    /// first run is the one moment the user is looking, and a keyboard layer that cannot
+    /// drive their Xcode should say so before they grant it anything, not after.
+    let xcodeNotice: String?
     let onContinue: () -> Void
     let onLater: () -> Void
 
@@ -150,6 +166,20 @@ private struct FirstRunView: View {
                 bullet("Nothing else. No network connections, no analytics, nothing leaves this Mac.")
             }
             .padding(.leading, 2)
+
+            if let xcodeNotice {
+                // Not a blocker: they may be about to upgrade, and a permission granted now
+                // still works then. It is a fact stated plainly, in the one place they are
+                // certain to read it.
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.orange)
+                    Text(xcodeNotice)
+                }
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(.orange.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
+            }
 
             Text("""
                 Autographe is signed and notarised by Apple. You can revoke this permission at \

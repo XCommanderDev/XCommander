@@ -66,15 +66,69 @@ struct DefaultKeymapTests {
 
     /// Two commands on the same menu path is always a copy-paste slip, and it shows up as
     /// a duplicated row in the palette. That is how this one was found.
-    @Test("no two commands point at the same menu path")
-    func noDuplicateMenuPaths() {
-        var seen: [String: String] = [:]
+    @Test("no two commands point at the same menu item")
+    func noDuplicateMenuItems() {
+        var seen: [MenuRef: String] = [:]
         for command in DefaultKeymap.commands {
-            guard let path = command.menuPath?.joined(separator: " > ") else { continue }
-            if let existing = seen[path] {
-                Issue.record("\(command.id) and \(existing) both point at \(path)")
+            guard let ref = command.menuRef else { continue }
+            if let existing = seen[ref] {
+                Issue.record("\(command.id) and \(existing) both point at \(ref.identifier)")
             }
-            seen[path] = command.id
+            seen[ref] = command.id
+        }
+    }
+
+    /// The point of the whole catalogue, asserted against a real capture: **every** binding
+    /// the app ships resolves on Xcode 27, without an Xcode running or an Accessibility
+    /// grant. No exceptions, and the day one appears this fails.
+    @Test("every shipped menu binding resolves against the Xcode 27 snapshot")
+    func bindingsResolveOnXcode27() throws {
+        let catalogue = MenuCatalogue(try MenuCatalogueTests.xcode27())
+        let unresolved = DefaultKeymap.menuCommands
+            .filter { !catalogue.isBound($0.menuRef!) }
+            .map(\.id)
+            .sorted()
+        #expect(unresolved.isEmpty)
+        // 106 in the table above, plus one per navigator. The other three editor-creating
+        // commands are popups, below.
+        #expect(DefaultKeymap.menuCommands.count
+                == 106 + XcodeNavigator.allCases.count)
+    }
+
+    /// Xcode 27 took editor creation out of the menu bar. It did **not** take it away: all
+    /// three commands live in the toolbar's Add Editor popup under the names they always
+    /// had. This is what keeps `w v`, `w s` and `b t` working, and it is why "the menu bar
+    /// no longer has it" was the wrong conclusion to stop at.
+    @Test("the editor-creating commands live in the Add Editor popup")
+    func popupCommands() {
+        let popups = DefaultKeymap.commands.filter { $0.popupRef != nil }
+        #expect(Set(popups.map(\.id)) == ["buffer.newTab", "window.paneRight", "window.paneBelow"])
+        for command in popups {
+            #expect(command.popupRef?.button == "Add Editor")
+            #expect(command.popupRef?.item.identifier.hasSuffix(":") == true)
+        }
+        #expect(Set(popups.compactMap { $0.popupRef?.item.identifier }).count == 3)
+    }
+
+    /// Every key in the tree must still name a command that exists, popups included.
+    @Test("no binding names a command the registry does not have")
+    func everyBindingResolvesToACommand() {
+        let built = DefaultKeymap.build()
+        for (_, id) in DefaultKeymap.bindings {
+            #expect(built.registry.command(id: id) != nil, "\(id) is bound but not registered")
+        }
+    }
+
+    /// A binding that resolves is not yet a binding that works: `Window > Move & Resize >
+    /// Halves` is a section header with no action behind it, and the key bound to it did
+    /// nothing at all until it was pointed at `Window > Fill`.
+    @Test("every resolved binding lands on an item that can actually be pressed")
+    func resolvedBindingsHaveAnAction() throws {
+        let catalogue = MenuCatalogue(try MenuCatalogueTests.xcode27())
+        for command in DefaultKeymap.menuCommands {
+            guard case .bound(let entry, _) = catalogue.resolve(command.menuRef!) else { continue }
+            #expect(!entry.identifier.isEmpty,
+                    "\(command.id) resolves to \(entry.path.joined(separator: " > ")), which has no action")
         }
     }
 
@@ -153,7 +207,7 @@ struct DefaultKeymapTests {
                 Issue.record("\(navigator.rawValue) has no registered command")
                 continue
             }
-            #expect(command.action == .menuPath(navigator.menuPath))
+            #expect(command.action == .menu(navigator.menuRef))
             #expect(built.keymap.binding(for: navigator.commandID) != nil,
                     "\(navigator.rawValue) is registered but unreachable")
         }
@@ -188,15 +242,25 @@ struct DefaultKeymapTests {
         }
     }
 
-    /// The raw value *is* Xcode's menu title, which is the point of storing it that way —
-    /// one table instead of a mapping to get wrong. If someone ever prettifies a case name,
-    /// this fails rather than the menu lookup going quietly dead at runtime.
-    @Test("a navigator's menu path is built from Xcode's own name")
-    func navigatorMenuPaths() {
-        #expect(XcodeNavigator.sourceControl.menuPath == ["View", "Navigators", "Source Control"])
-        #expect(XcodeNavigator.breakpoints.menuPath == ["View", "Navigators", "Breakpoints"])
+    /// The raw value used to *be* the menu path's last component, on the theory that one
+    /// table beats a mapping. Xcode 27 retired that theory: `Project` is
+    /// `toggleStructureNavigator:`, `Reports` is `toggleLogsNavigator:` and `Source Control`
+    /// is `toggleWorkingCopiesNavigator:`, so three of the nine titles had already drifted
+    /// from the action behind them. The mapping is now written down, and what this checks is
+    /// that it is complete and that no two navigators share an action — which is the failure
+    /// a copy-paste would produce.
+    @Test("every navigator names a distinct action")
+    func navigatorActions() throws {
+        let identifiers = XcodeNavigator.allCases.map(\.menuRef.identifier)
+        #expect(identifiers.allSatisfy { $0.hasSuffix(":") && !$0.isEmpty })
+        #expect(Set(identifiers).count == XcodeNavigator.allCases.count)
+
+        let catalogue = MenuCatalogue(try MenuCatalogueTests.xcode27())
         for navigator in XcodeNavigator.allCases {
-            #expect(navigator.menuPath == ["View", "Navigators", navigator.rawValue])
+            guard case .bound(let entry, _) = catalogue.resolve(navigator.menuRef) else {
+                Issue.record("\(navigator.rawValue) does not resolve on Xcode 27"); continue
+            }
+            #expect(entry.path.dropLast() == ["View", "Navigators"])
         }
     }
 

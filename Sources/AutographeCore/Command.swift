@@ -5,7 +5,13 @@ public enum CommandAction: Hashable, Sendable {
     /// Tier 1 — synthesise a shortcut Xcode already has. ~40 µs.
     case shortcut(KeyEvent)
     /// Tier 1 when the item has a shortcut, tier 2 (`AXPress`, ~1 ms) when it does not.
-    case menuPath([String])
+    ///
+    /// Names the item by `AXIdentifier`, not by menu path: Xcode 27 renamed four of the
+    /// items bound below and moved none of them, and an identifier does not care.
+    case menu(MenuRef)
+    /// Tier 3 — an item in a toolbar popup, for the commands Xcode offers nowhere else.
+    /// Costs a menu opening, so it is used only where it must be.
+    case popupMenu(PopupMenuRef)
     /// Transform the editor's selection in place, through the writable `AXTextArea`.
     /// Xcode's own undo reverts it.
     case transform(TextTransform)
@@ -107,9 +113,14 @@ public struct Command: Hashable, Sendable, Identifiable {
         self.action = action
     }
 
-    public var menuPath: [String]? {
-        guard case .menuPath(let path) = action else { return nil }
-        return path
+    public var menuRef: MenuRef? {
+        guard case .menu(let ref) = action else { return nil }
+        return ref
+    }
+
+    public var popupRef: PopupMenuRef? {
+        guard case .popupMenu(let ref) = action else { return nil }
+        return ref
     }
 
     /// The shortcut as it would read in a menu, for commands that name one directly.
@@ -119,10 +130,19 @@ public struct Command: Hashable, Sendable, Identifiable {
     }
 
     /// A command backed by an Xcode menu item.
-    public static func menu(_ id: String, _ title: String, _ path: [String]) -> Command {
-        Command(id: id, title: title,
-                searchText: path.joined(separator: " > "),
-                action: .menuPath(path))
+    ///
+    /// `searchText` falls back to the title rather than to a menu path, because the path is
+    /// no longer written down here — the palette asks the running Xcode where the item sits
+    /// and searches *that*, so it stays right across a release that moves things.
+    public static func menu(_ id: String, _ title: String, _ ref: MenuRef,
+                            searchText: String? = nil) -> Command {
+        Command(id: id, title: title, searchText: searchText ?? title, action: .menu(ref))
+    }
+
+    /// A command backed by an item in one of Xcode's toolbar popups.
+    public static func popup(_ id: String, _ title: String, _ ref: PopupMenuRef,
+                             searchText: String? = nil) -> Command {
+        Command(id: id, title: title, searchText: searchText ?? title, action: .popupMenu(ref))
     }
 
     /// A command that opens a picker.

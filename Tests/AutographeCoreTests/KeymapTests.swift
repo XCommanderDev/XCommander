@@ -10,8 +10,8 @@ struct KeymapTests {
     /// expectations and does not move when the shipped keymap does.
     private func sample() throws -> (Keymap, CommandRegistry) {
         var registry = CommandRegistry()
-        registry.register(.menu("make.build", "build", ["Product", "Build"]))
-        registry.register(.menu("make.clean", "clean", ["Product", "Clean Build Folder…"]))
+        registry.register(.menu("make.build", "build", MenuRef("buildActiveRunContext:")))
+        registry.register(.menu("make.clean", "clean", MenuRef("cleanActiveRunContext:")))
         registry.register(Command(id: "quit", title: "quit", action: .companion("quit")))
 
         var map = Keymap()
@@ -96,11 +96,36 @@ struct KeymapTests {
         #expect(make.allSatisfy { !$0.isGroup })
     }
 
-    @Test("a row carries the menu path so the app can look its shortcut up")
-    func rowsCarryMenuPath() throws {
+    /// **A key the panel prints and cannot run is the worst outcome available to a keyboard
+    /// tool**: the user is told to press it, nothing happens, and they cannot tell a removed
+    /// Xcode feature from a broken app. So a command the running Xcode does not offer is not
+    /// drawn at all — a user on an Xcode that lost a command simply never learns there was one.
+    @Test("a command the running Xcode does not have is not shown")
+    func unavailableCommandsAreHidden() throws {
+        let (map, registry) = try sample()
+        let all = map.rows(at: [KeyEvent("m")], in: registry)
+        #expect(all.count == 2)
+
+        let filtered = map.rows(at: [KeyEvent("m")], in: registry,
+                                isAvailable: { $0.id != "make.clean" })
+        #expect(filtered.map(\.title) == ["build"])
+    }
+
+    /// Groups are structure, not commands, so nothing hides them. A group that empties out
+    /// is a separate question and not one the panel should answer by guessing.
+    @Test("filtering leaves groups alone")
+    func groupsSurviveFiltering() throws {
+        let (map, registry) = try sample()
+        let top = map.rows(at: [], in: registry, isAvailable: { _ in false })
+        #expect(top.filter { !$0.isGroup }.isEmpty)
+        #expect(!top.isEmpty)
+    }
+
+    @Test("a row carries the menu item so the app can look its shortcut up")
+    func rowsCarryMenuRef() throws {
         let (map, registry) = try sample()
         let row = try #require(map.rows(at: [KeyEvent("m")], in: registry).first { $0.key == "m" })
-        #expect(row.menuPath == ["Product", "Build"])
+        #expect(row.menuRef == MenuRef("buildActiveRunContext:"))
     }
 
     @Test("rows for a leaf or a missing prefix are empty, not a crash")
@@ -137,8 +162,8 @@ struct CommandRegistryTests {
     @Test("registering keeps order and allows lookup by id")
     func registerAndLookup() {
         var registry = CommandRegistry()
-        registry.register(.menu("a", "alpha", ["A"]))
-        registry.register(.menu("b", "bravo", ["B"]))
+        registry.register(.menu("a", "alpha", MenuRef("alpha:")))
+        registry.register(.menu("b", "bravo", MenuRef("bravo:")))
         #expect(registry.count == 2)
         #expect(registry.command(id: "a")?.title == "alpha")
         #expect(registry.all.map(\.id) == ["a", "b"])
@@ -147,18 +172,22 @@ struct CommandRegistryTests {
     @Test("re-registering an id replaces it without duplicating the order entry")
     func replacing() {
         var registry = CommandRegistry()
-        registry.register(.menu("a", "alpha", ["A"]))
-        registry.register(.menu("a", "changed", ["A"]))
+        registry.register(.menu("a", "alpha", MenuRef("alpha:")))
+        registry.register(.menu("a", "changed", MenuRef("alpha:")))
         #expect(registry.count == 1)
         #expect(registry.all.count == 1)
         #expect(registry.command(id: "a")?.title == "changed")
     }
 
-    /// A menu-backed command is findable by its whole path, not just its short title.
-    @Test("search text defaults to the menu path")
+    /// The menu path is no longer written down in the keymap, so it cannot be the default
+    /// search text any more. The palette asks the running Xcode where the item sits and
+    /// searches that instead, which is both shorter here and right across a release that
+    /// moves things.
+    @Test("search text falls back to the title, not to a path the source no longer knows")
     func searchText() {
-        let command = Command.menu("make.build", "build", ["Product", "Build"])
+        let command = Command.menu("make.build", "build", MenuRef("buildActiveRunContext:"))
         #expect(command.title == "build")
-        #expect(command.searchText == "Product > Build")
+        #expect(command.searchText == "build")
+        #expect(command.menuRef == MenuRef("buildActiveRunContext:"))
     }
 }

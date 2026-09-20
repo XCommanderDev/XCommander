@@ -130,6 +130,11 @@ public struct PickerSession: Sendable {
         case .escape:   return .cancelled
         case .left, .right:
             return .ignored
+        // The function row means nothing to a text field. Listed rather than defaulted, so
+        // that a key added to `SpecialKey` for some other reason still has to be considered
+        // here — the same discipline the picker kinds use.
+        case .f1, .f2, .f3, .f4, .f5, .f6, .f7, .f8, .f9, .f10, .f11, .f12:
+            return .ignored
         }
     }
 

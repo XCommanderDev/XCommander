@@ -23,3 +23,6 @@ spikes/spike4/dd/
 spikes/spike4/SpikeHost.xcodeproj/
 spikes/fixture/HelloPkg/.build/
 spikes/menu-timing.txt
+
+# Machine-specific: absolute paths and a DerivedData hash.
+buildServer.json

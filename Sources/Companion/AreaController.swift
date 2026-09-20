@@ -1,6 +1,7 @@
 import AppKit
 import ApplicationServices
 import AutographeCore
+import XcodeMenus
 import os
 
 /// Putting the keyboard **into** a part of Xcode's window that the menu bar cannot target.
@@ -56,7 +57,7 @@ final class AreaController {
             // The debug area's variables list names itself, and unlike the navigator's
             // outline its identifier is a generated `_NS:` number, so the description is the
             // only stable handle.
-            return firstDescendant { Self.string($0, kAXDescriptionAttribute) == "variables view" }
+            return firstDescendant { Self.string($0, kAXDescriptionAttribute) == XcodeAXSchema.variablesView }
         }
     }
 
@@ -68,15 +69,15 @@ final class AreaController {
     /// differently: the navigator is by definition the left-hand pane.
     private func navigatorOutline() -> AXUIElement? {
         firstDescendant { element in
-            Self.string(element, kAXRoleAttribute) == "AXOutline"
-                && (Self.string(element, kAXIdentifierAttribute) ?? "").hasSuffix("navigator")
+            Self.string(element, kAXRoleAttribute) == XcodeAXSchema.outline
+                && (Self.string(element, kAXIdentifierAttribute) ?? "").hasSuffix(XcodeAXSchema.navigatorIdentifierSuffix)
         } ?? leftmostOutline()
     }
 
     private func leftmostOutline() -> AXUIElement? {
         var best: (element: AXUIElement, x: CGFloat)?
         walk { element in
-            guard Self.string(element, kAXRoleAttribute) == "AXOutline",
+            guard Self.string(element, kAXRoleAttribute) == XcodeAXSchema.outline,
                   let frame = Self.frame(of: element) else { return }
             if best == nil || frame.minX < best!.x { best = (element, frame.minX) }
         }
@@ -94,7 +95,7 @@ final class AreaController {
     private func walk(_ visit: (AXUIElement) -> Void) {
         guard let root = window() else { return }
         func descend(_ element: AXUIElement, _ depth: Int) {
-            if depth > 14 { return }
+            if depth > XcodeAXSchema.windowWalkDepth { return }
             for child in Self.children(of: element) {
                 visit(child)
                 descend(child, depth + 1)

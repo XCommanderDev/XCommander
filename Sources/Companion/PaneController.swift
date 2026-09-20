@@ -1,6 +1,7 @@
 import AppKit
 import ApplicationServices
 import AutographeCore
+import XcodeMenus
 import os
 
 /// Editor panes, over Accessibility.
@@ -61,12 +62,19 @@ final class PaneController {
         var splitters: [SplitterRef] = []
         walk(window, depth: 0) { element, role in
             switch role {
-            case "AXScrollArea":
-                guard let editor = Self.children(element).first(where: { Self.role(of: $0) == "AXTextArea" }),
-                      let frame = Self.frame(of: element) else { return }
+            case XcodeAXSchema.scrollArea:
+                // **The description matters.** Xcode 27 moved the coding assistant into the
+                // editor area, and a conversation transcript is a text area inside a scroll
+                // area exactly like a source editor is. Without this test, `w h/j/k/l`,
+                // balance and zoom would count a conversation as a pane and move focus into
+                // it. `XcodeContext.scanPanes` has always checked; this did not.
+                guard let editor = Self.children(element).first(where: {
+                    Self.role(of: $0) == XcodeAXSchema.textArea
+                        && MenuScanner.string($0, kAXDescriptionAttribute) == XcodeAXSchema.sourceEditor
+                }), let frame = Self.frame(of: element) else { return }
                 panes.append(PaneRef(editor: editor, frame: frame,
                                      isFocused: Self.bool(editor, kAXFocusedAttribute) ?? false))
-            case "AXSplitter":
+            case XcodeAXSchema.splitter:
                 guard let frame = Self.frame(of: element),
                       let value = Self.int(element, kAXValueAttribute) else { return }
                 splitters.append(SplitterRef(element: element, frame: frame, value: value))
@@ -81,7 +89,7 @@ final class PaneController {
     }
 
     private func walk(_ element: AXUIElement, depth: Int, visit: (AXUIElement, String) -> Void) {
-        if depth > 12 { return }
+        if depth > XcodeAXSchema.paneWalkDepth { return }
         for child in Self.children(element) {
             visit(child, Self.role(of: child))
             walk(child, depth: depth + 1, visit: visit)

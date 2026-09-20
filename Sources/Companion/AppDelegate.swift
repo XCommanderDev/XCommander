@@ -1,6 +1,7 @@
 import AppKit
 import ApplicationServices
 import AutographeCore
+import XcodeMenus
 import os
 
 @MainActor
@@ -30,6 +31,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var previewStyle: PreviewStyle = .none
     /// Which picker is open, so a window resize can ask the pane question again.
     private var activePickerKind: PickerKind?
+    private let snapshots = SnapshotStore()
+    /// Everything this app has ever seen the running Xcode offer, folded together across
+    /// sessions. One scan is one context; the union is the menu. Nil until the first scan,
+    /// and while it is nil nothing is hidden — an app that has not looked yet must not
+    /// conclude a command is missing.
+    private var knownMenu: MenuCatalogue?
     private var fileIndex = FileIndex()
     private var history = DocumentHistory()
     private var tracker: WindowTracker!
@@ -69,9 +76,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         session.timeout = SettingsWindow.sequenceTimeout
         // The panel shows each command's live Xcode shortcut, which depends on the running
         // Xcode and the user's layout, so Core is handed a closure rather than a table.
+        // A key the panel prints and then cannot run is the worst thing this app can do,
+        // so the panel is filtered by what the running Xcode actually offers.
+        session.availabilityProvider = { [weak self] command in
+            guard let self else { return true }
+            return MainActor.assumeIsolated { self.isAvailable(command) }
+        }
         session.shortcutProvider = { [weak self] command in
-            guard let self, let path = command.menuPath else { return nil }
-            return MainActor.assumeIsolated { self.context.menuItem(at: path)?.shortcut?.display }
+            guard let self, let ref = command.menuRef else { return nil }
+            return MainActor.assumeIsolated { self.context.menuItem(for: ref)?.shortcut?.display }
         }
 
         executor = CommandExecutor(context: context)
@@ -94,7 +107,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         tracker.onDocumentChanged = { [weak self] url in self?.history.record(url) }
         menuBar = MenuBarController()
         menuBar.onQuit = { NSApp.terminate(nil) }
-        menuBar.onReloadMenus = { [weak self] in self?.context.refreshMenuIndex() }
+        menuBar.onReloadMenus = { [weak self] in self?.refreshMenus() }
         menuBar.onOpenAccessibilitySettings = { Self.openAccessibilitySettings() }
         menuBar.onToggleEnabled = { [weak self] in
             SettingsWindow.isEnabled.toggle()
@@ -104,7 +117,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         settings.onChange = { [weak self] in self?.applySettings() }
         settings.checkKeymap = { [weak self] in self?.keymapCheckSummary() ?? "unavailable" }
         settings.rereadMenus = { [weak self] in
-            self?.context.refreshMenuIndex()
+            self?.refreshMenus()
             self?.fileIndex.invalidate()
         }
         settings.configSummary = { [weak self] in self?.configSummary() ?? "unavailable" }
@@ -246,7 +259,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func choose(_ item: PickerItem) {
         switch PickerTarget.parse(item.id) {
         case .menu(let path):
-            guard let entry = context.menuItem(at: path) else {
+            // The row was built from the live tree a moment ago, so a path is the right key
+            // here — and the only one that can tell 102 run destinations apart.
+            guard let entry = context.menuItem(for: .pathOnly(path)) else {
                 log.notice("menu item vanished: \(path.joined(separator: " > "), privacy: .public)")
                 NSSound.beep()
                 return
@@ -535,14 +550,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             // A menu-backed command reads best as its path; one of ours reads best as its
             // name. Either way both strings are searchable, so "balance" finds "balance
             // panes" even though its description says "make the panes equal".
-            let isMenu = command.menuPath != nil
+            // A menu-backed command reads as where it sits in *this* Xcode, asked live
+            // rather than written down: the path a release moves is no longer in the source.
+            let live = command.menuRef.flatMap { context.menuItem(for: $0)?.path }
+            let title = live?.joined(separator: " > ") ?? command.title
             return PickerItem(id: command.id,
-                              title: isMenu ? command.searchText : command.title,
+                              title: title,
                               detail: binding,
-                              matchText: "\(command.title) \(command.searchText)",
+                              matchText: "\(command.title) \(title) \(command.searchText)",
                               icon: .forAction(command.action))
         }
-        let known = Set(registry.all.compactMap { $0.menuPath?.joined(separator: " > ") })
+        let known = Set(registry.all.compactMap {
+            $0.menuRef.flatMap { context.menuItem(for: $0)?.path.joined(separator: " > ") }
+        })
         for entry in context.allMenuItems() {
             let path = entry.path.joined(separator: " > ")
             guard !known.contains(path) else { continue }
@@ -593,11 +613,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         switch id {
         case "quit": NSApp.terminate(nil)
         case "reloadMenus":
-            context.refreshMenuIndex()
+            refreshMenus()
             fileIndex.invalidate()
             config.load()
         case "checkMenus":
-            context.refreshMenuIndex()
+            refreshMenus()
             reportUnresolvedMenuPaths()
         default: log.error("unknown companion command \(id, privacy: .public)")
         }
@@ -616,15 +636,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Read it with a `.swift` file open. `⌥RET h c` re-runs it; see it with
     /// `tools/xc.sh logs`.
     private func reportUnresolvedMenuPaths() {
-        let paths = DefaultKeymap.menuPaths
-        let missing = paths.filter { context.menuItem(at: $0) == nil }
+        let commands = DefaultKeymap.menuCommands
+        let missing = commands.filter { context.menuItem(for: $0.menuRef!) == nil }
+        let release = AccessibilityXcodeContext.runningRelease()
         guard !missing.isEmpty else {
-            log.notice("keymap check: all \(paths.count) menu paths resolve")
+            log.notice("keymap check: all \(commands.count) bindings resolve on Xcode \(release.build, privacy: .public)")
             return
         }
-        log.notice("keymap check: \(missing.count) of \(paths.count) menu paths did not resolve")
-        for path in missing {
-            log.notice("  unresolved: \(path.joined(separator: " > "), privacy: .public)")
+        log.notice("keymap check: \(missing.count) of \(commands.count) bindings did not resolve on Xcode \(release.build, privacy: .public)")
+        for command in missing {
+            let ref = command.menuRef!
+            let named = ref.isPathOnly ? (ref.path ?? []).joined(separator: " > ") : ref.identifier
+            log.notice("  unresolved: \(command.title, privacy: .public) — \(named, privacy: .public)")
         }
     }
 
@@ -688,7 +711,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         KeyboardLayout.refreshIfNeeded()
         log.notice("layout: \(KeyboardLayout.currentLayoutName(), privacy: .public), \(self.registry.count) commands")
         if context.isRunning {
-            context.refreshMenuIndex()
+            refreshMenus()
             reportUnresolvedMenuPaths()
         }
         tracker.start()
@@ -707,7 +730,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 let nowFrontmost = bundleID == "com.apple.dt.Xcode"
                 if self.xcodeIsFrontmost && !nowFrontmost { self.abandonEverything() }
                 self.xcodeIsFrontmost = nowFrontmost
-                if nowFrontmost && self.hasAccessibility { self.context.refreshMenuIndex() }
+                if nowFrontmost && self.hasAccessibility { self.refreshMenus() }
                 self.updateStatus()
             }
         }
@@ -770,14 +793,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     /// The keymap check as one line, for the settings window. The log gets the detail.
     private func keymapCheckSummary() -> String {
-        context.refreshMenuIndex()
-        let paths = DefaultKeymap.menuPaths
-        let missing = paths.filter { context.menuItem(at: $0) == nil }
+        refreshMenus()
+        let commands = DefaultKeymap.menuCommands
+        let missing = commands.filter { context.menuItem(for: $0.menuRef!) == nil }
         reportUnresolvedMenuPaths()
-        guard !missing.isEmpty else { return "All \(paths.count) bindings resolve." }
-        let names = missing.prefix(2).map { $0.joined(separator: " › ") }.joined(separator: ", ")
+        let release = AccessibilityXcodeContext.runningRelease()
+        guard !missing.isEmpty else {
+            return "All \(commands.count) bindings resolve on Xcode \(release.version)."
+        }
+        let names = missing.prefix(2).map(\.title).joined(separator: ", ")
         let more = missing.count > 2 ? " and \(missing.count - 2) more" : ""
-        return "\(missing.count) of \(paths.count) unresolved: \(names)\(more). "
+        return "\(missing.count) of \(commands.count) unresolved on Xcode \(release.version): \(names)\(more). "
             + "Open a Swift file and try again — Xcode's menus are context-dependent."
     }
 
@@ -785,7 +811,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let status = CompanionStatus.derive(hasAccessibility: hasAccessibility,
                                             secureInputActive: tap.secureInputActive,
                                             xcodeFrontmost: xcodeIsFrontmost,
-                                            enabled: SettingsWindow.isEnabled)
+                                            enabled: SettingsWindow.isEnabled,
+                                            xcode: context.release)
         if status != menuBar.status {
             log.notice("status -> \(String(describing: status), privacy: .public)")
         }
@@ -795,5 +822,75 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private static func openAccessibilitySettings() {
         let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
         NSWorkspace.shared.open(url)
+    }
+}
+
+// MARK: - what this Xcode offers
+
+extension AppDelegate {
+
+    /// Re-read Xcode's menus, and fold what we saw into what we already knew.
+    ///
+    /// Every refresh teaches the store something. Xcode's menus are context-dependent —
+    /// `Debug >` fills in only during a session, whole submenus are absent with no editor
+    /// focused — so no single scan can tell a deleted command from an inapplicable one. The
+    /// union of many scans of the same build can, and that is what makes it safe to hide a
+    /// key rather than leave it dead.
+    func refreshMenus() {
+        context.refreshMenuIndex()
+        absorbScan()
+    }
+
+    private func absorbScan() {
+        guard let scan = context.lastScan, scan.release.major > 0 else { return }
+        // Have we met this build before? Ask before recording, or the answer is always yes.
+        let isNewBuild = snapshots.load(build: scan.release.build) == nil
+        let previous = isNewBuild ? snapshots.previousBuild(before: scan.release.build) : nil
+        guard let accumulated = try? snapshots.record(scan) else {
+            log.notice("could not record the menu snapshot; nothing will be hidden")
+            return
+        }
+        knownMenu = MenuCatalogue(accumulated)
+        if let previous { reportXcodeChange(from: previous, to: accumulated) }
+    }
+
+    /// Whether the running Xcode offers a command at all.
+    ///
+    /// Two different questions, and conflating them is how a good idea becomes a bug:
+    ///
+    ///   * **Is it there right now?** If the live index has it, yes — nothing more to ask.
+    ///   * **Does this Xcode have it at all?** Only the accumulated store can answer that,
+    ///     and only once it has seen this build. Until then, everything is shown.
+    ///
+    /// A command that exists but is merely not applicable this second stays on the panel,
+    /// greyed by Xcode's own `isEnabled` when it is pressed. Only a command this Xcode has
+    /// never offered is hidden.
+    func isAvailable(_ command: Command) -> Bool {
+        guard let ref = command.menuRef else { return true }   // popups and ours always show
+        if context.menuItem(for: ref) != nil { return true }
+        guard let knownMenu else { return true }
+        return knownMenu.isBound(ref)
+    }
+
+    /// Write the report and put one line in the menu bar. No sheet, no modal, no interruption.
+    private func reportXcodeChange(from old: MenuSnapshot, to new: MenuSnapshot) {
+        let diff = CatalogueDiff.between(old, and: new)
+        let before = MenuCatalogue(old), after = MenuCatalogue(new)
+        let lost = DefaultKeymap.menuCommands.compactMap {
+            command -> (command: String, title: String, identifier: String)? in
+            guard let ref = command.menuRef, before.isBound(ref), !after.isBound(ref) else { return nil }
+            return (command.id, command.title, ref.identifier)
+        }
+        let report = ChangeReport(from: old.release, to: new.release, diff: diff, lostBindings: lost)
+        guard report.isWorthTelling else {
+            log.notice("Xcode \(new.release.build, privacy: .public): nothing the user needs to know")
+            return
+        }
+        do { try report.write() } catch {
+            log.error("could not write the change report: \(String(describing: error), privacy: .public)")
+            return
+        }
+        log.notice("Xcode changed: \(report.summaryLine, privacy: .public)")
+        menuBar.announceXcodeChanges(report.summaryLine)
     }
 }

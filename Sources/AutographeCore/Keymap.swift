@@ -98,8 +98,18 @@ public struct Keymap: Hashable, Sendable {
 
     /// The rows a which-key panel shows for a prefix. Titles come from the registry, which
     /// is what keeps the panel and the palette describing commands the same way.
+    ///
+    /// **A command the running Xcode does not have is not shown at all.** A key that is
+    /// printed on the panel and then does nothing is the worst thing a keyboard tool can do:
+    /// the user cannot tell a removed feature from a broken app, and they were told to press
+    /// it. Hiding it means a user on an Xcode that lost a command never learns there was one,
+    /// which is exactly right — it was never theirs to have.
+    ///
+    /// `isAvailable` defaults to "everything", because Core cannot see Xcode and a keymap
+    /// tested headlessly should show its whole self.
     public func rows(at sequence: [KeyEvent], in registry: CommandRegistry,
-                     shortcut: (Command) -> String? = { _ in nil }) -> [WhichKeyRow] {
+                     shortcut: (Command) -> String? = { _ in nil },
+                     isAvailable: (Command) -> Bool = { _ in true }) -> [WhichKeyRow] {
         let level: [KeyEvent: KeymapEntry]
         if sequence.isEmpty {
             level = children
@@ -116,8 +126,9 @@ public struct Keymap: Hashable, Sendable {
                     // row is better than a crash in front of the user.
                     return WhichKeyRow(key: key.display, title: "?\(id)", isGroup: false)
                 }
+                guard isAvailable(command) else { return nil }
                 return WhichKeyRow(key: key.display, title: command.title, isGroup: false,
-                                   shortcut: shortcut(command), menuPath: command.menuPath)
+                                   shortcut: shortcut(command), menuRef: command.menuRef)
             case .group(let title, _):
                 return WhichKeyRow(key: key.display, title: title, isGroup: true)
             }

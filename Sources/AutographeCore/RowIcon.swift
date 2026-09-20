@@ -59,7 +59,8 @@ public struct RowIcon: Hashable, Sendable {
     /// identical icons is no better than none, so each family gets its own.
     public static func forAction(_ action: CommandAction) -> RowIcon {
         switch action {
-        case .menuPath:  .menuItem
+        case .menu:      .menuItem
+        case .popupMenu: .menuItem
         case .shortcut:  .command
         case .transform: .transform
         case .pane:      .pane

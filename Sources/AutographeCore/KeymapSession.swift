@@ -42,6 +42,9 @@ public struct KeymapSession: Sendable {
     /// Supplies each command's live Xcode shortcut for the panel's dimmed right column.
     /// A closure because it depends on the running Xcode, which Core knows nothing about.
     public var shortcutProvider: @Sendable (Command) -> String? = { _ in nil }
+    /// Whether the running Xcode offers a command at all. Rows for commands it does not
+    /// have are left out, so the panel never advertises a key that cannot work.
+    public var availabilityProvider: @Sendable (Command) -> Bool = { _ in true }
     /// The keys pressed since the leader. Empty while idle.
     public private(set) var pending: [KeyEvent] = []
     public private(set) var isActive = false
@@ -139,7 +142,8 @@ public struct KeymapSession: Sendable {
     }
 
     private func rows(at sequence: [KeyEvent]) -> [WhichKeyRow] {
-        keymap.rows(at: sequence, in: registry, shortcut: shortcutProvider)
+        keymap.rows(at: sequence, in: registry, shortcut: shortcutProvider,
+                    isAvailable: availabilityProvider)
     }
 
     private mutating func reset() {

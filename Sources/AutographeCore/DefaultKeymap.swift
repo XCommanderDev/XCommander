@@ -93,115 +93,120 @@ public enum DefaultKeymap {
                 searchText: "symbols across the project"),
 
         // make — build, run, test
-        .menu("make.build", "build", ["Product", "Build"]),
-        .menu("make.run", "run", ["Product", "Run"]),
-        .menu("make.test", "test", ["Product", "Test"]),
-        .menu("make.clean", "clean", ["Product", "Clean Build Folder…"]),
-        .menu("make.stop", "stop", ["Product", "Stop"]),
-        .menu("make.analyze", "analyze", ["Product", "Analyze"]),
-        .menu("make.profile", "profile", ["Product", "Profile"]),
-        .menu("make.docs", "build documentation", ["Product", "Build Documentation"]),
-        .menu("make.testAgain", "test again", ["Product", "Perform Action", "Test Again"]),
-        .menu("make.runNoBuild", "run without building", ["Product", "Perform Action", "Run Without Building"]),
-        .menu("make.testNoBuild", "test without building", ["Product", "Perform Action", "Test Without Building"]),
-        .menu("make.clearResults", "clear test results", ["Product", "Clear Test Results"]),
+        .menu("make.build", "build", MenuRef("buildActiveRunContext:")),
+        .menu("make.run", "run", MenuRef("runActiveRunContext:")),
+        .menu("make.test", "test", MenuRef("testActiveRunContext:")),
+        .menu("make.clean", "clean", MenuRef("cleanActiveRunContext:")),
+        .menu("make.stop", "stop", MenuRef("cancelCurrentExecution:")),
+        .menu("make.analyze", "analyze", MenuRef("analyzeActiveRunContext:")),
+        .menu("make.profile", "profile", MenuRef("profileActiveScheme:")),
+        .menu("make.docs", "build documentation", MenuRef("buildDocumentationForActiveRunContext:")),
+        .menu("make.testAgain", "test again", MenuRef("testAgain:")),
+        .menu("make.runNoBuild", "run without building", MenuRef("runActiveRunContextWithoutBuilding:")),
+        .menu("make.testNoBuild", "test without building", MenuRef("testActiveRunContextWithoutBuilding:")),
+        .menu("make.clearResults", "clear test results", MenuRef("clearTestResults:")),
 
         // files
-        .menu("file.openQuickly", "open quickly", ["File", "Open Quickly…"]),
-        .menu("file.save", "save", ["File", "Save"]),
-        .menu("file.saveAll", "save all", ["File", "Save All"]),
-        .menu("file.new", "new file", ["File", "New", "File from Template…"]),
+        .menu("file.openQuickly", "open quickly", MenuRef("openQuickly:")),
+        .menu("file.save", "save", MenuRef("ide_saveDocument:")),
+        .menu("file.saveAll", "save all", MenuRef("saveAllEditorDocuments:")),
+        .menu("file.new", "new file", MenuRef("newFileFromTemplate:")),
         // The title carries the open file's name — `Close “main.swift”` — so this names the
-        // stable prefix and relies on `menuItem(at:)`'s prefix fallback.
-        .menu("file.close", "close document", ["File", "Close “"]),
-        .menu("file.revealInFinder", "reveal in finder", ["File", "Show in Finder"]),
+        // title carries the open file's name; the action behind it does not move.
+        .menu("file.close", "close document", MenuRef("topLevelEditorContext_closeDocument:")),
+        .menu("file.revealInFinder", "reveal in finder", MenuRef("showInFinder:")),
 
         // buffers / tabs
-        .menu("buffer.nextTab", "next tab", ["Navigate", "Show Next Tab"]),
-        .menu("buffer.previousTab", "previous tab", ["Navigate", "Show Previous Tab"]),
-        .menu("buffer.newTab", "new tab", ["File", "New", "Tab"]),
+        .menu("buffer.nextTab", "next tab", MenuRef("_showNextEditorTab:")),
+        .menu("buffer.previousTab", "previous tab", MenuRef("_showPreviousEditorTab:")),
+        .popup("buffer.newTab", "new tab", .addEditor("newTab:")),
 
         // code
-        .menu("code.definition", "jump to definition", ["Navigate", "Jump to Definition"]),
-        .menu("code.callers", "call hierarchy", ["Find", "Find Call Hierarchy"]),
-        .menu("code.rename", "rename", ["Editor", "Refactor", "Rename…"]),
-        .menu("code.editAllInScope", "edit all in scope", ["Editor", "Edit All in Scope"]),
-        .menu("code.fixAll", "fix all issues", ["Editor", "Fix All Issues"]),
-        .menu("code.formatFile", "format file", ["Editor", "Structure", "Format File with ‘swift-format’"]),
-        .menu("code.formatSelection", "format selection", ["Editor", "Structure", "Format Selection with ‘swift-format’"]),
-        .menu("code.reindent", "re-indent", ["Editor", "Structure", "Re-Indent"]),
+        .menu("code.definition", "jump to definition", MenuRef("editorContext_jumpToDefinition:")),
+        .menu("code.callers", "call hierarchy", MenuRef("showCallHierarchy:")),
+        .menu("code.rename", "rename", MenuRef("renameRefactor:")),
+        .menu("code.editAllInScope", "edit all in scope", MenuRef("toggleTokenizedEditing:")),
+        .menu("code.fixAll", "fix all issues", MenuRef("fixAllIssues:")),
+        .menu("code.formatFile", "format file", MenuRef("formatFile:")),
+        .menu("code.formatSelection", "format selection", MenuRef("formatSelection:")),
+        .menu("code.reindent", "re-indent", MenuRef("indentSelection:")),
         // Xcode 26 calls this "Toggle Comments"; it was "Comment Selection" when the keymap
         // was written, and the command sat dead until `⌥RET h c` reported it.
-        .menu("code.comment", "toggle comments", ["Editor", "Structure", "Toggle Comments"]),
-        .menu("code.addDocs", "add documentation", ["Editor", "Structure", "Add Documentation"]),
-        .menu("code.moveLineUp", "move line up", ["Editor", "Structure", "Move Line Up"]),
-        .menu("code.moveLineDown", "move line down", ["Editor", "Structure", "Move Line Down"]),
-        .menu("code.extractFunction", "extract to function", ["Editor", "Refactor", "Extract to Function"]),
-        .menu("code.extractVariable", "extract to variable", ["Editor", "Refactor", "Extract to Variable"]),
-        .menu("code.memberwiseInit", "generate memberwise init", ["Editor", "Refactor", "Generate Memberwise Initializer"]),
-        .menu("code.quickHelp", "quick help", ["Help", "Show Quick Help for Selected Item"]),
+        .menu("code.comment", "toggle comments", MenuRef("toggleComments:")),
+        .menu("code.addDocs", "add documentation", MenuRef("addDocumentation:")),
+        .menu("code.moveLineUp", "move line up", MenuRef("moveCurrentLineUp:")),
+        .menu("code.moveLineDown", "move line down", MenuRef("moveCurrentLineDown:")),
+        .menu("code.extractFunction", "extract to function", MenuRef("extractFunction:")),
+        .menu("code.extractVariable", "extract to variable", MenuRef("extractExpression:")),
+        .menu("code.memberwiseInit", "generate memberwise init", MenuRef("generateMemberwiseInitializer:")),
+        .menu("code.quickHelp", "quick help", MenuRef("showQuickHelp:")),
         // Xcode offers most navigation three ways — here, in a tab, or in the next pane —
         // which is the same "where should this land" idea Doom has, already built in.
         .menu("code.definitionInPane", "definition in next pane",
-              ["Navigate", "Jump to Definition in Next Editor Pane"]),
+              MenuRef("editorContext_jumpToDefinitionWithShiftPlusAlternate:")),
         .menu("code.definitionInTab", "definition in a tab",
-              ["Navigate", "Jump to Definition using Tab"]),
-        .menu("code.counterpart", "counterpart", ["Navigate", "Jump to Next Counterpart"]),
+              MenuRef("editorContext_jumpToDefinitionWithAlternate:")),
+        .menu("code.counterpart", "counterpart", MenuRef("jumpToNextCounterpart:")),
         .menu("code.counterpartInPane", "counterpart in next pane",
-              ["Navigate", "Jump to Next Counterpart in Next Editor Pane"]),
+              MenuRef("jumpToNextCounterpartWithShiftPlusAlternate:")),
 
         // navigate
-        .menu("nav.back", "back", ["Navigate", "Show Previous Location in History"]),
-        .menu("nav.forward", "forward", ["Navigate", "Show Next Location in History"]),
-        .menu("nav.nextIssue", "next issue", ["Navigate", "Jump to Next Issue"]),
-        .menu("nav.previousIssue", "previous issue", ["Navigate", "Jump to Previous Issue"]),
+        .menu("nav.back", "back", MenuRef("topLevelEditorContext_goBackInHistoryByCommand:")),
+        .menu("nav.forward", "forward", MenuRef("topLevelEditorContext_goForwardInHistoryByCommand:")),
+        .menu("nav.nextIssue", "next issue", MenuRef("topLevelEditorContext_jumpToNextIssue:")),
+        .menu("nav.previousIssue", "previous issue", MenuRef("topLevelEditorContext_jumpToPreviousIssue:")),
 
         // search
-        .menu("search.find", "find", ["Find", "Find…"]),
-        .menu("search.project", "find in project", ["Find", "Find in Package"]),
-        .menu("search.replace", "find and replace", ["Find", "Find and Replace…"]),
-        .menu("search.next", "next match", ["Find", "Find Next"]),
-        .menu("search.previous", "previous match", ["Find", "Find Previous"]),
-        .menu("search.selection", "use selection for find", ["Find", "Use Selection for Find"]),
+        .menu("search.find", "find", MenuRef("find:")),
+        .menu("search.project", "find in project", MenuRef("findInWorkspace:")),
+        .menu("search.replace", "find and replace", MenuRef("findAndReplace:")),
+        .menu("search.next", "next match", MenuRef("findNext:")),
+        .menu("search.previous", "previous match", MenuRef("findPrevious:")),
+        .menu("search.selection", "use selection for find", MenuRef("useSelectionForFind:")),
 
         // git
-        .menu("git.commit", "commit", ["Integrate", "Commit…"]),
-        .menu("git.push", "push", ["Integrate", "Push…"]),
-        .menu("git.pull", "pull", ["Integrate", "Pull…"]),
-        .menu("git.fetch", "fetch", ["Integrate", "Fetch Changes"]),
-        .menu("git.stageAll", "stage all", ["Integrate", "Stage All Changes"]),
-        .menu("git.unstageAll", "unstage all", ["Integrate", "Unstage All Changes"]),
-        .menu("git.stash", "stash", ["Integrate", "Stash Changes…"]),
-        .menu("git.discard", "discard all changes", ["Integrate", "Discard All Changes…"]),
-        .menu("git.cherryPick", "cherry-pick", ["Integrate", "Cherry-Pick…"]),
+        .menu("git.commit", "commit", MenuRef("commitCommand:")),
+        .menu("git.push", "push", MenuRef("pushCommand:")),
+        .menu("git.pull", "pull", MenuRef("updateCommand:")),
+        .menu("git.fetch", "fetch", MenuRef("fetchChangesCommand:")),
+        .menu("git.stageAll", "stage all", MenuRef("stageWorkingCopiesCommand:")),
+        .menu("git.unstageAll", "unstage all", MenuRef("unstageWorkingCopiesCommand:")),
+        .menu("git.stash", "stash", MenuRef("stashCommand:")),
+        .menu("git.discard", "discard all changes", MenuRef("revertWorkingCopiesCommand:")),
+        .menu("git.cherryPick", "cherry-pick", MenuRef("cherryPickCommand:")),
 
         // debug
-        .menu("debug.pause", "pause", ["Debug", "Pause"]),
-        .menu("debug.stepOver", "step over", ["Debug", "Step Over"]),
-        .menu("debug.stepInto", "step into", ["Debug", "Step Into"]),
-        .menu("debug.stepOut", "step out", ["Debug", "Step Out"]),
-        .menu("debug.continueToLine", "continue to line", ["Debug", "Continue To Current Line"]),
-        .menu("debug.deactivateBreakpoints", "deactivate breakpoints", ["Debug", "Deactivate Breakpoints"]),
-        .menu("debug.detach", "detach", ["Debug", "Detach"]),
+        .menu("debug.pause", "pause", MenuRef("pauseOrContinue:")),
+        .menu("debug.stepOver", "step over", MenuRef("stepOver:")),
+        .menu("debug.stepInto", "step into", MenuRef("stepInto:")),
+        .menu("debug.stepOut", "step out", MenuRef("stepOut:")),
+        .menu("debug.continueToLine", "continue to line", MenuRef("continueToCurrentLine:")),
+        .menu("debug.deactivateBreakpoints", "deactivate breakpoints", MenuRef("toggleBreakpoints:")),
+        .menu("debug.detach", "detach", MenuRef("detach:")),
 
         // toggles
-        .menu("toggle.minimap", "minimap", ["Editor", "Minimap"]),
-        .menu("toggle.wrap", "wrap lines", ["Editor", "Wrap Lines"]),
-        .menu("toggle.vim", "vim mode", ["Editor", "Vim Mode"]),
-        .menu("toggle.invisibles", "invisibles", ["Editor", "Invisibles"]),
-        .menu("toggle.lineNumbers", "relative line numbers", ["Editor", "Relative Line Numbers"]),
-        .menu("toggle.authors", "authors", ["Editor", "Authors"]),
-        .menu("toggle.coverage", "code coverage", ["Editor", "Code Coverage"]),
-        .menu("toggle.scopeGuides", "scope guides", ["Editor", "Scope Guides"]),
-        // A real toggle since `menuItem(at:)` learned to try the `Show`/`Hide` sibling: this
+        // **These eight carry a path as well as an action, and they are the exception that
+        // proves the rule.** Read once with the editor focused they report
+        // `toggleMinimapShown:`; read again in another state they report `Show Minimap` —
+        // the identifier flips with the toggle. So the path is written down for them, and
+        // for nothing else.
+        .menu("toggle.minimap", "minimap", MenuRef("toggleMinimapShown:", path: ["Editor", "Minimap"])),
+        .menu("toggle.wrap", "wrap lines", MenuRef("toggleWrapLines:", path: ["Editor", "Wrap Lines"])),
+        .menu("toggle.vim", "vim mode", MenuRef("toggleViMode:", path: ["Editor", "Vim Mode"])),
+        .menu("toggle.invisibles", "invisibles", MenuRef("toggleInvisibleCharactersShown:", path: ["Editor", "Invisibles"])),
+        .menu("toggle.lineNumbers", "relative line numbers", MenuRef("toggleLineNumbersStyle:", path: ["Editor", "Relative Line Numbers"])),
+        .menu("toggle.authors", "authors", MenuRef("toggleAuthorsShown:", path: ["Editor", "Authors"])),
+        .menu("toggle.coverage", "code coverage", MenuRef("toggleCodeCoverageShown:", path: ["Editor", "Code Coverage"])),
+        .menu("toggle.scopeGuides", "scope guides", MenuRef("toggleScopeGuidesShown:", path: ["Editor", "Scope Guides"])),
+        // A real toggle because `toggleNavigator:` is one action for both states: this
         // names one spelling and works in both directions. Worth having because the
         // cross-pane buffer list only exists while the tab bars do.
-        .menu("toggle.tabBar", "editor tab bar", ["View", "Show Editor Tab Bar"]),
+        .menu("toggle.tabBar", "editor tab bar", MenuRef("toggleShowEditorTabBar:")),
 
         // ui
-        .menu("ui.fontIncrease", "font bigger", ["Editor", "Font Size", "Increase"]),
-        .menu("ui.fontDecrease", "font smaller", ["Editor", "Font Size", "Decrease"]),
-        .menu("ui.fontReset", "font reset", ["Editor", "Font Size", "Reset"]),
+        .menu("ui.fontIncrease", "font bigger", MenuRef("increaseFontSize:")),
+        .menu("ui.fontDecrease", "font smaller", MenuRef("decreaseFontSize:")),
+        .menu("ui.fontReset", "font reset", MenuRef("resetFontSize:")),
 
         // windows / panes — the directional moves, balance and zoom are ours, because
         // Xcode can only cycle between panes.
@@ -225,50 +230,50 @@ public enum DefaultKeymap {
         .pane("pane.sendRight", "send right", .send(.right),
               searchText: "send this file to the pane on the right"),
 
-        .menu("window.paneRight", "pane on right", ["File", "New", "Editor Pane On Right"]),
-        .menu("window.paneBelow", "pane below", ["File", "New", "Editor Pane Below"]),
-        .menu("window.closePane", "close pane", ["File", "Close Editor Pane"]),
-        .menu("window.nextPane", "next pane", ["Navigate", "Move Focus to Next Editor Pane"]),
-        .menu("window.previousPane", "previous pane", ["Navigate", "Move Focus to Previous Editor Pane"]),
-        .menu("window.nextArea", "next area", ["Navigate", "Move Focus to Next Area"]),
-        .menu("window.editorOnly", "editor only", ["Editor", "Show Editor Only"]),
-        .menu("window.closeOthers", "close other panes", ["File", "Close Other Editor Panes"]),
-        .menu("window.openInNext", "open in next pane", ["Navigate", "Open in Next Editor Pane"]),
-        .menu("window.openInTab", "open in a tab", ["Navigate", "Open using Tab"]),
-        .menu("window.choosePane", "choose pane…", ["Navigate", "Move Focus to Editor Pane…"]),
-        .menu("window.tabToWindow", "move tab to new window", ["Window", "Move Tab to New Window"]),
-        .menu("window.mergeAll", "merge all windows", ["Window", "Merge All Windows"]),
-        .menu("window.tileLeft", "tile left", ["Window", "Move & Resize", "Left"]),
-        .menu("window.tileRight", "tile right", ["Window", "Move & Resize", "Right"]),
-        .menu("window.tileFull", "fill screen", ["Window", "Move & Resize", "Halves"]),
-        .menu("window.previousSize", "previous size", ["Window", "Move & Resize", "Return to Previous Size"]),
-        .menu("window.toggleNavigator", "toggle navigator", ["View", "Navigators", "Hide Navigator"]),
-        .menu("window.toggleInspector", "toggle inspector", ["View", "Inspectors", "Show Inspector"]),
-        .menu("window.toggleDebugArea", "toggle debug area", ["View", "Debug Area", "Show Debug Area"]),
+        .popup("window.paneRight", "pane on right", .addEditor("newEditorAreaSplitOnRight:")),
+        .popup("window.paneBelow", "pane below", .addEditor("newEditorAreaSplitBelow:")),
+        .menu("window.closePane", "close pane", MenuRef("_closeActiveEditor:")),
+        .menu("window.nextPane", "next pane", MenuRef("moveKeyboardFocusToNextEditor:")),
+        .menu("window.previousPane", "previous pane", MenuRef("moveKeyboardFocusToPreviousEditor:")),
+        .menu("window.nextArea", "next area", MenuRef("moveKeyboardFocusToNextArea:")),
+        .menu("window.editorOnly", "editor only", MenuRef("_showEditorOnly:")),
+        .menu("window.closeOthers", "close other panes", MenuRef("closeOtherEditors:")),
+        .menu("window.openInNext", "open in next pane", MenuRef("openInAdjacentEditorWithShiftPlusAlternate:")),
+        .menu("window.openInTab", "open in a tab", MenuRef("openInAdjacentEditorWithAlternate:")),
+        .menu("window.choosePane", "choose pane…", MenuRef("moveFocusToEditor:")),
+        .menu("window.tabToWindow", "move tab to new window", MenuRef("moveTabToNewWindow:")),
+        .menu("window.mergeAll", "merge all windows", MenuRef("mergeAllWindows:")),
+        .menu("window.tileLeft", "tile left", MenuRef("_zoomLeft:")),
+        .menu("window.tileRight", "tile right", MenuRef("_zoomRight:")),
+        .menu("window.tileFull", "fill screen", MenuRef("_zoomFill:")),
+        .menu("window.previousSize", "previous size", MenuRef("_zoomUntile:")),
+        .menu("window.toggleNavigator", "toggle navigator", MenuRef("toggleNavigator:")),
+        .menu("window.toggleInspector", "toggle inspector", MenuRef("toggleInspectorArea:")),
+        .menu("window.toggleDebugArea", "toggle debug area", MenuRef("toggleDebuggerVisibility:")),
 
         // navigator — the left-hand pane. Selecting one is an ordinary menu command, and
         // the menu item reveals the pane when it is hidden, so there is no special case.
         // Only focusing it needs Accessibility; see `NavigatorController`.
-        .menu("navigator.filter", "filter navigator", ["View", "Navigators", "Filter in Navigator"]),
+        .menu("navigator.filter", "filter navigator", MenuRef("filterInNavigator:")),
 
         // inspector — the right-hand pane. Entirely menu-driven; there is nothing in it
         // worth focusing, so it has no focus command. See `XcodeArea`.
-        .menu("inspector.file", "file inspector", ["View", "Inspectors", "File"]),
-        .menu("inspector.history", "history inspector", ["View", "Inspectors", "History"]),
-        .menu("inspector.quickHelp", "quick help inspector", ["View", "Inspectors", "Quick Help"]),
+        .menu("inspector.file", "file inspector", MenuRef("showInspectorWithChoiceFromSender:", title: "File")),
+        .menu("inspector.history", "history inspector", MenuRef("showInspectorWithChoiceFromSender:", title: "History")),
+        .menu("inspector.quickHelp", "quick help inspector", MenuRef("showInspectorWithChoiceFromSender:", title: "Quick Help")),
 
         // debug area — the bottom pane. `Activate Console` already moves the keyboard into
         // the console, so only the variables list needs Accessibility.
-        .menu("debug.console", "activate console", ["View", "Debug Area", "Activate Console"]),
+        .menu("debug.console", "activate console", MenuRef("activateConsole:")),
 
         // help
-        .menu("help.docs", "developer documentation", ["Help", "Developer Documentation"]),
-        .menu("help.hig", "human interface guidelines", ["Help", "Human Interface Guidelines"]),
-        .menu("help.swiftBook", "the swift book", ["Help", "Swift Programming Language Book"]),
-        .menu("help.searchDocs", "search docs for selection", ["Help", "Search Documentation for Selected Text"]),
+        .menu("help.docs", "developer documentation", MenuRef("windowMenu_showDocumentation:", title: "Developer Documentation")),
+        .menu("help.hig", "human interface guidelines", MenuRef("showHumanInterfaceGuidelines:")),
+        .menu("help.swiftBook", "the swift book", MenuRef("showSwiftProgrammingLanguageBook:")),
+        .menu("help.searchDocs", "search docs for selection", MenuRef("searchDocumentationForSelectedText:")),
 
         // quit
-        .menu("quit.xcode", "quit xcode", ["Xcode", "Quit Xcode"]),
+        .menu("quit.xcode", "quit xcode", MenuRef("terminate:")),
         Command(id: "quit.companion", title: "quit companion",
                 searchText: "quit Autographe for Xcode", action: .companion("quit")),
         Command(id: "companion.reload", title: "reload commands",
@@ -528,8 +533,21 @@ public enum DefaultKeymap {
     /// here with **no caller at all** for a while, described as being "for a startup sanity
     /// check" that was never written — which is the failure it is meant to catch, in
     /// miniature: something plausible, tested, and wired to nothing.
-    public static var menuPaths: [[String]] {
-        commands.compactMap(\.menuPath)
+    public static var menuRefs: [MenuRef] {
+        commands.compactMap(\.menuRef)
+    }
+
+    /// Every shipped command backed by an Xcode menu item, for the audit — which wants to
+    /// name the command a user would recognise, not just the action behind it.
+    public static var menuCommands: [Command] {
+        commands.filter { $0.menuRef != nil }
+    }
+
+    /// Every shipped command that lives in a toolbar popup instead. A snapshot of the menu
+    /// bar cannot speak for these, so the audit counts them separately rather than quietly
+    /// checking three fewer commands than the app ships.
+    public static var popupCommands: [Command] {
+        commands.filter { $0.popupRef != nil }
     }
 }
 

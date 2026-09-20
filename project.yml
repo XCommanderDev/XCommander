@@ -31,6 +31,9 @@ targets:
         product: AutographeCore
       - package: AutographeCore
         product: CIndexStore
+      # The AX menu walk, shared with the `xcmdr` maintenance tool.
+      - package: AutographeCore
+        product: XcodeMenus
     info:
       path: Sources/Companion/Info.plist
       properties:

@@ -10,7 +10,7 @@ struct KeymapSessionTests {
 
     private func session() throws -> KeymapSession {
         var registry = CommandRegistry()
-        registry.register(.menu("make.build", "build", ["Product", "Build"]))
+        registry.register(.menu("make.build", "build", MenuRef("buildActiveRunContext:")))
         registry.register(Command(id: "quit", title: "quit", action: .companion("quit")))
 
         var map = Keymap()
