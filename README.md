@@ -47,14 +47,38 @@ Early days. Today it has:
 
 ## Building
 
-Requires a recent macOS and Xcode. Open `XCommander/XCommander.xcodeproj` and run the `XCommander` scheme. On first launch, grant Accessibility permission in System Settings → Privacy & Security → Accessibility.
+Requires a recent macOS and Xcode.
+
+1. Open `XCommander/XCommander.xcodeproj`.
+2. To sign with your own Apple account, create `XCommander/Config/Signing.local.xcconfig` (git ignores it) with your Team ID and a bundle ID prefix of your own:
+
+   ```
+   DEVELOPMENT_TEAM = YOUR_TEAM_ID
+   BUNDLE_ID_PREFIX = com.yourname
+   ```
+
+3. Run the `XCommander` scheme. On first launch, grant Accessibility permission in System Settings → Privacy & Security → Accessibility.
+
+[CONTRIBUTING.md](CONTRIBUTING.md) has the details.
+
+## Official builds
+
+When XCommander is ready, official builds will be published only at [xcommander.dev](https://xcommander.dev), signed with my Developer ID and notarized by Apple. Builds from anywhere else are not the official app.
 
 ## Follow along
 
 - Build log: [xcommander.dev/weblog](https://xcommander.dev/weblog/) ([RSS](https://xcommander.dev/weblog.rss))
 - Mastodon: [@xcommander@mastodon.social](https://mastodon.social/@xcommander)
 
-Issues and ideas are welcome. Since this is a personal tool first, I may say no to features that pull it away from what I need.
+Issues and ideas are welcome. Since this is a personal tool first, I may say no to features that pull it away from what I need. See [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
+
+## License
+
+Copyright © 2026 Wassim Mansouri.
+
+XCommander is free software: you can redistribute it and/or modify it under the terms of the [GNU General Public License v3](LICENSE).
+
+The XCommander name and icon are not covered by the license. Forks are welcome under a different name and icon; see [TRADEMARKS.md](TRADEMARKS.md).
 
 ---
 
