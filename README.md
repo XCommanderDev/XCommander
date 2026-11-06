@@ -17,6 +17,7 @@ I don't have the full design worked out. I find things out as I build: what macO
 
 XCommander doesn't plug into Xcode. Since Xcode 8, in-process plugins are gone, and Source Editor Extensions only see text. So XCommander sits outside Xcode and talks to it the way an assistive app would:
 
+```
  keyboard ──▶ Event tap ──▶ Keymap ──▶ Accessibility API ──▶ Xcode
               (spots ⌥↩      (resolves     (reads and presses
                when Xcode     the key       Xcode's menus,
@@ -24,6 +25,7 @@ XCommander doesn't plug into Xcode. Since Xcode 8, in-process plugins are gone, 
                                   │
                                   ▼
                            which-key panel
+```
 
 - **Menu bar app** (AppKit): no Dock icon, just a status item that shows whether XCommander is ready, waiting for Xcode, or needs permission.
 - **Event tap** (Core Graphics): watches the keyboard. Only while Xcode is in front, and only after the leader key, does it take over keys.
@@ -45,7 +47,7 @@ Early days. Today it has:
 
 ## Building
 
-Requires a recent macOS and Xcode. Open `XCommander/XCommander.xcodeproj` and run the `XCommander` scheme. On first launrmission in System Settings → Privacy & Security → Accessibility.
+Requires a recent macOS and Xcode. Open `XCommander/XCommander.xcodeproj` and run the `XCommander` scheme. On first launch, grant Accessibility permission in System Settings → Privacy & Security → Accessibility.
 
 ## Follow along
 
