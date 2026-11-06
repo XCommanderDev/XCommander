@@ -1,0 +1,14 @@
+// Signing settings for the official XCommander build.
+//
+// To build under your own Apple account, don't edit this file. Create
+// Signing.local.xcconfig next to it (git ignores it) with:
+//
+//   DEVELOPMENT_TEAM = YOUR_TEAM_ID
+//   BUNDLE_ID_PREFIX = com.yourname
+//
+// Your Team ID is in Xcode → Settings → Accounts, or at developer.apple.com/account.
+
+DEVELOPMENT_TEAM = D3XY49J59H
+BUNDLE_ID_PREFIX = dev.xcommander
+
+#include? "Signing.local.xcconfig"

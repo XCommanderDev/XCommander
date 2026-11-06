@@ -18,7 +18,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var accessibilityPollTimer: Timer?
     private var xcodeIsFrontmost = false
     
-    private let log = Logger(subsystem: "com.wassimans.XCommander", category: "app")
+    private let log = Logger(subsystem: Bundle.main.bundleIdentifier ?? "dev.xcommander.XCommander", category: "app")
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)

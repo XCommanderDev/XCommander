@@ -60,3 +60,9 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+
+# macOS Finder metadata
+.DS_Store
+
+# Personal signing overrides (see XCommander/Config/Signing.xcconfig)
+Signing.local.xcconfig
