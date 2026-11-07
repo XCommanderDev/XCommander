@@ -34,6 +34,17 @@ XCommander doesn't plug into Xcode. Since Xcode 8, in-process plugins are gone, 
 
 An app that uses an event tap can't be sandboxed, so XCommander won't be on the Mac App Store. It will be distributed directly.
 
+## Xcode versions
+
+Apple ships a new Xcode every year, with betas in between, and XCommander has to keep working when Xcode changes under it. The plan:
+
+- **Commands are found by the action behind a menu item, not by its title or position.** A renamed or moved menu item keeps working, and a beta nobody has tested works on day one.
+- **XCommander supports the current Xcode major and the one before it.** There is no upper limit.
+- **When a new Xcode removes a command you had bound, its key is hidden** rather than left doing nothing, and XCommander writes a short report saying what changed.
+- **A release and a beta can run side by side.** XCommander talks to the one in front.
+
+The rest, like what happens when Xcode relaunches after an update or when you go back to an older XCommander, is planned too. None of it is built yet.
+
 ## Status
 
 Early days. Today it has:
@@ -71,6 +82,8 @@ When XCommander is ready, official builds will be published only at [xcommander.
 - Mastodon: [@xcommander@mastodon.social](https://mastodon.social/@xcommander)
 
 Issues and ideas are welcome. Since this is a personal tool first, I may say no to features that pull it away from what I need. See [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
+
+If you run Xcode betas, you can help a lot: once the maintenance tool exists, a capture of a new beta's menus lets me support it before I've installed it myself.
 
 ## License
 

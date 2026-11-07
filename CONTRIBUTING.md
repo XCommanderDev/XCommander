@@ -35,6 +35,10 @@ Signed-off-by: Your Name <you@example.com>
 
 Pull requests with commits that aren't signed off can't be merged.
 
+## Xcode betas
+
+If you're on an Xcode beta and something stopped working, please open an issue with the Xcode version and build number (Xcode → About Xcode). Once XCommander has its maintenance tool, I'll ask for a capture of the beta's menus too, so the fix can be tested without installing the beta.
+
 ## Name and icon
 
 Your contributions are under the GPLv3 like the rest of the code. The XCommander name and icon are covered separately; see [TRADEMARKS.md](TRADEMARKS.md).
