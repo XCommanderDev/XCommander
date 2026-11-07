@@ -1,41 +1,32 @@
 {
-  "fill": {
-    "linear-gradient": [
-      "srgb:0.14510,0.78824,1.00000,1.00000",
-      "srgb:0.05490,0.44314,0.87059,1.00000"
+  "fill" : {
+    "linear-gradient" : [
+      "extended-gray:1.00000,1.00000",
+      "extended-gray:1.00000,1.00000"
     ]
   },
-  "groups": [
+  "groups" : [
     {
-      "layers": [
+      "layers" : [
         {
-          "glass": false,
-          "hidden": false,
-          "image-name": "pens.png",
-          "name": "pens",
-          "position": {
-            "scale": 1.15,
-            "translation-in-points": [
-              0,
-              0
-            ]
-          }
+          "image-name" : "X-hat-black-on-white2.svg",
+          "name" : "X-hat-black-on-white2"
         }
       ],
-      "shadow": {
-        "kind": "neutral",
-        "opacity": 0.5
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
       },
-      "translucency": {
-        "enabled": true,
-        "value": 0.5
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
       }
     }
   ],
-  "supported-platforms": {
-    "circles": [
+  "supported-platforms" : {
+    "circles" : [
       "watchOS"
     ],
-    "squares": "shared"
+    "squares" : "shared"
   }
 }

@@ -1,139 +1,79 @@
 #!/bin/bash
-# Generate every icon the app ships, from the one vector source.
+# Generate every icon the app ships, from the artwork in Graphics/.
 #
-#   tools/icons.sh            regenerate everything
-#   tools/icons.sh --preview  also write comparison strips to /tmp for eyeballing
+#   tools/icons.sh
 #
-# The source of truth is Design/autographe-v1.svg. Nothing here is hand-edited artwork:
-# the script renders Wassim's file, and the only transform it applies is the macOS icon
-# grid, which is a platform requirement rather than a design decision. If the SVG changes,
-# run this and commit what it writes.
+# The sources of truth are Wassim's files, and nothing here is hand-edited artwork:
+#
+#   Graphics/XCommanderAppIconDefault.icon   the app icon, an Icon Composer document
+#   Graphics/X-hat-black-on-white2.svg       the hat on its own, for the menu bar
+#
+# If either changes, run this and commit what it writes.
 #
 # What it produces:
-#   Sources/Companion/AutographeAppIcon.icon/Assets/pens.png     the app icon's one layer
+#   Sources/Companion/AutographeAppIcon.icon/                    the app icon, copied as is
 #   Sources/Companion/Assets.xcassets/MenuBarMark.imageset/*.png the menu-bar template mark
-#   Sources/Companion/AutographeAppIcon.icon/Assets/pens.png     the Icon Composer layer
-#   Design/autographe-v1-macos-1024.png                          grid-correct master, reference
-#   Design/AutographeForXcode.icns                               for the DMG volume icon
+#   Design/XCommander.icns                                       for the DMG volume icon
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 command -v rsvg-convert >/dev/null || { echo "need rsvg-convert (brew install librsvg)"; exit 1; }
 python3 -c "import PIL" 2>/dev/null || { echo "need Pillow (pip3 install Pillow)"; exit 1; }
 
-SVG="Design/autographe-v1.svg"
+ICON_SRC="Graphics/XCommanderAppIconDefault.icon"
+HAT="Graphics/X-hat-black-on-white2.svg"
+# The document keeps the old name until the app is renamed: the build settings, project.yml
+# and tools/xc.sh all refer to it, and a rename belongs with the rest of the rename.
+ICON_DST="Sources/Companion/AutographeAppIcon.icon"
 MARKSET="Sources/Companion/Assets.xcassets/MenuBarMark.imageset"
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
-# The app icon is the Icon Composer document, so these ten PNGs are no longer an asset
-# catalogue slot — actool would not even compile them. They exist only to build the .icns
-# the DMG's volume icon needs, so they are rendered into the temp dir and not committed.
-ICONSET="$WORK/AutographeForXcode.iconset"
-
-# --- The macOS grid ------------------------------------------------------------------
+# --- The app icon --------------------------------------------------------------------
 #
-# An iOS icon is full-bleed: artwork fills all 1024 and the system masks the corners. A
-# macOS icon carries its own shape *and* its own margin — the tile is 824x824 inside a
-# 1024 canvas, leaving ~100pt on every side. Get this wrong and nothing breaks; the icon
-# just renders visibly larger than every icon beside it.
-#
-# The SVG's own tile is 896 wide inside its 1024 canvas (it already has 64pt of padding).
-# So to land the tile on 824 we render the whole SVG at 1024 * 824/896 = 941.7 and centre
-# that on a 1024 canvas: 41.1 + 58.9 = 100pt of padding, as required.
-#
-# This is a uniform scale. Nothing is redrawn, and the corner radius keeps the ratio the
-# SVG chose (0.232 of the side, against Apple's 0.225) — 3% rounder, which is Wassim's
-# design and not the grid's business.
-GRID_SCALE="0.9198341"   # 824/896
-MASTER=4096              # render big once, downsample; small sizes come out cleaner
-
-echo "==> rendering the master at ${MASTER}px"
-ART=$(python3 -c "print(round($MASTER * $GRID_SCALE))")
-rsvg-convert -w "$ART" -h "$ART" -f png -o "$WORK/art.png" "$SVG"
-
-python3 - "$WORK" "$MASTER" <<'PY'
-import sys
-from PIL import Image
-work, master = sys.argv[1], int(sys.argv[2])
-art = Image.open(work + "/art.png").convert("RGBA")
-canvas = Image.new("RGBA", (master, master), (0, 0, 0, 0))
-off = ((master - art.size[0]) // 2, (master - art.size[1]) // 2)
-canvas.paste(art, off, art)
-canvas.save(work + "/master.png")
-PY
-
-echo "==> flat icon: 10 slots, for the .icns only"
-mkdir -p "$ICONSET"
-python3 - "$WORK" "$ICONSET" <<'PY'
-import sys
-from PIL import Image
-work, out = sys.argv[1], sys.argv[2]
-master = Image.open(work + "/master.png")
-# (point size, scale) -> pixels. macOS asks for five sizes at 1x and 2x.
-for pt in (16, 32, 128, 256, 512):
-    for scale in (1, 2):
-        px = pt * scale
-        name = f"icon_{pt}x{pt}.png" if scale == 1 else f"icon_{pt}x{pt}@{scale}x.png"
-        master.resize((px, px), Image.LANCZOS).save(f"{out}/{name}")
-        print(f"    {name}  {px}x{px}")
-PY
-
-echo "==> grid-correct master, for reference"
-python3 - "$WORK" <<'PY'
-import sys
-from PIL import Image
-work = sys.argv[1]
-Image.open(work + "/master.png").resize((1024, 1024), Image.LANCZOS) \
-     .save("Design/autographe-v1-macos-1024.png")
-PY
+# Icon Composer's document is the design: background fill, layers, glass, shadow. macOS 26
+# draws it with its own geometry, and actool derives every legacy size from it. So it is
+# copied, never re-rendered — any processing here could only make it differ from what the
+# designer saw in Icon Composer.
+echo "==> app icon: $ICON_SRC"
+rm -rf "$ICON_DST"
+cp -R "$ICON_SRC" "$ICON_DST"
 
 # --- The menu-bar mark ---------------------------------------------------------------
 #
-# The pens alone, with the tile hidden. This is what makes a *template* image possible:
-# macOS discards a template's colours and uses its alpha as a mask, so the artwork's
-# transparency has to be its shape. A filled tile's alpha is a rounded rectangle, which is
-# why the whole app icon can never be a template — it renders as a blank square. The pens
-# knocked out are a silhouette, and a silhouette is exactly what a template wants.
-echo "==> menu-bar mark: pens only, knocked out"
-python3 - "$SVG" "$WORK" <<'PY'
-import sys
-svg, work = sys.argv[1], sys.argv[2]
-src = open(svg).read()
-marker = '<g\n     id="app-background-blue"'
-assert marker in src, "the background group moved; check the SVG's structure"
-open(work + "/pens.svg", "w").write(
-    src.replace(marker, '<g\n     style="display:none"\n     id="app-background-blue"', 1))
-PY
-rsvg-convert -w 2048 -h 2048 -f png -o "$WORK/pens.png" "$WORK/pens.svg"
+# A template image keeps only alpha. This SVG's alpha is the hat's outline, but the ⌘ on the
+# crown is painted *on top* in a light gradient, so alpha alone would draw a solid hat with
+# no ⌘. The silhouette lives in the darkness: ink is wherever the artwork is both opaque and
+# dark. Multiplying alpha by inverted luminance turns the light details into holes, which is
+# what the bar needs to show them in its own colour.
+echo "==> menu-bar mark: the hat, light details knocked out"
+rsvg-convert -w 2048 -h 2048 -f png -o "$WORK/hat.png" "$HAT"
 
-mkdir -p "$MARKSET" Sources/Companion/AutographeAppIcon.icon/Assets
 python3 - "$WORK" "$MARKSET" <<'PY'
 import sys, json
-from PIL import Image
+from PIL import Image, ImageChops
 work, out = sys.argv[1], sys.argv[2]
-pens = Image.open(work + "/pens.png").convert("RGBA")
-pens = pens.crop(pens.split()[3].getbbox())          # trim to the ink
+hat = Image.open(work + "/hat.png").convert("RGBA")
+r, g, b, a = hat.split()
+darkness = ImageChops.invert(Image.merge("RGB", (r, g, b)).convert("L"))
+ink = ImageChops.multiply(a, darkness)
+ink = ink.crop(ink.getbbox())                       # trim to the ink
 
-# The Icon Composer layer keeps the full 1024 frame and its position within it, because
-# Icon Composer places layers against the canvas, not against their own bounds.
-full = Image.open(work + "/pens.png").convert("RGBA")
-full.resize((1024, 1024), Image.LANCZOS).save(
-    "Sources/Companion/AutographeAppIcon.icon/Assets/pens.png")
-
-# The menu bar draws into an 18pt box. Fit the ink inside it, longest side first, so the
-# mark is as large as the bar allows without touching its edges.
-BOX = 18
+# The hat is 2.3 times wider than tall. In the 18pt square most marks use it would be 8pt
+# high and the ⌘ would vanish, so the canvas is wider: 24x18pt puts the hat at about 10pt,
+# level with the system's own icons. A variable-length status item takes the width as given.
+W, H = 24, 18
 for scale in (1, 2):
-    side = BOX * scale
-    w, h = pens.size
-    f = side / max(w, h)
-    ink = pens.resize((max(1, round(w * f)), max(1, round(h * f))), Image.LANCZOS)
-    canvas = Image.new("RGBA", (side, side), (0, 0, 0, 0))
-    canvas.paste(ink, ((side - ink.size[0]) // 2, (side - ink.size[1]) // 2), ink)
+    w, h = ink.size
+    f = W * scale / w
+    mask = ink.resize((W * scale, max(1, round(h * f))), Image.LANCZOS)
+    canvas = Image.new("RGBA", (W * scale, H * scale), (0, 0, 0, 0))
+    black = Image.new("RGBA", mask.size, (0, 0, 0, 255))
+    black.putalpha(mask)
+    canvas.paste(black, (0, (H * scale - mask.size[1]) // 2), black)
     name = "mark.png" if scale == 1 else f"mark@{scale}x.png"
     canvas.save(f"{out}/{name}")
-    print(f"    {name}  {side}x{side}")
+    print(f"    {name}  {W * scale}x{H * scale}")
 
 json.dump({
     "images": [
@@ -147,11 +87,15 @@ PY
 
 # --- The .icns, for the DMG ----------------------------------------------------------
 #
-# Xcode compiles the asset catalogue into the bundle's icon by itself. This standalone
-# .icns is for the things Xcode does not build: the DMG's volume icon, mostly, since the
-# app ships outside the App Store.
+# The DMG's volume icon is the one place outside the app bundle that wants an .icns. actool
+# writes one when it compiles the document, from the same geometry the system uses, so it is
+# taken from there instead of being rendered separately.
 echo "==> .icns"
-iconutil -c icns "$ICONSET" -o Design/AutographeForXcode.icns
-echo "    Design/AutographeForXcode.icns"
+actool "$ICON_DST" --compile "$WORK" --platform macosx --minimum-deployment-target 14.0 \
+  --app-icon AutographeAppIcon --output-partial-info-plist "$WORK/partial.plist" \
+  --output-format human-readable-text >/dev/null
+mkdir -p Design
+cp "$WORK/AutographeAppIcon.icns" Design/XCommander.icns
+echo "    Design/XCommander.icns"
 
 echo "done."
