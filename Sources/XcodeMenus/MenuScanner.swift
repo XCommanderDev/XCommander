@@ -79,7 +79,12 @@ public enum MenuScanner {
     /// `elements` is kept beside the snapshot rather than inside it because Core has no
     /// AppKit and no business holding an `AXUIElement`, and because a snapshot outlives the
     /// process that made it while an element does not.
-    public struct Scan {
+    ///
+    /// `@unchecked Sendable` because the app scans off the main actor and hands the result
+    /// back. An `AXUIElement` is an opaque reference to an element in *another* process —
+    /// passing one between threads shares no state of ours, and every call made with it is
+    /// a message to Xcode.
+    public struct Scan: @unchecked Sendable {
         public var snapshot: MenuSnapshot
         public var elements: [[String]: (element: AXUIElement, isEnabled: Bool)]
     }
@@ -94,9 +99,25 @@ public enum MenuScanner {
     ///   once by hand and a truncated snapshot is worse than a slow one.
     public static func scan(of xcode: NSRunningApplication?, context: String,
                             timeout: Float = 0.25) throws -> Scan {
-        guard hasAccessibility else { throw ScanFailure.noAccessibility }
         guard let running = xcode, !running.isTerminated else { throw ScanFailure.notRunning }
-        let app = AXUIElementCreateApplication(running.processIdentifier)
+        return try scan(pid: running.processIdentifier,
+                        release: release(of: running) ?? XcodeRelease(version: "unknown", build: "unknown", major: 0),
+                        inputSource: currentInputSource(),
+                        context: context, timeout: timeout)
+    }
+
+    /// The walk itself, with everything that must be read on the main thread passed in.
+    ///
+    /// **This half runs off the main actor in the app.** The walk is ~750 ms of round trips
+    /// to Xcode, and the app's event tap is serviced on the main run loop — measured live,
+    /// a scan on the main thread made the first leader after switching to Xcode show its
+    /// panel 400 ms late, and every ordinary keystroke typed in that window waited too. The
+    /// keyboard layout is read by the caller because Text Input Sources answer only on the
+    /// main thread; the release because it comes from `NSRunningApplication`.
+    public static func scan(pid: pid_t, release: XcodeRelease, inputSource: String?,
+                            context: String, timeout: Float = 0.25) throws -> Scan {
+        guard hasAccessibility else { throw ScanFailure.noAccessibility }
+        let app = AXUIElementCreateApplication(pid)
         AXUIElementSetMessagingTimeout(app, timeout)
 
         var bar: CFTypeRef?
@@ -110,10 +131,10 @@ public enum MenuScanner {
 
         let editorFocused = isSourceEditorFocused(app)
         let snapshot = MenuSnapshot(
-            release: release(of: running) ?? XcodeRelease(version: "unknown", build: "unknown", major: 0),
+            release: release,
             capturedAt: ISO8601DateFormatter().string(from: Date()),
             context: editorFocused ? context + ", source editor focused" : context,
-            inputSource: currentInputSource(),
+            inputSource: inputSource,
             entries: entries,
             editorScans: editorFocused ? 1 : 0)
         return Scan(snapshot: snapshot, elements: elements)
@@ -158,7 +179,10 @@ public enum MenuScanner {
             }
             // The Apple menu is the system's, not Xcode's. Leaving it out also keeps a diff
             // between two Xcodes free of the user's own Recent Items churn.
-            guard here.first != "Apple" else { continue }
+            // `Xcode > Services` is the same story: the system builds it from whatever apps
+            // are installed and whatever is selected — measured live on 27.2, four items came
+            // and went with focus, one of them another vendor's — so it is not Xcode's to diff.
+            guard !MenuEntry.isSystemOwned(here) else { continue }
             let identifier = string(child, kAXIdentifierAttribute) ?? ""
             entries.append(MenuEntry(identifier: identifier,
                                      title: title,

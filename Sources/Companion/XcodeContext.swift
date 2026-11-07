@@ -25,8 +25,12 @@ protocol XcodeContext {
     /// Press an item inside a toolbar popup. True means the control was found and the menu
     /// was asked to open; the press itself finishes asynchronously.
     @discardableResult func pressPopupItem(_ ref: PopupMenuRef) -> Bool
-    /// Re-read the menu bar. Expensive (~750 ms), so it is explicit rather than automatic.
+    /// Re-read the menu bar. Expensive (~750 ms), so it is explicit rather than automatic —
+    /// and it blocks, so it is for the moments a caller needs the answer now.
     func refreshMenuIndex()
+    /// Re-read the menu bar off the main actor, then call `done` on it. What the app does on
+    /// every switch to Xcode, because the keyboard must not wait for a menu walk.
+    func refreshMenuIndexInBackground(then done: @escaping @MainActor @Sendable () -> Void)
     /// The most recent full scan, for the store to fold into what it already knows.
     var lastScan: MenuSnapshot? { get }
     /// Every menu item Xcode currently offers, for the command palette.
@@ -87,6 +91,14 @@ final class AccessibilityXcodeContext: XcodeContext {
     private var catalogue: MenuCatalogue?
     private var elements: [[String]: (element: AXUIElement, isEnabled: Bool)] = [:]
     private var cachedRelease: XcodeRelease?
+    /// The index of every Xcode this context has talked to, by process, so switching back to
+    /// one does not cost a fresh walk. Measured with a release and a second copy open: one
+    /// shared index made every switch drop the other's and rescan on the next leader, and the
+    /// panel came up 650–835 ms late instead of ~430. An element stays valid for as long as
+    /// its process lives, so an entry is dropped only when its process has gone.
+    private var indexes: [pid_t: (catalogue: MenuCatalogue,
+                                  elements: [[String]: (element: AXUIElement, isEnabled: Bool)],
+                                  scan: MenuSnapshot)] = [:]
     /// The most recent full scan, for whoever wants to record it. Not the same thing as the
     /// catalogue, which is only the lookup table built from it.
     private(set) var lastScan: MenuSnapshot?
@@ -125,7 +137,8 @@ final class AccessibilityXcodeContext: XcodeContext {
 
     /// Rebind to Xcode's current process, dropping any cached menu elements if the pid
     /// changed. Menu `AXUIElement`s belong to a process and are meaningless after a relaunch
-    /// — and after a switch between two Xcodes, which looks exactly the same from here.
+    /// — and after a switch between two Xcodes, which looks exactly the same from here, except
+    /// that the other Xcode's index is still good and comes back from `indexes`.
     private func appElement() -> AXUIElement? {
         guard let running = runningXcode else {
             app = nil; pid = nil; catalogue = nil; elements = [:]; cachedRelease = nil
@@ -134,7 +147,11 @@ final class AccessibilityXcodeContext: XcodeContext {
         if running.processIdentifier != pid {
             pid = running.processIdentifier
             app = AXUIElementCreateApplication(running.processIdentifier)
-            catalogue = nil; elements = [:]
+            let alive = Set(MenuScanner.runningXcodes.map(\.processIdentifier))
+            indexes = indexes.filter { alive.contains($0.key) }
+            let known = indexes[running.processIdentifier]
+            catalogue = known?.catalogue; elements = known?.elements ?? [:]
+            lastScan = known?.scan
             cachedRelease = MenuScanner.release(of: running)
                 ?? XcodeRelease(version: "unknown", build: "unknown", major: 0)
             if let app { AXUIElementSetMessagingTimeout(app, Self.messagingTimeout) }
@@ -319,9 +336,55 @@ final class AccessibilityXcodeContext: XcodeContext {
         _ = appElement()   // rebind first, so a relaunched or switched Xcode starts clean
         guard let scan = try? MenuScanner.scan(of: runningXcode, context: Self.describeContext(),
                                                timeout: Self.messagingTimeout) else { return }
+        apply(scan)
+    }
+
+    /// A walk already under way, so a burst of activations starts one scan rather than five.
+    private var scanInFlight = false
+
+    /// The same walk, off the main actor.
+    ///
+    /// **Measured, not assumed.** Run on the main thread, the ~750 ms walk on every switch to
+    /// Xcode held up the event tap, which is serviced on the main run loop: a leader pressed
+    /// 50 ms after switching showed its panel about 400 ms late, and every ordinary key typed
+    /// in that window waited the same. Off the main actor the keyboard does not notice.
+    ///
+    /// Until the walk finishes the previous index stays in use. For the same process its
+    /// elements are still good — that is the common case, coming back to the Xcode you left.
+    /// For a new process `appElement()` has already dropped them, and a command in that gap
+    /// scans on demand, as it always did.
+    func refreshMenuIndexInBackground(then done: @escaping @MainActor @Sendable () -> Void) {
+        guard !scanInFlight, let running = runningXcode else { return }
+        _ = appElement()
+        scanInFlight = true
+        let pid = running.processIdentifier
+        let release = cachedRelease ?? XcodeRelease(version: "unknown", build: "unknown", major: 0)
+        let inputSource = MenuScanner.currentInputSource()   // main thread only
+        let context = Self.describeContext()
+        let timeout = Self.messagingTimeout
+        Task.detached {
+            let scan = try? MenuScanner.scan(pid: pid, release: release, inputSource: inputSource,
+                                             context: context, timeout: timeout)
+            await MainActor.run {
+                self.scanInFlight = false
+                guard let scan else { return }
+                // The other Xcode may have come forward during the walk. The scan is still
+                // good for the one it read, so keep it for when that one comes back.
+                guard pid == self.pid else {
+                    self.indexes[pid] = (MenuCatalogue(scan.snapshot), scan.elements, scan.snapshot)
+                    return
+                }
+                self.apply(scan)
+                done()
+            }
+        }
+    }
+
+    private func apply(_ scan: MenuScanner.Scan) {
         elements = scan.elements
         catalogue = MenuCatalogue(scan.snapshot)
         lastScan = scan.snapshot
+        if let pid, let catalogue { indexes[pid] = (catalogue, elements, scan.snapshot) }
     }
 
     /// What was on screen when the menus were read, so a stored snapshot says which context

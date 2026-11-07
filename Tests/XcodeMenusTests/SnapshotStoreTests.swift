@@ -151,7 +151,25 @@ struct ChangeReportTests {
         #expect(report.isWorthTelling)
         #expect(report.summaryLine.contains("Nothing you bound was lost"))
         #expect(report.markdown.contains("Comment Selection"))
-        #expect(report.markdown.contains("renamed"))
+        #expect(report.markdown.contains("Menu titles that changed"))
+    }
+
+    /// Measured on the 27.0 → 27.2 upgrade: seventeen "renames", nearly all context. Written
+    /// down, but never worth interrupting anyone for.
+    @Test("titles and removals are written down but do not interrupt")
+    func onlyCostsInterrupt() {
+        var diff = CatalogueDiff()
+        diff.retitled = [MenuChange(identifier: "pauseOrContinue:", before: "Continue", after: "Pause")]
+        diff.removed = [MenuEntry(identifier: "newGroup:", title: "Group", path: ["File", "New", "Group"])]
+        let quiet = ChangeReport(from: release("27.0", "27A266"), to: release("27.2", "27B51"),
+                                 diff: diff, lostBindings: [])
+        #expect(quiet.isWorthTelling)
+        #expect(!quiet.needsAttention)
+        #expect(quiet.markdown.contains("Commands no longer seen"))
+
+        let costly = ChangeReport(from: release("27.0", "27A266"), to: release("27.2", "27B51"),
+                                  diff: diff, lostBindings: [("x.y", "y", "newGroup:")])
+        #expect(costly.needsAttention)
     }
 
     @Test("a lost binding leads, and says what to do about it")
@@ -187,6 +205,7 @@ struct ChangeReportTests {
                                   diff: diff, lostBindings: [])
         #expect(report.isWorthTelling)
         #expect(report.summaryLine == "Xcode 28.0 removed 1 command. Nothing you bound was lost.")
+        #expect(!report.needsAttention)
         #expect(!report.summaryLine.contains("renamed"))
     }
 

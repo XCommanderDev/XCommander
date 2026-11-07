@@ -47,8 +47,9 @@ struct XcodeTargetTests {
 /// When a record of a build is complete enough to act on.
 ///
 /// The defect: the first scan of a new Xcode was compared against the old build's
-/// accumulated menu. A first scan taken with the navigator focused lacks eight `Editor >`
-/// toggles, so they were hidden from the panel and reported as removed by Apple.
+/// accumulated menu. Xcode reopens on its Welcome window after an update, and a scan taken
+/// there — measured on 27.2 — lacks 27 of the 115 shipped bindings, which would have been
+/// hidden from the panel and reported as removed by Apple.
 @Suite("Settling a new build")
 struct SettlingTests {
 
@@ -86,6 +87,58 @@ struct SettlingTests {
         let json = String(decoding: try legacy.encoded(), as: UTF8.self)
         #expect(!json.contains("editorScans"))
         #expect(!(try MenuSnapshot.decode(legacy.encoded())).isSettled)
+    }
+}
+
+/// What the first real upgrade (27.0 → 27.2) showed a diff must not call a rename.
+@Suite("Titles that follow context")
+struct ContextTitleTests {
+
+    private func snapshot(_ entries: [MenuEntry]) -> MenuSnapshot {
+        MenuSnapshot(release: XcodeRelease(version: "27.2", build: "27B51", major: 27),
+                     capturedAt: "2026-11-07T00:00:00Z", context: "a test",
+                     inputSource: "com.apple.keylayout.US", entries: entries)
+    }
+
+    @Test("a title that only names a different open file is not a rename")
+    func quotedNamesAreContext() {
+        let old = snapshot([MenuEntry(identifier: "compileFile:", title: "Compile “0 mach_msg2_trap”",
+                                      path: ["Product", "Perform Action", "Compile “0 mach_msg2_trap”"])])
+        let new = snapshot([MenuEntry(identifier: "compileFile:", title: "Compile “AppDelegate.swift”",
+                                      path: ["Product", "Perform Action", "Compile “AppDelegate.swift”"])])
+        #expect(CatalogueDiff.between(old, and: new).retitled.isEmpty)
+        #expect(CatalogueDiff.contextFree("Bookmark “a.swift” Line 43") == "Bookmark “…” Line 43")
+    }
+
+    @Test("a real rename still is one")
+    func realRenameSurvives() {
+        let old = snapshot([MenuEntry(identifier: "toggleComments:", title: "Comment Selection",
+                                      path: ["Editor", "Structure", "Comment Selection"])])
+        let new = snapshot([MenuEntry(identifier: "toggleComments:", title: "Toggle Comments",
+                                      path: ["Editor", "Structure", "Toggle Comments"])])
+        #expect(CatalogueDiff.between(old, and: new).retitled.map(\.after) == ["Toggle Comments"])
+    }
+
+    /// Snapshots recorded before the scanner skipped `Xcode > Services` still contain it.
+    @Test("system-owned menus take no part in a diff")
+    func servicesAreTheSystems() {
+        let old = snapshot([MenuEntry(identifier: "_processRequest:", title: "Activity Monitor",
+                                      path: ["Xcode", "Services", "Activity Monitor"])])
+        #expect(CatalogueDiff.between(old, and: snapshot([])).removed.isEmpty)
+        #expect(MenuEntry.isSystemOwned(["Apple", "Recent Items"]))
+        #expect(!MenuEntry.isSystemOwned(["Xcode", "Settings…"]))
+    }
+
+    /// The window list, recent projects, run destinations: the user's data, not Apple's API.
+    @Test("a list-shaped identifier takes no part in renames")
+    func listsAreUserData() {
+        let window = "_activateWorkspaceWindowController:"
+        let old = snapshot([MenuEntry(identifier: window, title: "A — x.swift", path: ["Window", "A — x.swift"]),
+                            MenuEntry(identifier: window, title: "B — y.swift", path: ["Window", "B — y.swift"])])
+        let new = snapshot([MenuEntry(identifier: window, title: "A — z.swift", path: ["Window", "A — z.swift"])])
+        let diff = CatalogueDiff.between(old, and: new)
+        #expect(diff.retitled.isEmpty)
+        #expect(diff.removed.isEmpty)
     }
 }
 

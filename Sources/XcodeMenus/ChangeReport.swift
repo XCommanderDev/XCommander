@@ -35,11 +35,20 @@ public struct ChangeReport {
         self.newlyShadowed = newlyShadowed
     }
 
-    /// True when there is anything a user would care about. Apple adding forty commands we
-    /// do not bind is not news; losing one of their keys is, and so is losing one of Xcode's.
+    /// True when there is anything worth writing down. Apple adding forty commands we do not
+    /// bind is not; a changed title or a command no longer seen is, quietly, in the file.
     public var isWorthTelling: Bool {
-        !lostBindings.isEmpty || !newlyShadowed.isEmpty || !diff.retitled.isEmpty || !diff.removed.isEmpty
+        needsAttention || !diff.retitled.isEmpty || !diff.removed.isEmpty
     }
+
+    /// True only when the upgrade cost the user something: a key of theirs, or one of Xcode's
+    /// own shortcuts now behind their leader. Only this earns the line in the menu bar.
+    ///
+    /// Everything else in a diff depends partly on what was on screen when each build was
+    /// read — measured on the 27.0 to 27.2 upgrade, most "renames" were the open file's name
+    /// and most "removals" were selection-dependent `File > New` items. Interrupting someone
+    /// with that is noise, and noise trains people to ignore the one line that matters.
+    public var needsAttention: Bool { !lostBindings.isEmpty || !newlyShadowed.isEmpty }
 
     public static var url: URL {
         SnapshotStore.directory.appending(path: "CHANGES.md")
@@ -62,7 +71,7 @@ public struct ChangeReport {
         }
         if !diff.retitled.isEmpty {
             let s = diff.retitled.count == 1 ? "" : "s"
-            return "Xcode \(to.version) renamed \(diff.retitled.count) command\(s). Nothing you bound was lost."
+            return "Xcode \(to.version) changed \(diff.retitled.count) menu title\(s). Nothing you bound was lost."
         }
         let s = diff.removed.count == 1 ? "" : "s"
         return "Xcode \(to.version) removed \(diff.removed.count) command\(s). Nothing you bound was lost."
@@ -112,11 +121,13 @@ public struct ChangeReport {
         if !diff.retitled.isEmpty {
             out += """
 
-            ## Commands Apple renamed
+            ## Menu titles that changed
 
             These still work. XCommander finds them by the action behind the menu item, not
-            by its title, so a rename costs nothing — they are listed only so the new names
-            are not a surprise.
+            by its title, so a new title costs nothing. Some are Apple's renames; others
+            follow what was on screen, like a toggle showing its other state, so treat this
+            list as a hint.
+
 
             """
             for change in diff.retitled {
@@ -151,7 +162,15 @@ public struct ChangeReport {
         let lost = Set(lostBindings.map(\.identifier))
         let unbound = diff.removed.filter { !lost.contains($0.identifier) }
         if !unbound.isEmpty {
-            out += "\n## Commands Apple removed (that you had not bound)\n\n"
+            out += """
+
+            ## Commands no longer seen (that you had not bound)
+
+            XCommander has only seen this Xcode in the situations you have used it in, and
+            some commands appear only when something is selected or running. A command here
+            may come back.
+
+            """
             for entry in unbound.prefix(40) {
                 out += "- \(entry.path.joined(separator: " > "))\n"
             }
@@ -161,10 +180,12 @@ public struct ChangeReport {
         if !diff.added.isEmpty {
             out += """
 
-            ## Commands Apple added
+            ## Commands seen for the first time
 
-            All of these are already searchable in the command palette. Binding one to a key
-            is a decision for you: the which-key panel is curated on purpose.
+            Some are new in this Xcode; others only appear in situations the old one was
+            never seen in. All are already searchable in the command palette. Binding one to
+            a key is a decision for you: the which-key panel is curated on purpose.
+
 
             """
             for entry in diff.added.prefix(40) {

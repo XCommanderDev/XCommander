@@ -82,7 +82,7 @@ func usage() -> Never {
       -o, --output FILE where to write
       -c, --context     a note describing what was on screen during a capture
       --no-activate     do not bring Xcode forward first (its menus will be incomplete)
-      --xcode PATH      which Xcode, when more than one is running
+      --xcode PATH|PID  which Xcode, when more than one is running
     """)
     exit(args.positional.isEmpty ? 2 : 0)
 }
@@ -90,26 +90,38 @@ func usage() -> Never {
 /// Which Xcode this run is about.
 ///
 /// **Every copy of Xcode shares one bundle identifier**, so with a release and a beta both
-/// open "the running Xcode" means nothing. `--xcode` names one by path. Otherwise the app's
-/// own rule picks (`XcodeTarget`), and a line on stderr says which — an audit of the wrong
-/// Xcode that looks like an audit of the right one is the worst output this tool can give.
+/// open "the running Xcode" means nothing. `--xcode` names one by path, or by pid when two
+/// copies of the same app are running. Otherwise the app's own rule picks (`XcodeTarget`),
+/// and a line on stderr says which — by path *and* pid, since two processes can share a path
+/// — because an audit of the wrong Xcode that looks like an audit of the right one is the
+/// worst output this tool can give.
 var chosenXcode: NSRunningApplication??
 @MainActor
 func targetXcode() -> NSRunningApplication? {
     if let chosenXcode { return chosenXcode }
     let running = MenuScanner.runningXcodes
     var chosen: NSRunningApplication?
-    if let path = args.value("xcode") {
-        let wanted = URL(fileURLWithPath: path).standardizedFileURL.path
-        guard let match = running.first(where: { $0.bundleURL?.standardizedFileURL.path == wanted })
-        else { fail("no running Xcode at \(path)") }
-        chosen = match
+    if let named = args.value("xcode") {
+        if let pid = pid_t(named) {
+            guard let match = running.first(where: { $0.processIdentifier == pid })
+            else { fail("no running Xcode with pid \(pid)") }
+            chosen = match
+        } else {
+            let wanted = URL(fileURLWithPath: named).standardizedFileURL.path
+            let matches = running.filter { $0.bundleURL?.standardizedFileURL.path == wanted }
+            guard let match = matches.first else { fail("no running Xcode at \(named)") }
+            guard matches.count == 1 else {
+                fail("\(matches.count) Xcodes are running from \(named) (pids "
+                     + "\(matches.map { String($0.processIdentifier) }.joined(separator: ", "))); pass --xcode PID")
+            }
+            chosen = match
+        }
     } else {
         chosen = MenuScanner.target()
         if running.count > 1, let chosen {
             err.write(("xcmdr: \(running.count) Xcodes are running; using "
-                       + "\(chosen.bundleURL?.path ?? "pid \(chosen.processIdentifier)"). "
-                       + "Pass --xcode PATH to choose.\n").data(using: .utf8)!)
+                       + "\(chosen.bundleURL?.path ?? "?") (pid \(chosen.processIdentifier)). "
+                       + "Pass --xcode PATH or PID to choose.\n").data(using: .utf8)!)
         }
     }
     chosenXcode = .some(chosen)
@@ -251,6 +263,7 @@ case "doctor":
 
     let store = SnapshotStore()
     let builds = store.knownBuilds()
+    emit("")
     emit("  Recorded Xcode builds      \(builds.isEmpty ? "none" : builds.map(\.build).joined(separator: ", "))")
     emit("")
     emit(problems == 0 ? "No problems." : "\(problems) problem\(problems == 1 ? "" : "s").")
@@ -284,7 +297,7 @@ case "snapshot":
     emit("Xcode \(snapshot.release.version) (\(snapshot.release.build)), keyboard \(snapshot.inputSource ?? "unknown")")
     emit("context: \(snapshot.context)")
     if !snapshot.isSettled {
-        emit("no source editor had focus: Editor > toggles are missing from this capture")
+        emit("no source editor had focus: this capture may be missing commands (unsettled)")
     }
 
 // MARK: - audit

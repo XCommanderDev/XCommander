@@ -163,6 +163,14 @@ public struct MenuEntry: Hashable, Sendable, Codable {
         self.cmdVirtualKey = cmdVirtualKey
     }
 
+    /// Whether a menu path belongs to macOS rather than to Xcode: the Apple menu, and
+    /// `Xcode > Services`, which the system builds from the installed apps and the current
+    /// selection. One rule, used by the scanner to leave them out and by the diff to ignore
+    /// them in snapshots recorded before the scanner did.
+    public static func isSystemOwned(_ path: [String]) -> Bool {
+        path.first == "Apple" || Array(path.prefix(2)) == ["Xcode", "Services"]
+    }
+
     /// The shortcut Xcode has for this item, in Core's vocabulary, or nil when it has none.
     public var shortcut: KeyEvent? {
         guard let character = cmdChar?.first else { return nil }
@@ -202,11 +210,13 @@ public struct MenuSnapshot: Sendable, Codable {
     public var entries: [MenuEntry]
     /// How many of the scans folded into this one were taken with a source editor focused.
     ///
-    /// **This is the line between "not seen yet" and "not there".** The context that
-    /// empties Xcode's menus most is focus leaving the editor: eight `Editor >` toggles
-    /// vanish the moment the navigator is clicked. Until a build has been read at least once
-    /// with an editor focused, its accumulated menu is a partial picture, and nothing may be
-    /// hidden or reported as removed on the strength of it. See `isSettled`.
+    /// **This is the line between "not seen yet" and "not there".** Measured on Xcode 27.2:
+    /// with only the Welcome window open — which is how Xcode comes back after an update —
+    /// the menu bar has 509 items instead of 752, `Editor >` has 7 instead of 134, and 27 of
+    /// the 115 shipped bindings are missing. With a project open but the navigator focused,
+    /// four items go. An editor-focused read was the fullest of every context measured, so
+    /// until a build has had one, its accumulated menu is a partial picture, and nothing may
+    /// be hidden or reported as removed on the strength of it. See `isSettled`.
     ///
     /// Optional because snapshots written before this field existed have none — and reading
     /// those as unsettled costs at most one session of showing every key.
@@ -228,7 +238,8 @@ public struct MenuSnapshot: Sendable, Codable {
     ///
     /// The app shows everything until this is true, and only then hides keys or writes the
     /// change report. Waiting costs a session at worst; not waiting tells a user that Apple
-    /// removed eight commands because they happened to have the navigator focused.
+    /// removed 27 of their commands because Xcode came back from its update on the Welcome
+    /// window.
     public var isSettled: Bool { (editorScans ?? 0) > 0 }
 
     /// Fold another scan of the *same* Xcode into this one.
@@ -444,17 +455,28 @@ public struct CatalogueDiff: Sendable {
     /// Items with no identifier cannot be tracked across versions — there is nothing to
     /// follow them by — so they take no part in the diff rather than appearing as an
     /// added/removed pair on every capture.
+    ///
+    /// **Most title changes are not Apple's.** The first real upgrade this ran on — 27.0 to
+    /// 27.2 — reported seventeen renames, and four were plausibly Apple's. The rest were the
+    /// open file's name inside a title (`Compile “AppDelegate.swift”`), a toggle reporting
+    /// its other state (`Continue` / `Pause`), and the window list, which is the user's data.
+    /// So titles are compared with quoted names blanked out, and a list-shaped identifier —
+    /// one naming several items in either snapshot — takes part only in added and removed.
+    /// What is left is still not proof, which is why the report calls them titles that
+    /// changed rather than commands Apple renamed.
     public static func between(_ old: MenuSnapshot, and new: MenuSnapshot) -> CatalogueDiff {
-        func index(_ snapshot: MenuSnapshot) -> [String: MenuEntry] {
+        func index(_ snapshot: MenuSnapshot) -> (first: [String: MenuEntry], shared: Set<String>) {
             var result: [String: MenuEntry] = [:]
-            for entry in snapshot.entries where !entry.identifier.isEmpty {
-                // A shared identifier keeps its first item: the diff speaks about commands,
-                // and a list's contents are the user's data, not Apple's API.
+            var shared: Set<String> = []
+            for entry in snapshot.entries
+            where !entry.identifier.isEmpty && !MenuEntry.isSystemOwned(entry.path) {
                 if result[entry.identifier] == nil { result[entry.identifier] = entry }
+                else { shared.insert(entry.identifier) }
             }
-            return result
+            return (result, shared)
         }
-        let before = index(old), after = index(new)
+        let (before, sharedBefore) = index(old), (after, sharedAfter) = index(new)
+        let listShaped = sharedBefore.union(sharedAfter)
         var diff = CatalogueDiff()
         // Same keyboard, or no opinion about shortcuts at all.
         diff.shortcutsCompared = old.inputSource != nil && old.inputSource == new.inputSource
@@ -465,8 +487,8 @@ public struct CatalogueDiff: Sendable {
             diff.removed.append(entry)
         }
         for (identifier, was) in before {
-            guard let now = after[identifier] else { continue }
-            if was.title != now.title {
+            guard let now = after[identifier], !listShaped.contains(identifier) else { continue }
+            if contextFree(was.title) != contextFree(now.title) {
                 diff.retitled.append(MenuChange(identifier: identifier, before: was.title, after: now.title))
             }
             if was.path.dropLast() != now.path.dropLast() {
@@ -486,5 +508,19 @@ public struct CatalogueDiff: Sendable {
         diff.moved.sort { $0.identifier < $1.identifier }
         diff.rebound.sort { $0.identifier < $1.identifier }
         return diff
+    }
+
+    /// A title with every quoted name blanked: `Close “Notes.swift”` and `Close “main.swift”`
+    /// are the same command looking at different files.
+    public static func contextFree(_ title: String) -> String {
+        var out = "", quoted = false
+        for character in title {
+            switch character {
+            case "“": quoted = true; out.append("“…")
+            case "”": quoted = false; out.append("”")
+            default: if !quoted { out.append(character) }
+            }
+        }
+        return out
     }
 }

@@ -700,8 +700,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         KeyboardLayout.refreshIfNeeded()
         log.notice("layout: \(KeyboardLayout.currentLayoutName(), privacy: .public), \(self.registry.count) commands")
         if context.isRunning {
-            refreshMenus()
-            reportUnresolvedBindings()
+            refreshMenusInBackground { [weak self] in self?.reportUnresolvedBindings() }
         }
         tracker.follow()
         updateStatus()
@@ -725,7 +724,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 if self.xcodeIsFrontmost && !nowFrontmost { self.abandonEverything() }
                 self.xcodeIsFrontmost = nowFrontmost
                 if nowFrontmost && self.hasAccessibility {
-                    self.refreshMenus()
+                    self.refreshMenusInBackground()
                     self.tracker.follow()
                 }
                 self.updateStatus()
@@ -875,15 +874,26 @@ extension AppDelegate {
         absorbScan()
     }
 
+    /// The same, without holding up the keyboard: what happens on every switch to Xcode.
+    /// The explicit commands — reload, check — keep the blocking version, because they want
+    /// the answer before they report.
+    func refreshMenusInBackground(then done: (@MainActor @Sendable () -> Void)? = nil) {
+        context.refreshMenuIndexInBackground { [weak self] in
+            self?.absorbScan()
+            done?()
+        }
+    }
+
     /// Fold the latest scan into the store, and tell the user about the upgrade — once, and
     /// only when there is enough of the new build on record to be right about it.
     ///
     /// **The report waits for the build to settle.** The first scan of a new Xcode is one
     /// context like any other. Comparing it against the old build's accumulated menu — many
     /// sessions, many contexts — reports everything that first context happened not to show
-    /// as removed by Apple: open Xcode 28 with the navigator focused and eight `Editor >`
-    /// toggles "disappear". So the report fires on the scan that makes the build settled
-    /// (`MenuSnapshot.isSettled`), which is usually the first one and never a misleading one.
+    /// as removed by Apple — and an updated Xcode reopens on its Welcome window, where 27.2
+    /// is missing 27 of the shipped bindings. So the report fires on the scan that makes the
+    /// build settled (`MenuSnapshot.isSettled`): the first one with an editor focused, and
+    /// never a misleading one.
     private func absorbScan() {
         guard let scan = context.lastScan, scan.release.major > 0 else { return }
         // Settled before this scan? Ask before recording, or the answer is always yes.
@@ -954,7 +964,8 @@ extension AppDelegate {
             return
         }
         log.notice("Xcode changed: \(report.summaryLine, privacy: .public)")
-        menuBar.announceXcodeChanges(report.summaryLine)
+        // Written either way; announced only when it cost the user something.
+        if report.needsAttention { menuBar.announceXcodeChanges(report.summaryLine) }
     }
 
     /// A command that needs Xcode's window just failed. Say why, if the window is the reason.
@@ -965,11 +976,17 @@ extension AppDelegate {
     /// difference is only visible by looking at the window, which is slow, so it is done
     /// here, after a failure, and at most once per assumption per build:
     ///
+    ///   * if the window is not a project window, nothing can be concluded — the Welcome
+    ///     window has no editor and no Add Editor button by design — so nothing is recorded
+    ///     and the next failure asks again;
     ///   * if the assumption holds, the failure was ordinary, and it is not checked again;
     ///   * if it does not, a note goes into the change report and one line into the menu bar.
     ///
-    /// Nothing is hidden on the strength of it — a missing editor may only mean no project is
-    /// open — which is why the note says "may have changed" and asks for a report.
+    /// The first rule was learned the hard way: tested live, a pane command pressed over the
+    /// Welcome window wrote "the window looks different" into the report. "A project window"
+    /// means another landmark holds — the navigator, or the other load-bearing assumption —
+    /// so it takes Apple renaming two things at once to slip past, and `xcmdr doctor` would
+    /// still say so. Nothing is hidden on the strength of any of it.
     private func explainWindowFailure(of command: Command) {
         let needed: XcodeAXSchema.Assumption
         switch command.action {
@@ -981,8 +998,14 @@ extension AppDelegate {
         let key = "\(release.build):\(needed.rawValue)"
         guard !settledAssumptions.contains(key) else { return }
 
-        let failed = context.checkWindowAssumptions().filter { $0.kind == needed && !$0.holds }
-        settledAssumptions.insert(key)   // asked once per build either way
+        let findings = context.checkWindowAssumptions()
+        let isProjectWindow = findings.contains {
+            $0.holds && $0.kind != needed
+                && [.sourceEditor, .addEditorButton, .navigator].contains($0.kind)
+        }
+        guard isProjectWindow else { return }   // inconclusive: ask again next time
+        settledAssumptions.insert(key)           // conclusive: once per build
+        let failed = findings.filter { $0.kind == needed && !$0.holds }
         guard !failed.isEmpty else { return }
         do {
             try ChangeReport.appendWindowNote(ChangeReport.windowNote(release: release, failed: failed))
