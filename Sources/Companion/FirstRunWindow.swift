@@ -78,8 +78,8 @@ final class FirstRunWindow: NSObject, NSWindowDelegate {
     /// Nil when the Xcode on this Mac is one the app supports, or when there is no Xcode to
     /// ask — an absent Xcode is not a problem to warn about at first run.
     private static func xcodeNotice() -> String? {
-        guard let release = MenuScanner.runningRelease(), release.major > 0,
-              !release.isSupported else { return nil }
+        guard let xcode = MenuScanner.target(), let release = MenuScanner.release(of: xcode),
+              release.major > 0, !release.isSupported else { return nil }
         return "You have Xcode \(release.version). Autographe needs Xcode "
             + "\(XcodeRelease.minimumMajor) or later — most of its commands will be missing "
             + "until you upgrade."

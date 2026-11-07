@@ -37,6 +37,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// and while it is nil nothing is hidden — an app that has not looked yet must not
     /// conclude a command is missing.
     private var knownMenu: MenuCatalogue?
+    /// Window assumptions already asked about this session, as `build:assumption`. Checking
+    /// one walks the whole window, so it is done once per build, after a failure, and never
+    /// on the keystroke path of a command that works.
+    private var settledAssumptions: Set<String> = []
     private var fileIndex = FileIndex()
     private var history = DocumentHistory()
     private var tracker: WindowTracker!
@@ -70,22 +74,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let built = DefaultKeymap.build()
         registry = built.registry
         keymap = built.keymap
-        session = KeymapSession(leader: SettingsWindow.leader.event,
-                                keymap: built.keymap,
-                                registry: built.registry)
-        session.timeout = SettingsWindow.sequenceTimeout
-        // The panel shows each command's live Xcode shortcut, which depends on the running
-        // Xcode and the user's layout, so Core is handed a closure rather than a table.
-        // A key the panel prints and then cannot run is the worst thing this app can do,
-        // so the panel is filtered by what the running Xcode actually offers.
-        session.availabilityProvider = { [weak self] command in
-            guard let self else { return true }
-            return MainActor.assumeIsolated { self.isAvailable(command) }
-        }
-        session.shortcutProvider = { [weak self] command in
-            guard let self, let ref = command.menuRef else { return nil }
-            return MainActor.assumeIsolated { self.context.menuItem(for: ref)?.shortcut?.display }
-        }
+        session = makeSession(leader: SettingsWindow.leader.event, keymap: built.keymap)
 
         executor = CommandExecutor(context: context)
         executor.panes = PaneController(context: context)
@@ -251,6 +240,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         case .unavailable(let why):
             log.notice("\(command.id, privacy: .public): \(why, privacy: .public)")
             NSSound.beep()
+            explainWindowFailure(of: command)
         }
     }
 
@@ -487,7 +477,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     self.activePicker = open
                     self.picker.update(open)
                     self.refreshPreview()
-                self.refreshPreview()
                     return
                 }
             }
@@ -618,27 +607,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             config.load()
         case "checkMenus":
             refreshMenus()
-            reportUnresolvedMenuPaths()
+            reportUnresolvedBindings()
         default: log.error("unknown companion command \(id, privacy: .public)")
         }
     }
 
-    /// Resolve every menu path the shipped keymap names against the live menu bar and say
+    /// Resolve every menu item the shipped keymap names against the live menu bar and say
     /// which ones are missing.
     ///
-    /// **This exists because a command bound to a path Xcode has renamed is silently dead.**
+    /// **This exists because a binding the running Xcode cannot resolve is silently dead.**
     /// It runs, `AXPress` finds nothing, the user gets a beep, and no test can see it — the
-    /// suite asserts that a command is registered and bound, which it still is. Xcode renames
-    /// menu items between versions, so this is the only thing that would ever notice.
+    /// suite resolves against a checked-in capture, not against the Xcode on this machine.
+    /// A beta that drops an action is caught here first.
     ///
     /// A diagnostic rather than an assertion, because Xcode's menus are context-dependent:
     /// with no source editor focused, whole submenus are absent and a miss means nothing.
     /// Read it with a `.swift` file open. `⌥RET h c` re-runs it; see it with
     /// `tools/xc.sh logs`.
-    private func reportUnresolvedMenuPaths() {
+    private func reportUnresolvedBindings() {
         let commands = DefaultKeymap.menuCommands
         let missing = commands.filter { context.menuItem(for: $0.menuRef!) == nil }
-        let release = AccessibilityXcodeContext.runningRelease()
+        let release = context.release ?? XcodeRelease(version: "unknown", build: "unknown", major: 0)
         guard !missing.isEmpty else {
             log.notice("keymap check: all \(commands.count) bindings resolve on Xcode \(release.build, privacy: .public)")
             return
@@ -712,14 +701,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         log.notice("layout: \(KeyboardLayout.currentLayoutName(), privacy: .public), \(self.registry.count) commands")
         if context.isRunning {
             refreshMenus()
-            reportUnresolvedMenuPaths()
+            reportUnresolvedBindings()
         }
-        tracker.start()
+        tracker.follow()
         updateStatus()
     }
 
+    /// Xcode coming forward and Xcode quitting are the two moments the process this app talks
+    /// to can change: a relaunch after an update, a beta taking over from a release, or the
+    /// first Xcode of the day after the app started at login. Both re-point the tracker; it
+    /// does nothing when the process is the same one.
     private func observeFrontmostApplication() {
-        NSWorkspace.shared.notificationCenter.addObserver(
+        let center = NSWorkspace.shared.notificationCenter
+        center.addObserver(
             forName: NSWorkspace.didActivateApplicationNotification,
             object: nil, queue: .main
         ) { [weak self] note in
@@ -727,10 +721,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                             as? NSRunningApplication)?.bundleIdentifier
             MainActor.assumeIsolated {
                 guard let self else { return }
-                let nowFrontmost = bundleID == "com.apple.dt.Xcode"
+                let nowFrontmost = bundleID == MenuScanner.bundleIdentifier
                 if self.xcodeIsFrontmost && !nowFrontmost { self.abandonEverything() }
                 self.xcodeIsFrontmost = nowFrontmost
-                if nowFrontmost && self.hasAccessibility { self.refreshMenus() }
+                if nowFrontmost && self.hasAccessibility {
+                    self.refreshMenus()
+                    self.tracker.follow()
+                }
+                self.updateStatus()
+            }
+        }
+        center.addObserver(
+            forName: NSWorkspace.didTerminateApplicationNotification,
+            object: nil, queue: .main
+        ) { [weak self] note in
+            let bundleID = (note.userInfo?[NSWorkspace.applicationUserInfoKey]
+                            as? NSRunningApplication)?.bundleIdentifier
+            guard bundleID == MenuScanner.bundleIdentifier else { return }
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                self.abandonEverything()
+                self.tracker.follow()   // onto the other Xcode, if one is still open
                 self.updateStatus()
             }
         }
@@ -763,10 +774,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let chosen = (config?.current.leader ?? SettingsWindow.leader).event
         if session.leader != chosen || session.keymap != keymap {
             abandonEverything()
-            var replacement = KeymapSession(leader: chosen, keymap: keymap, registry: registry)
-            replacement.timeout = session.timeout
-            replacement.shortcutProvider = session.shortcutProvider
-            session = replacement
+            session = makeSession(leader: chosen, keymap: keymap)
             menuBar.leaderDisplay = chosen.display
             log.notice("leader is now \(chosen.display, privacy: .public)")
         }
@@ -796,8 +804,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         refreshMenus()
         let commands = DefaultKeymap.menuCommands
         let missing = commands.filter { context.menuItem(for: $0.menuRef!) == nil }
-        reportUnresolvedMenuPaths()
-        let release = AccessibilityXcodeContext.runningRelease()
+        reportUnresolvedBindings()
+        let release = context.release ?? XcodeRelease(version: "unknown", build: "unknown", major: 0)
         guard !missing.isEmpty else {
             return "All \(commands.count) bindings resolve on Xcode \(release.version)."
         }
@@ -805,6 +813,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let more = missing.count > 2 ? " and \(missing.count - 2) more" : ""
         return "\(missing.count) of \(commands.count) unresolved on Xcode \(release.version): \(names)\(more). "
             + "Open a Swift file and try again — Xcode's menus are context-dependent."
+    }
+
+    /// Build a keymap session wired to this app's view of Xcode.
+    ///
+    /// **Every session comes from here.** A session is rebuilt whenever the leader or the
+    /// keymap changes, and the closures that connect it to Xcode are easy to forget at the
+    /// second place that builds one — which is exactly what happened: the leader-change path
+    /// copied the shortcut provider and dropped the availability provider, so after the first
+    /// config reload the panel went back to printing keys this Xcode does not have. One
+    /// function makes that mistake impossible rather than merely fixed.
+    private func makeSession(leader: KeyEvent, keymap: Keymap) -> KeymapSession {
+        var session = KeymapSession(leader: leader, keymap: keymap, registry: registry)
+        session.timeout = config?.current.sequenceTimeout ?? SettingsWindow.sequenceTimeout
+        // The panel shows each command's live Xcode shortcut, which depends on the running
+        // Xcode and the user's layout, so Core is handed a closure rather than a table.
+        session.shortcutProvider = { [weak self] command in
+            guard let self, let ref = command.menuRef else { return nil }
+            return MainActor.assumeIsolated { self.context.menuItem(for: ref)?.shortcut?.display }
+        }
+        // A key the panel prints and then cannot run is the worst thing this app can do,
+        // so the panel is filtered by what the running Xcode actually offers.
+        session.availabilityProvider = { [weak self] command in
+            guard let self else { return true }
+            return MainActor.assumeIsolated { self.isAvailable(command) }
+        }
+        return session
     }
 
     private func updateStatus() {
@@ -841,17 +875,34 @@ extension AppDelegate {
         absorbScan()
     }
 
+    /// Fold the latest scan into the store, and tell the user about the upgrade — once, and
+    /// only when there is enough of the new build on record to be right about it.
+    ///
+    /// **The report waits for the build to settle.** The first scan of a new Xcode is one
+    /// context like any other. Comparing it against the old build's accumulated menu — many
+    /// sessions, many contexts — reports everything that first context happened not to show
+    /// as removed by Apple: open Xcode 28 with the navigator focused and eight `Editor >`
+    /// toggles "disappear". So the report fires on the scan that makes the build settled
+    /// (`MenuSnapshot.isSettled`), which is usually the first one and never a misleading one.
     private func absorbScan() {
         guard let scan = context.lastScan, scan.release.major > 0 else { return }
-        // Have we met this build before? Ask before recording, or the answer is always yes.
-        let isNewBuild = snapshots.load(build: scan.release.build) == nil
-        let previous = isNewBuild ? snapshots.previousBuild(before: scan.release.build) : nil
-        guard let accumulated = try? snapshots.record(scan) else {
-            log.notice("could not record the menu snapshot; nothing will be hidden")
+        // Settled before this scan? Ask before recording, or the answer is always yes.
+        let wasSettled = snapshots.load(build: scan.release.build)?.isSettled ?? false
+        let accumulated: MenuSnapshot
+        do {
+            accumulated = try snapshots.record(scan)
+        } catch {
+            // Including a file from a newer version of this app, which `record` refuses to
+            // overwrite. Either way the store cannot be trusted, so nothing is hidden.
+            log.notice("could not record the menu snapshot (\(String(describing: error), privacy: .public)); nothing will be hidden")
+            knownMenu = nil
             return
         }
         knownMenu = MenuCatalogue(accumulated)
-        if let previous { reportXcodeChange(from: previous, to: accumulated) }
+        if !wasSettled, accumulated.isSettled,
+           let previous = snapshots.previousBuild(before: scan.release.build) {
+            reportXcodeChange(from: previous, to: accumulated)
+        }
     }
 
     /// Whether the running Xcode offers a command at all.
@@ -864,24 +915,36 @@ extension AppDelegate {
     ///
     /// A command that exists but is merely not applicable this second stays on the panel,
     /// greyed by Xcode's own `isEnabled` when it is pressed. Only a command this Xcode has
-    /// never offered is hidden.
+    /// never offered is hidden — and "never" needs a settled record of *this* build, not the
+    /// last one scanned: with two Xcodes open, the store may know the other one better.
     func isAvailable(_ command: Command) -> Bool {
         guard let ref = command.menuRef else { return true }   // popups and ours always show
         if context.menuItem(for: ref) != nil { return true }
-        guard let knownMenu else { return true }
+        guard let knownMenu, knownMenu.isSettled,
+              knownMenu.release.build == context.release?.build else { return true }
         return knownMenu.isBound(ref)
     }
 
     /// Write the report and put one line in the menu bar. No sheet, no modal, no interruption.
+    ///
+    /// "Lost" means bound in the keymap the user actually has — the shipped one with their
+    /// config layered on — not in the one the app ships. A command they unbound is not a key
+    /// they lost, and a command their config bound is.
     private func reportXcodeChange(from old: MenuSnapshot, to new: MenuSnapshot) {
         let diff = CatalogueDiff.between(old, and: new)
         let before = MenuCatalogue(old), after = MenuCatalogue(new)
-        let lost = DefaultKeymap.menuCommands.compactMap {
+        let lost = registry.all.compactMap {
             command -> (command: String, title: String, identifier: String)? in
-            guard let ref = command.menuRef, before.isBound(ref), !after.isBound(ref) else { return nil }
+            guard let ref = command.menuRef, keymap.binding(for: command.id) != nil,
+                  before.isBound(ref), !after.isBound(ref) else { return nil }
             return (command.id, command.title, ref.identifier)
         }
-        let report = ChangeReport(from: old.release, to: new.release, diff: diff, lostBindings: lost)
+        // Whatever the new Xcode put on the leader's chord, that the old one had not.
+        let leader = session.leader
+        let wasOnLeader = Set(before.entries(withShortcut: leader).map(\.identifier))
+        let shadowed = after.entries(withShortcut: leader).filter { !wasOnLeader.contains($0.identifier) }
+        let report = ChangeReport(from: old.release, to: new.release, diff: diff, lostBindings: lost,
+                                  leader: leader.display, newlyShadowed: shadowed)
         guard report.isWorthTelling else {
             log.notice("Xcode \(new.release.build, privacy: .public): nothing the user needs to know")
             return
@@ -892,5 +955,42 @@ extension AppDelegate {
         }
         log.notice("Xcode changed: \(report.summaryLine, privacy: .public)")
         menuBar.announceXcodeChanges(report.summaryLine)
+    }
+
+    /// A command that needs Xcode's window just failed. Say why, if the window is the reason.
+    ///
+    /// Most failures are ordinary — no pane in that direction, no editor focused — and only a
+    /// beep is right. A new Xcode that renamed its source editor or moved the Add Editor
+    /// button looks identical from the keyboard: same beep, every time, forever. The
+    /// difference is only visible by looking at the window, which is slow, so it is done
+    /// here, after a failure, and at most once per assumption per build:
+    ///
+    ///   * if the assumption holds, the failure was ordinary, and it is not checked again;
+    ///   * if it does not, a note goes into the change report and one line into the menu bar.
+    ///
+    /// Nothing is hidden on the strength of it — a missing editor may only mean no project is
+    /// open — which is why the note says "may have changed" and asks for a report.
+    private func explainWindowFailure(of command: Command) {
+        let needed: XcodeAXSchema.Assumption
+        switch command.action {
+        case .pane: needed = .sourceEditor
+        case .popupMenu: needed = .addEditorButton
+        default: return
+        }
+        guard let release = context.release, release.major > 0 else { return }
+        let key = "\(release.build):\(needed.rawValue)"
+        guard !settledAssumptions.contains(key) else { return }
+
+        let failed = context.checkWindowAssumptions().filter { $0.kind == needed && !$0.holds }
+        settledAssumptions.insert(key)   // asked once per build either way
+        guard !failed.isEmpty else { return }
+        do {
+            try ChangeReport.appendWindowNote(ChangeReport.windowNote(release: release, failed: failed))
+        } catch {
+            log.error("could not write the window note: \(String(describing: error), privacy: .public)")
+            return
+        }
+        log.notice("\(command.id, privacy: .public) failed and Xcode \(release.build, privacy: .public)'s window does not match: \(needed.rawValue, privacy: .public)")
+        menuBar.announceXcodeChanges("Xcode \(release.version) may have changed its window. See the report.")
     }
 }

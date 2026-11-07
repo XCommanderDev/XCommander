@@ -30,7 +30,25 @@ import Foundation
 public enum MenuCatalogueSchema {
     /// Bumped when `MenuSnapshot`'s shape changes in a way an older reader cannot handle.
     /// 2 added `inputSource`, without which two snapshots cannot be compared on shortcuts.
+    ///
+    /// `editorScans` did **not** bump it, and that is the rule working: a reader that has
+    /// never heard of the field ignores it and loses nothing it relied on, and a reader that
+    /// has heard of it treats its absence as "never seen an editor", which is the safe answer.
     public static let current = 2
+
+    /// A file written by a newer app than this one.
+    ///
+    /// Raised by `MenuSnapshot.decode` *before* the rest of the file is read, because a newer
+    /// shape may not decode at all — and "could not decode" must not be mistaken for "nothing
+    /// is there", or the store would write its older format over a newer user's knowledge.
+    /// That is what a downgrade looks like from inside: the files outlive the app that wrote
+    /// them in both directions.
+    public struct NewerFile: Error, CustomStringConvertible {
+        public var found: Int
+        public var description: String {
+            "written by a newer version (schema \(found); this one reads up to \(current))"
+        }
+    }
 }
 
 // MARK: - naming an item
@@ -108,6 +126,12 @@ public struct XcodeRelease: Hashable, Sendable, Codable {
     /// and because Xcode 27 itself requires macOS 26.6 — so nobody who can run it is stuck
     /// below the line. Refusing clearly beats degrading mysteriously: a user on 26 should be
     /// told, on first run, rather than left to discover which keys do nothing.
+    ///
+    /// **The policy is the current major and the one before it.** When Xcode 29 ships, the
+    /// floor moves to 28 in the same release that adds 29's snapshot to `Fixtures/` — so the
+    /// floor only ever rises to a release the tests still hold a capture of. There is no
+    /// ceiling, on purpose: resolution never asks which Xcode it is talking to, so a beta
+    /// nobody has seen works on the first day, and the change report says what moved.
     public static let minimumMajor = 27
 
     public var isSupported: Bool { major >= Self.minimumMajor }
@@ -176,17 +200,36 @@ public struct MenuSnapshot: Sendable, Codable {
     /// on shortcuts.
     public var inputSource: String?
     public var entries: [MenuEntry]
+    /// How many of the scans folded into this one were taken with a source editor focused.
+    ///
+    /// **This is the line between "not seen yet" and "not there".** The context that
+    /// empties Xcode's menus most is focus leaving the editor: eight `Editor >` toggles
+    /// vanish the moment the navigator is clicked. Until a build has been read at least once
+    /// with an editor focused, its accumulated menu is a partial picture, and nothing may be
+    /// hidden or reported as removed on the strength of it. See `isSettled`.
+    ///
+    /// Optional because snapshots written before this field existed have none — and reading
+    /// those as unsettled costs at most one session of showing every key.
+    public var editorScans: Int?
 
     public init(schemaVersion: Int = MenuCatalogueSchema.current,
                 release: XcodeRelease, capturedAt: String, context: String,
-                inputSource: String? = nil, entries: [MenuEntry]) {
+                inputSource: String? = nil, entries: [MenuEntry], editorScans: Int? = nil) {
         self.schemaVersion = schemaVersion
         self.release = release
         self.capturedAt = capturedAt
         self.context = context
         self.inputSource = inputSource
         self.entries = entries
+        self.editorScans = editorScans
     }
+
+    /// Whether this snapshot has seen enough of Xcode to say a command is missing.
+    ///
+    /// The app shows everything until this is true, and only then hides keys or writes the
+    /// change report. Waiting costs a session at worst; not waiting tells a user that Apple
+    /// removed eight commands because they happened to have the navigator focused.
+    public var isSettled: Bool { (editorScans ?? 0) > 0 }
 
     /// Fold another scan of the *same* Xcode into this one.
     ///
@@ -237,14 +280,26 @@ public struct MenuSnapshot: Sendable, Codable {
         // Shortcuts are only comparable within one layout, so a merge across two keyboards
         // has to stop claiming one. Everything else in the snapshot still merges cleanly.
         merged.inputSource = inputSource == other.inputSource ? inputSource : nil
+        if editorScans != nil || other.editorScans != nil {
+            merged.editorScans = (editorScans ?? 0) + (other.editorScans ?? 0)
+        }
         let contexts = Set(context.split(separator: "\n").map(String.init))
             .union(other.context.split(separator: "\n").map(String.init))
         merged.context = contexts.sorted().joined(separator: "\n")
         return merged
     }
 
+    /// Read a snapshot, refusing one written by a newer app.
+    ///
+    /// The version is read on its own first. Everything that loads a snapshot — the store,
+    /// `xcmdr diff`, the tests — comes through here, so the check lives in exactly one place.
     public static func decode(_ data: Data) throws -> MenuSnapshot {
-        try JSONDecoder().decode(MenuSnapshot.self, from: data)
+        struct Header: Decodable { var schemaVersion: Int }
+        let header = try JSONDecoder().decode(Header.self, from: data)
+        guard header.schemaVersion <= MenuCatalogueSchema.current else {
+            throw MenuCatalogueSchema.NewerFile(found: header.schemaVersion)
+        }
+        return try JSONDecoder().decode(MenuSnapshot.self, from: data)
     }
 
     /// Sorted keys and pretty printing, so two captures of the same Xcode diff to nothing
@@ -278,6 +333,9 @@ public struct MenuCatalogue: Sendable {
     public let release: XcodeRelease
     public let context: String
     public let inputSource: String?
+    /// Carried over from the snapshot: whether a miss here means anything. See
+    /// `MenuSnapshot.isSettled`.
+    public let isSettled: Bool
     private let byIdentifier: [String: [MenuEntry]]
     private let byPath: [[String]: MenuEntry]
     public let entries: [MenuEntry]
@@ -286,6 +344,7 @@ public struct MenuCatalogue: Sendable {
         release = snapshot.release
         context = snapshot.context
         inputSource = snapshot.inputSource
+        isSettled = snapshot.isSettled
         entries = snapshot.entries
         var identifiers: [String: [MenuEntry]] = [:]
         var paths: [[String]: MenuEntry] = [:]
@@ -337,6 +396,16 @@ public struct MenuCatalogue: Sendable {
         entries
             .filter { $0.path.count == prefix.count + 1 && Array($0.path.prefix(prefix.count)) == prefix }
             .sorted { $0.title < $1.title }
+    }
+
+    /// Every item Xcode has put on this exact chord.
+    ///
+    /// For the leader check: a leader is swallowed while Xcode is frontmost, so whatever
+    /// Xcode bound to the same chord becomes unreachable. Trustworthy for the leaders this
+    /// app offers because every one of them is over a key that produces no character —
+    /// Return, Space, Escape — and those decode the same on every keyboard layout.
+    public func entries(withShortcut chord: KeyEvent) -> [MenuEntry] {
+        entries.filter { $0.shortcut == chord }
     }
 
     public var identifierCount: Int { byIdentifier.count }

@@ -1,6 +1,7 @@
 {
   "capturedAt" : "2026-09-20T11:43:30Z",
   "context" : "XCommander running under the debugger and paused, debug area and variables view showing\nXCommander.xcodeproj open, a Swift file focused in one editor pane, project navigator showing, debug area open, inspector showing, editor tab bar visible, no debug session running\nsource editor focused, one pane, navigator and debug area hidden, no debug session",
+  "editorScans" : 1,
   "entries" : [
     {
       "cmdModifiers" : 0,

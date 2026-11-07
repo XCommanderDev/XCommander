@@ -8,11 +8,11 @@ import Foundation
 /// project-compile), and in Xcode this is the most-used group in the product, so it earns
 /// a short home. `m` is for "make".
 ///
-/// Commands are named by **menu path**, never by a hardcoded shortcut. Xcode reports its
-/// shortcuts as characters in the user's current keyboard layout, so a hardcoded table
-/// would be wrong on any layout but the author's. Every path below was read off a real
-/// Xcode 26.6 menu bar with a source editor focused, including the curly quotes in
-/// `Format File with ‘swift-format’`.
+/// Commands name the **action behind a menu item** (`MenuRef`), never its title and never a
+/// hardcoded shortcut. A title is Apple's to rename — Xcode 27 renamed four of the items
+/// bound here — and Xcode reports shortcuts as characters in the user's keyboard layout, so
+/// a hardcoded table would be wrong on any layout but the author's. Every identifier below
+/// resolves against `Fixtures/Xcode-27A266.json`, and a test fails if one stops.
 public enum DefaultKeymap {
 
     /// **`⌥Return`, and the reason is a defect `⇧Space` had.**

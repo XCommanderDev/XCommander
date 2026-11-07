@@ -11,6 +11,12 @@ import os
 /// The observers are registered on the *window element*, so they have to be re-registered
 /// whenever the focused window changes — and on the app element, which is how we learn that
 /// it did.
+///
+/// **An `AXObserver` belongs to one process, and Xcode is not one process for long.** Every
+/// Xcode update quits and relaunches it; a release and a beta can take turns in front; and
+/// the app usually starts at login, before Xcode does. So there is no `start()` that runs
+/// once. There is `follow()`, which the delegate calls whenever Xcode comes to the front or
+/// quits, and which re-attaches only when the process the context is talking to has changed.
 @MainActor
 final class WindowTracker {
 
@@ -32,11 +38,14 @@ final class WindowTracker {
         self.context = context
     }
 
-    func start() {
+    /// Watch whichever Xcode the context is talking to now. Cheap when nothing changed, so
+    /// call it as often as you like.
+    func follow() {
+        let target = context.processIdentifier
+        guard target != pid || observer == nil else { return }
         stop()
-        guard let xcode = NSRunningApplication
-            .runningApplications(withBundleIdentifier: "com.apple.dt.Xcode").first else { return }
-        pid = xcode.processIdentifier
+        guard let target else { return }   // no Xcode: stay detached until one comes forward
+        pid = target
 
         let callback: AXObserverCallback = { _, _, notification, refcon in
             guard let refcon else { return }
@@ -46,11 +55,11 @@ final class WindowTracker {
             }
         }
         var created: AXObserver?
-        guard AXObserverCreate(xcode.processIdentifier, callback, &created) == .success,
+        guard AXObserverCreate(target, callback, &created) == .success,
               let created else { return }
         observer = created
 
-        let app = AXUIElementCreateApplication(xcode.processIdentifier)
+        let app = AXUIElementCreateApplication(target)
         let refcon = Unmanaged.passUnretained(self).toOpaque()
         for name in [kAXFocusedWindowChangedNotification,
                      kAXApplicationActivatedNotification,
@@ -77,6 +86,8 @@ final class WindowTracker {
         }
         observer = nil
         observedWindow = nil
+        pid = nil
+        lastDocument = nil
     }
 
     private func handle(_ notification: String) {

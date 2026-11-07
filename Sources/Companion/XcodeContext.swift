@@ -10,6 +10,9 @@ import os
 protocol XcodeContext {
     var isRunning: Bool { get }
     var isFrontmost: Bool { get }
+    /// The process every other member talks to, chosen by `XcodeTarget`. Exposed so the
+    /// window tracker watches the same Xcode this context presses — never its own guess.
+    var processIdentifier: pid_t? { get }
     /// Which Xcode is running, or nil when none is. Read once per process rather than per
     /// query: it comes off disk, and it cannot change without the pid changing.
     var release: XcodeRelease? { get }
@@ -51,6 +54,9 @@ protocol XcodeContext {
     /// Switch to a tab by the coordinates `openEditors` gave out. False when the tree has
     /// moved on and those coordinates no longer name anything.
     @discardableResult func selectTab(pane: Int, index: Int) -> Bool
+    /// Ask this Xcode whether its window still has the shape the app relies on. Slow — a
+    /// full walk of the window — so it is for explaining a failure, not for every keystroke.
+    func checkWindowAssumptions() -> [XcodeAXSchema.Finding]
 }
 
 struct MenuItemInfo {
@@ -91,15 +97,26 @@ final class AccessibilityXcodeContext: XcodeContext {
     /// trade worth making.
     private static let messagingTimeout: Float = 0.25
 
+    /// The Xcode that was in front most recently, so that switching to Terminal does not move
+    /// the app's attention to a different copy of Xcode.
+    private var lastActive: pid_t?
+
+    /// Which Xcode to talk to. Asked fresh on every call — a release and a beta can both be
+    /// open, and the one in front can change between two keystrokes — and decided by
+    /// `XcodeTarget`, the one rule everything in the app shares.
     private var runningXcode: NSRunningApplication? {
-        NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.dt.Xcode").first
+        let chosen = MenuScanner.target(lastActive: lastActive)
+        if let chosen, chosen.isActive { lastActive = chosen.processIdentifier }
+        return chosen
     }
 
     var isRunning: Bool { runningXcode != nil }
 
     var isFrontmost: Bool {
-        NSWorkspace.shared.frontmostApplication?.bundleIdentifier == "com.apple.dt.Xcode"
+        NSWorkspace.shared.frontmostApplication?.bundleIdentifier == MenuScanner.bundleIdentifier
     }
+
+    var processIdentifier: pid_t? { runningXcode?.processIdentifier }
 
     var release: XcodeRelease? {
         _ = appElement()   // binds to the current process, filling the cache on a change
@@ -107,7 +124,8 @@ final class AccessibilityXcodeContext: XcodeContext {
     }
 
     /// Rebind to Xcode's current process, dropping any cached menu elements if the pid
-    /// changed. Menu `AXUIElement`s belong to a process and are meaningless after a relaunch.
+    /// changed. Menu `AXUIElement`s belong to a process and are meaningless after a relaunch
+    /// — and after a switch between two Xcodes, which looks exactly the same from here.
     private func appElement() -> AXUIElement? {
         guard let running = runningXcode else {
             app = nil; pid = nil; catalogue = nil; elements = [:]; cachedRelease = nil
@@ -117,7 +135,8 @@ final class AccessibilityXcodeContext: XcodeContext {
             pid = running.processIdentifier
             app = AXUIElementCreateApplication(running.processIdentifier)
             catalogue = nil; elements = [:]
-            cachedRelease = Self.runningRelease()
+            cachedRelease = MenuScanner.release(of: running)
+                ?? XcodeRelease(version: "unknown", build: "unknown", major: 0)
             if let app { AXUIElementSetMessagingTimeout(app, Self.messagingTimeout) }
         }
         return app
@@ -259,7 +278,7 @@ final class AccessibilityXcodeContext: XcodeContext {
     @discardableResult
     func pressPopupItem(_ ref: PopupMenuRef) -> Bool {
         guard popupButton(named: ref.button) != nil,
-              let pid = runningXcode?.processIdentifier else { return false }
+              let pid = processIdentifier else { return false }
         let button = ref.button, identifier = ref.item.identifier
         Task.detached {
             if !PopupReader.press(button: button, identifier: identifier, pid: pid) {
@@ -297,7 +316,8 @@ final class AccessibilityXcodeContext: XcodeContext {
     /// that across a few sessions the app learns what this Xcode *can* offer rather than
     /// what it happened to be showing once.
     func refreshMenuIndex() {
-        guard let scan = try? MenuScanner.scan(context: Self.describeContext(),
+        _ = appElement()   // rebind first, so a relaunched or switched Xcode starts clean
+        guard let scan = try? MenuScanner.scan(of: runningXcode, context: Self.describeContext(),
                                                timeout: Self.messagingTimeout) else { return }
         elements = scan.elements
         catalogue = MenuCatalogue(scan.snapshot)
@@ -309,14 +329,13 @@ final class AccessibilityXcodeContext: XcodeContext {
     /// "no editor was focused".
     private static func describeContext() -> String {
         var parts: [String] = []
-        parts.append(NSWorkspace.shared.frontmostApplication?.bundleIdentifier == "com.apple.dt.Xcode"
+        parts.append(NSWorkspace.shared.frontmostApplication?.bundleIdentifier == MenuScanner.bundleIdentifier
                      ? "Xcode frontmost" : "Xcode in the background")
         return parts.joined(separator: ", ")
     }
 
-    /// Which Xcode is running, for the catalogue and for the support floor.
-    static func runningRelease() -> XcodeRelease {
-        MenuScanner.runningRelease() ?? XcodeRelease(version: "unknown", build: "unknown", major: 0)
+    func checkWindowAssumptions() -> [XcodeAXSchema.Finding] {
+        XcodeAXSchema.selfCheck(of: runningXcode)
     }
 
     // MARK: - open editors

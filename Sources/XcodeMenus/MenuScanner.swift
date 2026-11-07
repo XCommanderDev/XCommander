@@ -11,17 +11,40 @@ import Carbon
 /// auditing something other than what ships.
 public enum MenuScanner {
 
-    /// The running Xcode, or nil when none is.
-    public static var runningXcode: NSRunningApplication? {
-        NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.dt.Xcode").first
+    public static let bundleIdentifier = "com.apple.dt.Xcode"
+
+    /// Every running copy of Xcode. Usually one; a release and a beta side by side is normal.
+    /// One that is on its way out is not a candidate — the quit notification can arrive while
+    /// the process is still listed.
+    public static var runningXcodes: [NSRunningApplication] {
+        NSRunningApplication.runningApplications(withBundleIdentifier: bundleIdentifier)
+            .filter { !$0.isTerminated }
+    }
+
+    /// The Xcode to talk to, by the rule in `XcodeTarget`, or nil when none is running.
+    ///
+    /// - Parameter lastActive: the pid that was in front most recently. The app tracks it;
+    ///   `xcmdr` has no history and passes nil.
+    public static func target(lastActive: pid_t? = nil) -> NSRunningApplication? {
+        let running = runningXcodes
+        let chosen = XcodeTarget.choose(running.map(instance(of:)), lastActive: lastActive)
+        return running.first { $0.processIdentifier == chosen?.pid }
+    }
+
+    public static func instance(of app: NSRunningApplication) -> XcodeInstance {
+        XcodeInstance(pid: app.processIdentifier,
+                      bundlePath: app.bundleURL?.path ?? "",
+                      isActive: app.isActive,
+                      launchDate: app.launchDate)
     }
 
     public static var hasAccessibility: Bool { AXIsProcessTrusted() }
 
-    /// Which Xcode is running, read from its bundle rather than from `xcodebuild -version`:
-    /// the process whose menus we are about to read need not be the selected toolchain.
-    public static func runningRelease() -> XcodeRelease? {
-        guard let url = runningXcode?.bundleURL,
+    /// Which Xcode a process is, read from its bundle rather than from `xcodebuild -version`:
+    /// the process whose menus we are about to read need not be the selected toolchain, and
+    /// with two Xcodes running it is the only way to know which one answered.
+    public static func release(of xcode: NSRunningApplication) -> XcodeRelease? {
+        guard let url = xcode.bundleURL,
               let info = NSDictionary(contentsOf: url.appendingPathComponent("Contents/Info.plist"))
         else { return nil }
         let version = (info["CFBundleShortVersionString"] as? String) ?? "unknown"
@@ -61,14 +84,18 @@ public enum MenuScanner {
         public var elements: [[String]: (element: AXUIElement, isEnabled: Bool)]
     }
 
-    /// Walk every menu and record every leaf. Measured at ~750 ms.
+    /// Walk every menu of one Xcode and record every leaf. Measured at ~750 ms.
+    ///
+    /// The caller names the process. Scanning "whichever Xcode comes first" would record the
+    /// menus of one copy under the build number of another.
     ///
     /// - Parameter timeout: AX messaging timeout. The app wants a quarter second because a
     ///   blocked Xcode main thread is a normal state; `xcmdr` wants ten, because it runs
     ///   once by hand and a truncated snapshot is worse than a slow one.
-    public static func scan(context: String, timeout: Float = 0.25) throws -> Scan {
+    public static func scan(of xcode: NSRunningApplication?, context: String,
+                            timeout: Float = 0.25) throws -> Scan {
         guard hasAccessibility else { throw ScanFailure.noAccessibility }
-        guard let running = runningXcode else { throw ScanFailure.notRunning }
+        guard let running = xcode, !running.isTerminated else { throw ScanFailure.notRunning }
         let app = AXUIElementCreateApplication(running.processIdentifier)
         AXUIElementSetMessagingTimeout(app, timeout)
 
@@ -81,13 +108,32 @@ public enum MenuScanner {
         walk(bar as! AXUIElement, path: [], entries: &entries, elements: &elements)
         entries.sort { $0.path.lexicographicallyPrecedes($1.path) }
 
+        let editorFocused = isSourceEditorFocused(app)
         let snapshot = MenuSnapshot(
-            release: runningRelease() ?? XcodeRelease(version: "unknown", build: "unknown", major: 0),
+            release: release(of: running) ?? XcodeRelease(version: "unknown", build: "unknown", major: 0),
             capturedAt: ISO8601DateFormatter().string(from: Date()),
-            context: context,
+            context: editorFocused ? context + ", source editor focused" : context,
             inputSource: currentInputSource(),
-            entries: entries)
+            entries: entries,
+            editorScans: editorFocused ? 1 : 0)
         return Scan(snapshot: snapshot, elements: elements)
+    }
+
+    /// Whether the keyboard focus was in a source editor while the menus were read — the
+    /// context in which Xcode's menus are fullest, and the one `MenuSnapshot.isSettled`
+    /// waits for.
+    ///
+    /// If Apple renames the editor's description this is never true, nothing settles, and
+    /// the app shows every key and reports nothing. That is the safe way to fail, and
+    /// `xcmdr doctor` names the assumption that broke.
+    private static func isSourceEditorFocused(_ app: AXUIElement) -> Bool {
+        var focused: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(app, kAXFocusedUIElementAttribute as CFString,
+                                            &focused) == .success,
+              let focused, CFGetTypeID(focused) == AXUIElementGetTypeID() else { return false }
+        let element = focused as! AXUIElement
+        return string(element, kAXRoleAttribute) == XcodeAXSchema.textArea
+            && string(element, kAXDescriptionAttribute) == XcodeAXSchema.sourceEditor
     }
 
     private static func walk(_ element: AXUIElement, path: [String],

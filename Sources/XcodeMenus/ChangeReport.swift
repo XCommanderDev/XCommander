@@ -13,20 +13,33 @@ public struct ChangeReport {
     public var from: XcodeRelease
     public var to: XcodeRelease
     public var diff: CatalogueDiff
-    /// Bindings the app ships that no longer resolve — the part that costs the user a key.
+    /// Commands bound in the user's keymap — shipped or from their config — that resolved on
+    /// the old Xcode and do not on the new one. The part that costs the user a key.
     public var lostBindings: [(command: String, title: String, identifier: String)]
+    /// The leader, as the user sees it, and any Xcode items the new build put on that chord.
+    ///
+    /// A leader is swallowed while Xcode is in front, so an item Apple moves onto it becomes
+    /// unreachable — not broken in this app, but silently taken from Xcode, which is worse:
+    /// nobody would think to blame the companion.
+    public var leader: String
+    public var newlyShadowed: [MenuEntry]
 
     public init(from: XcodeRelease, to: XcodeRelease, diff: CatalogueDiff,
-                lostBindings: [(command: String, title: String, identifier: String)]) {
+                lostBindings: [(command: String, title: String, identifier: String)],
+                leader: String = "the leader", newlyShadowed: [MenuEntry] = []) {
         self.from = from
         self.to = to
         self.diff = diff
         self.lostBindings = lostBindings
+        self.leader = leader
+        self.newlyShadowed = newlyShadowed
     }
 
     /// True when there is anything a user would care about. Apple adding forty commands we
-    /// do not bind is not news; losing one of their keys is.
-    public var isWorthTelling: Bool { !lostBindings.isEmpty || !diff.retitled.isEmpty || !diff.removed.isEmpty }
+    /// do not bind is not news; losing one of their keys is, and so is losing one of Xcode's.
+    public var isWorthTelling: Bool {
+        !lostBindings.isEmpty || !newlyShadowed.isEmpty || !diff.retitled.isEmpty || !diff.removed.isEmpty
+    }
 
     public static var url: URL {
         SnapshotStore.directory.appending(path: "CHANGES.md")
@@ -38,12 +51,21 @@ public struct ChangeReport {
         try markdown.data(using: .utf8)!.write(to: url, options: .atomic)
     }
 
+    /// One line for the menu bar, naming the most costly thing that happened.
     public var summaryLine: String {
         if !lostBindings.isEmpty {
             let s = lostBindings.count == 1 ? "" : "s"
             return "Xcode \(to.version) removed \(lostBindings.count) command\(s) you had bound."
         }
-        return "Xcode \(to.version) renamed \(diff.retitled.count) commands. Nothing you bound was lost."
+        if let first = newlyShadowed.first {
+            return "Xcode \(to.version) put \(first.title) on \(leader), your leader key."
+        }
+        if !diff.retitled.isEmpty {
+            let s = diff.retitled.count == 1 ? "" : "s"
+            return "Xcode \(to.version) renamed \(diff.retitled.count) command\(s). Nothing you bound was lost."
+        }
+        let s = diff.removed.count == 1 ? "" : "s"
+        return "Xcode \(to.version) removed \(diff.removed.count) command\(s). Nothing you bound was lost."
     }
 
     public var markdown: String {
@@ -69,6 +91,21 @@ public struct ChangeReport {
             """
             for lost in lostBindings {
                 out += "- `\(lost.command)` — \(lost.title) (was `\(lost.identifier)`)\n"
+            }
+        }
+
+        if !newlyShadowed.isEmpty {
+            out += """
+
+            ## Xcode commands your leader key now hides
+
+            \(leader) is your leader, so XCommander takes it before Xcode sees it. This Xcode
+            put these commands on the same keys, which makes them unreachable from the keyboard
+            while XCommander runs. Pick a different leader in Settings if you need them.
+
+            """
+            for entry in newlyShadowed {
+                out += "- \(entry.path.joined(separator: " > "))\n"
             }
         }
 
@@ -110,12 +147,15 @@ public struct ChangeReport {
             """
         }
 
-        if !diff.removed.isEmpty {
+        // The bound ones are already listed above, under the heading that says what to do.
+        let lost = Set(lostBindings.map(\.identifier))
+        let unbound = diff.removed.filter { !lost.contains($0.identifier) }
+        if !unbound.isEmpty {
             out += "\n## Commands Apple removed (that you had not bound)\n\n"
-            for entry in diff.removed.prefix(40) {
+            for entry in unbound.prefix(40) {
                 out += "- \(entry.path.joined(separator: " > "))\n"
             }
-            if diff.removed.count > 40 { out += "- …and \(diff.removed.count - 40) more\n" }
+            if unbound.count > 40 { out += "- …and \(unbound.count - 40) more\n" }
         }
 
         if !diff.added.isEmpty {
@@ -134,5 +174,37 @@ public struct ChangeReport {
         }
 
         return out
+    }
+
+    // MARK: - the window, which no snapshot covers
+
+    /// What to add to the report when a command that needs Xcode's window failed and the
+    /// window no longer looks the way this app expects.
+    ///
+    /// Appended rather than written fresh, because it may arrive days after the menu report
+    /// for the same build, and the two belong in the same place: both are "this Xcode is not
+    /// the one XCommander was measured against".
+    public static func windowNote(release: XcodeRelease, failed: [XcodeAXSchema.Finding]) -> String {
+        var out = """
+
+        ## Xcode \(release.version) (\(release.build)): the window looks different
+
+        A command that works inside Xcode's window could not find what it looks for. If a
+        project window with a source editor was open at the time, this Xcode has probably
+        changed its window, and the commands below will not work until XCommander is
+        updated. Run `xcmdr doctor` for the details, and please report it.
+
+        """
+        for finding in failed {
+            out += "- \(finding.assumption): \(finding.detail)\n"
+        }
+        return out
+    }
+
+    public static func appendWindowNote(_ note: String, to url: URL = ChangeReport.url) throws {
+        try FileManager.default.createDirectory(at: url.deletingLastPathComponent(),
+                                                withIntermediateDirectories: true)
+        let existing = (try? String(contentsOf: url, encoding: .utf8)) ?? ""
+        try (existing + note).data(using: .utf8)!.write(to: url, options: .atomic)
     }
 }

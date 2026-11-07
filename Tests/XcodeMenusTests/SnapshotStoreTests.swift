@@ -84,6 +84,35 @@ struct SnapshotStoreTests {
         #expect(store.previousBuild(before: "27A266")?.release.build == "28A100")
     }
 
+    /// The baseline for a report should be a build the store had seen properly, not one it
+    /// glimpsed once with no editor focused.
+    @Test("the previous build prefers one that has settled")
+    func previousBuildPrefersSettled() throws {
+        let store = temporaryStore()
+        var settled = snapshot(build: "27A266", context: "x", [("a:", ["A"])],
+                               capturedAt: "2026-09-01T00:00:00Z")
+        settled.editorScans = 1
+        try store.record(settled)
+        try store.record(snapshot(build: "28A050", context: "a glimpse", [("b:", ["B"])],
+                                  capturedAt: "2026-10-01T00:00:00Z"))
+        #expect(store.previousBuild(before: "28A100")?.release.build == "27A266")
+    }
+
+    /// Someone tries a newer build of the app, then goes back. The older app must not write
+    /// its smaller picture over the newer one's.
+    @Test("a file from a newer app is never overwritten")
+    func newerFileIsKept() throws {
+        let store = temporaryStore()
+        try FileManager.default.createDirectory(at: store.directory, withIntermediateDirectories: true)
+        let future = Data(#"{"schemaVersion": 99}"#.utf8)
+        try future.write(to: store.url(forBuild: "27A266"))
+        #expect(throws: MenuCatalogueSchema.NewerFile.self) {
+            try store.record(snapshot(build: "27A266", context: "x", [("a:", ["A"])]))
+        }
+        #expect(try Data(contentsOf: store.url(forBuild: "27A266")) == future)
+        #expect(store.load(build: "27A266") == nil)
+    }
+
     /// A build identifier comes from Xcode's bundle and ends up in a filename.
     @Test("a build identifier cannot escape the store's directory")
     func sanitisesFilenames() {
@@ -147,6 +176,56 @@ struct ChangeReportTests {
         let report = ChangeReport(from: release("26.4", "26F100"), to: release("27.0", "27A266"),
                                   diff: diff, lostBindings: [])
         #expect(!report.isWorthTelling)
+    }
+
+    /// The summary used to say "renamed 0 commands" whenever only removals had happened.
+    @Test("a report of removals alone says removals")
+    func removalsAloneSaySo() {
+        var diff = CatalogueDiff()
+        diff.removed = [MenuEntry(identifier: "oldThing:", title: "Old Thing", path: ["View", "Old Thing"])]
+        let report = ChangeReport(from: release("27.0", "27A266"), to: release("28.0", "28A100"),
+                                  diff: diff, lostBindings: [])
+        #expect(report.isWorthTelling)
+        #expect(report.summaryLine == "Xcode 28.0 removed 1 command. Nothing you bound was lost.")
+        #expect(!report.summaryLine.contains("renamed"))
+    }
+
+    @Test("a lost binding is listed once, under the heading that says what to do")
+    func lostBindingIsNotListedTwice() {
+        var diff = CatalogueDiff()
+        diff.removed = [
+            MenuEntry(identifier: "boundThing:", title: "Bound", path: ["View", "Bound"]),
+            MenuEntry(identifier: "otherThing:", title: "Other", path: ["View", "Other"]),
+        ]
+        let report = ChangeReport(from: release("27.0", "27A266"), to: release("28.0", "28A100"),
+                                  diff: diff, lostBindings: [("view.bound", "bound", "boundThing:")])
+        let unboundSection = report.markdown.components(separatedBy: "that you had not bound").last ?? ""
+        #expect(unboundSection.contains("View > Other"))
+        #expect(!unboundSection.contains("View > Bound"))
+    }
+
+    /// Apple moving a command onto the leader takes it from Xcode, silently. Said loudly.
+    @Test("a command moved onto the leader is news")
+    func newShadowIsNews() {
+        let moved = MenuEntry(identifier: "showEverything:", title: "Show Everything",
+                              path: ["View", "Show Everything"])
+        let report = ChangeReport(from: release("27.0", "27A266"), to: release("28.0", "28A100"),
+                                  diff: CatalogueDiff(), lostBindings: [],
+                                  leader: "⌥RET", newlyShadowed: [moved])
+        #expect(report.isWorthTelling)
+        #expect(report.summaryLine.contains("Show Everything"))
+        #expect(report.markdown.contains("View > Show Everything"))
+    }
+
+    @Test("the window note asks for a report rather than declaring a fault")
+    func windowNoteIsAHint() {
+        let finding = XcodeAXSchema.Finding(kind: .sourceEditor,
+                                            assumption: "the source editor names itself “Source Editor”",
+                                            holds: false, detail: "no text area with that description")
+        let note = ChangeReport.windowNote(release: release("28.0", "28A100"), failed: [finding])
+        #expect(note.contains("28A100"))
+        #expect(note.contains("xcmdr doctor"))
+        #expect(note.contains("Source Editor"))
     }
 
     @Test("shortcuts that were not compared say so rather than reading as unchanged")

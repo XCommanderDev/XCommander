@@ -61,23 +61,36 @@ public enum XcodeAXSchema {
 
     // MARK: - is any of this still true?
 
+    /// Which assumption a finding is about, so code can ask about one without matching prose.
+    public enum Assumption: String, Sendable {
+        case running, focusedWindow
+        case sourceEditor, tabBar, navigator, variablesView, addEditorButton, walkDepth
+
+        /// The two whose absence breaks commands outright, rather than meaning "not on screen
+        /// right now". Panes, tabs and transforms find the editor by `sourceEditor`; `w v`,
+        /// `w s` and `b t` press `addEditorButton`.
+        public var isLoadBearing: Bool { self == .sourceEditor || self == .addEditorButton }
+    }
+
     public struct Finding {
+        public var kind: Assumption
         public var assumption: String
         public var holds: Bool
         public var detail: String
     }
 
-    /// Ask the running Xcode whether the window still looks the way this app expects.
+    /// Ask one Xcode whether its window still looks the way this app expects.
     ///
     /// Deliberately *not* an assertion and not a fault state. Half of these are absent in
     /// perfectly ordinary situations — no navigator is showing, the debug area is closed,
-    /// there is only one pane so there is no splitter — so a finding is a hint for a
-    /// maintainer, not a verdict. `xcmdr doctor` and the settings window report it; nothing
-    /// changes behaviour on the strength of it.
+    /// there is only one pane so there is no splitter — so a finding is a hint, not a verdict.
+    /// `xcmdr doctor` prints all of them. The app runs this only after a command that needs
+    /// the window has already failed, to say *why*; nothing is hidden on the strength of it.
     @MainActor
-    public static func selfCheck() -> [Finding] {
-        guard let xcode = MenuScanner.runningXcode else {
-            return [Finding(assumption: "Xcode is running", holds: false, detail: "no Xcode process")]
+    public static func selfCheck(of xcode: NSRunningApplication?) -> [Finding] {
+        guard let xcode, !xcode.isTerminated else {
+            return [Finding(kind: .running, assumption: "Xcode is running", holds: false,
+                            detail: "no Xcode process")]
         }
         let app = AXUIElementCreateApplication(xcode.processIdentifier)
         AXUIElementSetMessagingTimeout(app, 2)
@@ -85,7 +98,8 @@ public enum XcodeAXSchema {
         guard AXUIElementCopyAttributeValue(app, kAXFocusedWindowAttribute as CFString,
                                             &window) == .success,
               CFGetTypeID(window!) == AXUIElementGetTypeID() else {
-            return [Finding(assumption: "Xcode has a focused window", holds: false, detail: "none")]
+            return [Finding(kind: .focusedWindow, assumption: "Xcode has a focused window",
+                            holds: false, detail: "none")]
         }
 
         var roles: [String: Int] = [:]
@@ -112,27 +126,27 @@ public enum XcodeAXSchema {
         walk(window as! AXUIElement, 0)
 
         return [
-            Finding(assumption: "the source editor names itself “\(sourceEditor)”",
+            Finding(kind: .sourceEditor, assumption: "the source editor names itself “\(sourceEditor)”",
                     holds: descriptions.contains(sourceEditor),
                     detail: descriptions.contains(sourceEditor)
                         ? "found" : "no text area with that description — panes and transforms depend on it"),
-            Finding(assumption: "the editor tab bar names itself “\(tabBar)”",
+            Finding(kind: .tabBar, assumption: "the editor tab bar names itself “\(tabBar)”",
                     holds: descriptions.contains(tabBar),
                     detail: descriptions.contains(tabBar)
                         ? "found" : "absent — normal unless the tab bar is showing"),
-            Finding(assumption: "a navigator outline's identifier ends in “\(navigatorIdentifierSuffix)”",
+            Finding(kind: .navigator, assumption: "a navigator outline's identifier ends in “\(navigatorIdentifierSuffix)”",
                     holds: navigatorIdentifiers > 0,
                     detail: navigatorIdentifiers > 0
                         ? "\(navigatorIdentifiers) found" : "absent — normal unless a navigator is showing"),
-            Finding(assumption: "the debug area names its list “\(variablesView)”",
+            Finding(kind: .variablesView, assumption: "the debug area names its list “\(variablesView)”",
                     holds: descriptions.contains(variablesView),
                     detail: descriptions.contains(variablesView)
                         ? "found" : "absent — normal unless the debug area is open"),
-            Finding(assumption: "the “\(addEditorButton)” toolbar control is present",
+            Finding(kind: .addEditorButton, assumption: "the “\(addEditorButton)” toolbar control is present",
                     holds: descriptions.contains(addEditorButton),
                     detail: descriptions.contains(addEditorButton)
                         ? "found" : "absent — `w v`, `w s` and `b t` need it"),
-            Finding(assumption: "the window tree fits inside the walk depth of \(windowWalkDepth)",
+            Finding(kind: .walkDepth, assumption: "the window tree fits inside the walk depth of \(windowWalkDepth)",
                     holds: depth <= windowWalkDepth,
                     detail: "deepest element seen at \(depth)"),
         ]

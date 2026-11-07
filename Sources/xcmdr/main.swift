@@ -20,6 +20,9 @@ import XcodeMenus
 //   xcmdr popups                     check the toolbar popups Xcode hides commands in
 //   xcmdr builds                     which Xcodes this machine has recorded
 //
+// With several Xcodes running, `--xcode PATH` says which one; otherwise the app's own rule
+// picks, and the choice is printed.
+//
 // Exit codes: 0 fine, 1 findings the maintainer must look at, 2 could not run.
 
 let out = FileHandle.standardOutput
@@ -79,8 +82,46 @@ func usage() -> Never {
       -o, --output FILE where to write
       -c, --context     a note describing what was on screen during a capture
       --no-activate     do not bring Xcode forward first (its menus will be incomplete)
+      --xcode PATH      which Xcode, when more than one is running
     """)
     exit(args.positional.isEmpty ? 2 : 0)
+}
+
+/// Which Xcode this run is about.
+///
+/// **Every copy of Xcode shares one bundle identifier**, so with a release and a beta both
+/// open "the running Xcode" means nothing. `--xcode` names one by path. Otherwise the app's
+/// own rule picks (`XcodeTarget`), and a line on stderr says which — an audit of the wrong
+/// Xcode that looks like an audit of the right one is the worst output this tool can give.
+var chosenXcode: NSRunningApplication??
+@MainActor
+func targetXcode() -> NSRunningApplication? {
+    if let chosenXcode { return chosenXcode }
+    let running = MenuScanner.runningXcodes
+    var chosen: NSRunningApplication?
+    if let path = args.value("xcode") {
+        let wanted = URL(fileURLWithPath: path).standardizedFileURL.path
+        guard let match = running.first(where: { $0.bundleURL?.standardizedFileURL.path == wanted })
+        else { fail("no running Xcode at \(path)") }
+        chosen = match
+    } else {
+        chosen = MenuScanner.target()
+        if running.count > 1, let chosen {
+            err.write(("xcmdr: \(running.count) Xcodes are running; using "
+                       + "\(chosen.bundleURL?.path ?? "pid \(chosen.processIdentifier)"). "
+                       + "Pass --xcode PATH to choose.\n").data(using: .utf8)!)
+        }
+    }
+    chosenXcode = .some(chosen)
+    return chosen
+}
+
+/// Read a snapshot file, or stop with the reason — including "written by a newer version".
+func readSnapshot(_ path: String) -> MenuSnapshot {
+    guard let data = FileManager.default.contents(atPath: path) else { fail("cannot read \(path)") }
+    do { return try MenuSnapshot.decode(data) }
+    catch let newer as MenuCatalogueSchema.NewerFile { fail("\(path) was \(newer)") }
+    catch { fail("\(path) is not a snapshot") }
 }
 
 /// Bring Xcode to the front, and put the previous app back afterwards.
@@ -90,30 +131,30 @@ func usage() -> Never {
 /// the snapshot then "proves" that eight commands were removed. This is the same trap that
 /// once made a whole menu dump look empty, and it is worth paying half a second to avoid.
 @discardableResult
-func withXcodeFrontmost<T>(_ body: (NSRunningApplication) -> T) -> T {
-    let xcode = MenuScanner.runningXcode
+@MainActor
+func withXcodeFrontmost<T>(_ body: (NSRunningApplication?) -> T) -> T {
+    let xcode = targetXcode()
     let previous = NSWorkspace.shared.frontmostApplication
-    if let xcode, previous?.bundleIdentifier != xcode.bundleIdentifier {
+    // Compared by process, not bundle identifier: with two Xcodes open, the other one being
+    // in front is exactly the case where this one still needs bringing forward.
+    if let xcode, previous?.processIdentifier != xcode.processIdentifier {
         xcode.activate()
         usleep(500_000)
         defer { usleep(150_000); previous?.activate() }
         return body(xcode)
     }
-    return body(xcode ?? NSRunningApplication.current)
+    return body(xcode)
 }
 
 /// A snapshot to work against: a file if one is named, otherwise the running Xcode.
+@MainActor
 func snapshotSource(_ args: Args, context: String) -> MenuSnapshot {
-    if let path = args.value("snapshot", "s") {
-        guard let data = FileManager.default.contents(atPath: path) else { fail("cannot read \(path)") }
-        guard let snapshot = try? MenuSnapshot.decode(data) else { fail("\(path) is not a snapshot") }
-        return snapshot
-    }
+    if let path = args.value("snapshot", "s") { return readSnapshot(path) }
     if args.has("no-activate") {
-        do { return try MenuScanner.scan(context: context, timeout: 10).snapshot }
+        do { return try MenuScanner.scan(of: targetXcode(), context: context, timeout: 10).snapshot }
         catch { fail("\(error)") }
     }
-    let result = withXcodeFrontmost { _ in try? MenuScanner.scan(context: context, timeout: 10) }
+    let result = withXcodeFrontmost { try? MenuScanner.scan(of: $0, context: context, timeout: 10) }
     guard let result else { fail("could not read Xcode's menus") }
     return result.snapshot
 }
@@ -139,10 +180,15 @@ case "doctor":
     emit("  Accessibility permission   \(trusted ? "granted" : "MISSING")")
     if !trusted { problems += 1 }
 
-    if let release = MenuScanner.runningRelease() {
+    let xcode = targetXcode()
+    if let xcode, let release = MenuScanner.release(of: xcode) {
         let ok = release.isSupported
         emit("  Xcode running              \(release.version) (\(release.build))\(ok ? "" : "  BELOW THE FLOOR")")
         if !ok { problems += 1 }
+        let others = MenuScanner.runningXcodes.count - 1
+        if others > 0 {
+            emit("  Other Xcodes running       \(others) — checked: \(xcode.bundleURL?.path ?? "?")")
+        }
     } else {
         emit("  Xcode running              none")
     }
@@ -173,9 +219,34 @@ case "doctor":
     // The window's shape, which is the part no identifier protects.
     emit("")
     emit("  Window assumptions")
-    for finding in XcodeAXSchema.selfCheck() {
+    for finding in XcodeAXSchema.selfCheck(of: xcode) {
         emit("    \(finding.holds ? "ok  " : "??  ")\(finding.assumption)")
         emit("        \(finding.detail)")
+    }
+
+    // What each leader would hide in *this* Xcode, against what the settings window says.
+    // Read with Xcode in front, like `audit`: a background read is partial, and a partial read
+    // would report notes as stale that are not.
+    let leaderScan = xcode == nil ? nil
+        : args.has("no-activate")
+            ? try? MenuScanner.scan(of: xcode, context: "xcmdr doctor", timeout: 10)
+            : withXcodeFrontmost { try? MenuScanner.scan(of: $0, context: "xcmdr doctor", timeout: 10) }
+    if let scan = leaderScan {
+        emit("")
+        emit("  Leader keys")
+        let catalogue = MenuCatalogue(scan.snapshot)
+        for choice in LeaderChoice.allCases {
+            let hidden = catalogue.entries(withShortcut: choice.event).map(\.title)
+            let (undeclared, found) = choice.unexpectedShadows(in: catalogue)
+            // Something on the chord is proof. Something *missing* from it proves nothing
+            // unless an editor had focus, since half of Editor > is absent otherwise.
+            let stale = catalogue.isSettled ? found : []
+            let agrees = undeclared.isEmpty && stale.isEmpty
+            if !agrees { problems += 1 }
+            emit("    \(agrees ? "ok  " : "!!  ")\(choice.title.padding(toLength: 12, withPad: " ", startingAt: 0))"
+                 + (hidden.isEmpty ? "hides nothing in the menus" : "hides \(hidden.joined(separator: ", "))")
+                 + (agrees ? "" : " — its note says otherwise"))
+        }
     }
 
     let store = SnapshotStore()
@@ -192,10 +263,10 @@ case "snapshot":
         ?? "captured by xcmdr; context not described"
     let scan: MenuScanner.Scan
     if args.has("no-activate") {
-        do { scan = try MenuScanner.scan(context: context, timeout: 10) }
+        do { scan = try MenuScanner.scan(of: targetXcode(), context: context, timeout: 10) }
         catch { fail("\(error)") }
     } else {
-        guard let result = withXcodeFrontmost({ _ in try? MenuScanner.scan(context: context, timeout: 10) })
+        guard let result = withXcodeFrontmost({ try? MenuScanner.scan(of: $0, context: context, timeout: 10) })
         else { fail("could not read Xcode's menus — is it running?") }
         scan = result
     }
@@ -211,7 +282,10 @@ case "snapshot":
     let named = snapshot.entries.filter { !$0.identifier.isEmpty }.count
     emit("\(snapshot.entries.count) items, \(named) with an identifier → \(destination)")
     emit("Xcode \(snapshot.release.version) (\(snapshot.release.build)), keyboard \(snapshot.inputSource ?? "unknown")")
-    emit("context: \(context)")
+    emit("context: \(snapshot.context)")
+    if !snapshot.isSettled {
+        emit("no source editor had focus: Editor > toggles are missing from this capture")
+    }
 
 // MARK: - audit
 
@@ -223,6 +297,21 @@ case "audit":
     var ambiguous: [Command] = []
     var actionless: [(Command, [String])] = []
     var pathBound: [Command] = []
+
+    // Every leader's note against this Xcode. Checked for all of them, not just the default,
+    // because the settings window offers all of them and states each one's cost.
+    // A declared item missing from the chord only counts in a settled snapshot: without an
+    // editor focused, half of Editor > is absent and its shortcuts with it.
+    var leaderFindings: [String] = []
+    for choice in LeaderChoice.allCases {
+        let (undeclared, found) = choice.unexpectedShadows(in: catalogue)
+        for entry in undeclared {
+            leaderFindings.append("\(choice.title) now hides \(entry.path.joined(separator: " > ")) (\(entry.identifier))")
+        }
+        for identifier in catalogue.isSettled ? found : [] {
+            leaderFindings.append("\(choice.title) no longer hides \(identifier), but its note says it does")
+        }
+    }
 
     for command in DefaultKeymap.menuCommands {
         let ref = command.menuRef!
@@ -248,6 +337,7 @@ case "audit":
             "ambiguous": ambiguous.map(\.id),
             "actionless": actionless.map(\.0.id),
             "pathBound": pathBound.map(\.id),
+            "leaderFindings": leaderFindings,
         ])
     } else {
         emit("Auditing \(DefaultKeymap.menuCommands.count) shipped bindings against Xcode \(snapshot.release.version) (\(snapshot.release.build))")
@@ -278,20 +368,18 @@ case "audit":
         for command in pathBound {
             emit("\n  BY PATH  \(command.id) — the identifier did not resolve; fell back to the menu path")
         }
+        for finding in leaderFindings {
+            emit("\n  LEADER   \(finding) — update `LeaderChoice.shadows` and its note")
+        }
         emit("")
     }
-    exit(unbound.isEmpty && ambiguous.isEmpty && actionless.isEmpty ? 0 : 1)
+    exit(unbound.isEmpty && ambiguous.isEmpty && actionless.isEmpty && leaderFindings.isEmpty ? 0 : 1)
 
 // MARK: - diff
 
 case "diff":
     guard args.positional.count >= 3 else { fail("diff needs two snapshot files") }
-    func read(_ path: String) -> MenuSnapshot {
-        guard let data = FileManager.default.contents(atPath: path) else { fail("cannot read \(path)") }
-        guard let snapshot = try? MenuSnapshot.decode(data) else { fail("\(path) is not a snapshot") }
-        return snapshot
-    }
-    let old = read(args.positional[1]), new = read(args.positional[2])
+    let old = readSnapshot(args.positional[1]), new = readSnapshot(args.positional[2])
     let diff = CatalogueDiff.between(old, and: new)
     let lost = DefaultKeymap.menuCommands.filter {
         MenuCatalogue(old).isBound($0.menuRef!) && !MenuCatalogue(new).isBound($0.menuRef!)
@@ -336,12 +424,7 @@ case "merge":
     // because focus left the editor. A fixture worth testing against is the union of several
     // deliberate captures, which is the same thing the app's store builds at runtime.
     guard args.positional.count >= 3 else { fail("merge needs two snapshot files") }
-    func load(_ path: String) -> MenuSnapshot {
-        guard let data = FileManager.default.contents(atPath: path) else { fail("cannot read \(path)") }
-        guard let snapshot = try? MenuSnapshot.decode(data) else { fail("\(path) is not a snapshot") }
-        return snapshot
-    }
-    let first = load(args.positional[1]), second = load(args.positional[2])
+    let first = readSnapshot(args.positional[1]), second = readSnapshot(args.positional[2])
     guard first.release.build == second.release.build else {
         fail("these are different Xcodes (\(first.release.build) and \(second.release.build)); merging them would invent a menu neither has")
     }
@@ -413,7 +496,7 @@ case "popups":
     // command rather than part of `audit` — a maintenance tool may interrupt, but only when
     // asked.
     guard MenuScanner.hasAccessibility else { fail("no Accessibility permission") }
-    guard let xcode = MenuScanner.runningXcode else { fail("Xcode is not running") }
+    guard let xcode = targetXcode() else { fail("Xcode is not running") }
     let wanted = DefaultKeymap.popupCommands.compactMap(\.popupRef)
     guard !wanted.isEmpty else { emit("no popup-backed commands"); exit(0) }
     let previous = NSWorkspace.shared.frontmostApplication
@@ -445,13 +528,13 @@ case "run":
     // hand — no app running, no leader key, no guessing whether a binding works.
     guard args.positional.count >= 2 else { fail("run needs an identifier") }
     guard MenuScanner.hasAccessibility else { fail("no Accessibility permission") }
-    guard let xcode = MenuScanner.runningXcode else { fail("Xcode is not running") }
+    guard let xcode = targetXcode() else { fail("Xcode is not running") }
     // Xcode's menus do not answer while it is in the background, which is the trap that
     // once made a whole menu dump look empty.
     let wasFrontmost = NSWorkspace.shared.frontmostApplication
     xcode.activate()
     usleep(400_000)
-    guard let scan = try? MenuScanner.scan(context: "xcmdr run", timeout: 10) else {
+    guard let scan = try? MenuScanner.scan(of: xcode, context: "xcmdr run", timeout: 10) else {
         fail("could not read Xcode's menus")
     }
     let wantedRef = MenuRef(args.positional[1], title: args.value("title", "t"))
@@ -474,7 +557,7 @@ case "press":
     // audit cannot verify from a file.
     guard args.positional.count >= 3 else { fail("press needs a button description and an identifier") }
     guard MenuScanner.hasAccessibility else { fail("no Accessibility permission") }
-    guard let xcode = MenuScanner.runningXcode else { fail("Xcode is not running") }
+    guard let xcode = targetXcode() else { fail("Xcode is not running") }
     let previous = NSWorkspace.shared.frontmostApplication
     xcode.activate()
     usleep(400_000)
@@ -490,7 +573,9 @@ case "builds":
     let builds = SnapshotStore().knownBuilds()
     if builds.isEmpty { emit("no Xcode builds recorded yet"); exit(0) }
     for (build, snapshot) in builds {
-        emit("\(build)  Xcode \(snapshot.release.version)  \(snapshot.entries.count) items  last seen \(snapshot.capturedAt)")
+        // Unsettled means no scan with an editor focused yet: nothing is hidden or reported.
+        let settled = snapshot.isSettled ? "settled" : "unsettled"
+        emit("\(build)  Xcode \(snapshot.release.version)  \(snapshot.entries.count) items  \(settled)  last seen \(snapshot.capturedAt)")
     }
 
 case "help", "--help", "-h":

@@ -42,9 +42,22 @@ public struct SnapshotStore {
     ///
     /// Returns the accumulated snapshot, which is the one worth asking questions of: a
     /// single scan is one context, and the union of many is the menu.
+    ///
+    /// **Throws rather than overwrite a file from a newer app.** `load` reads such a file as
+    /// absent, which is right for a question and wrong for a write: someone who tried a newer
+    /// build and went back would have it replaced with less. The caller already treats a
+    /// failed record as "hide nothing", which is the correct behaviour for a store it cannot
+    /// read.
     @discardableResult
     public func record(_ scan: MenuSnapshot) throws -> MenuSnapshot {
-        let merged = load(build: scan.release.build).map { $0.merging(scan) } ?? scan
+        let url = url(forBuild: scan.release.build)
+        var existing: MenuSnapshot?
+        if let data = try? Data(contentsOf: url) {
+            do { existing = try MenuSnapshot.decode(data) }
+            catch let newer as MenuCatalogueSchema.NewerFile { throw newer }
+            catch { existing = nil }   // unreadable for another reason: rebuild it from Xcode
+        }
+        let merged = existing.map { $0.merging(scan) } ?? scan
         try save(merged)
         return merged
     }
@@ -65,7 +78,12 @@ public struct SnapshotStore {
     }
 
     /// The most recently seen build that is not this one — what an upgrade moved away from.
+    ///
+    /// A settled one if there is any, because the change report subtracts this from the new
+    /// build: an unsettled baseline is missing the very items whose absence would otherwise
+    /// read as Apple adding them.
     public func previousBuild(before build: String) -> MenuSnapshot? {
-        knownBuilds().first { $0.build != build }?.snapshot
+        let others = knownBuilds().filter { $0.build != build }.map(\.snapshot)
+        return others.first(where: \.isSettled) ?? others.first
     }
 }
