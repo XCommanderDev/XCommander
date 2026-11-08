@@ -112,7 +112,7 @@ struct KeymapSessionTests {
         #expect(s.pending.isEmpty)
     }
 
-    /// §8 question 2: every abandonment path has to reset the same way.
+    /// Every abandonment path has to reset the same way.
     @Test("abandoning mid-sequence resets, and does nothing when idle")
     func abandon() throws {
         var s = try session()

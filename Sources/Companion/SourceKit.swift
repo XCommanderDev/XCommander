@@ -9,7 +9,7 @@ import os
 /// approximate for ever. This is the real one, it ships inside Xcode, and a *syntactic-only*
 /// `editor.open` needs no compiler arguments, no build settings and no index — it is a parse of
 /// one file. Measured at **0.51 ms** median on a 151-line file against a ~60 ms debounce budget
-/// (`PREVIEW-SPIKE.md`), so colour in the preview costs nothing worth counting.
+/// so colour in the preview costs nothing worth counting.
 ///
 /// **And it hands back the outline in the same response.** `key.substructure` is a nested
 /// declaration tree carrying each declaration's name, accessibility and *documentation*. So one

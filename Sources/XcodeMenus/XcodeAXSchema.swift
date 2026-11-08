@@ -13,7 +13,7 @@ import XCommanderCore
 ///
 /// So it is gathered here for three reasons. It can be read in one screen when a new Xcode
 /// ships; `selfCheck` can ask the running Xcode whether the assumptions still hold instead
-/// of waiting for a user to report that panes stopped working; and a reader of the book can
+/// of waiting for a user to report that panes stopped working; and a reader of the code can
 /// see exactly how much of this app rests on undocumented strings — which is more than is
 /// comfortable, and worth being honest about.
 public enum XcodeAXSchema {

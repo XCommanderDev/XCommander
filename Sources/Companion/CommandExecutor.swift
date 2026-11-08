@@ -18,7 +18,7 @@ import os
 ///
 /// A third route was measured and rejected: writing `NSUserKeyEquivalents` into Xcode's own
 /// preferences mutates another application's settings, collides with the user's own App
-/// Shortcuts, and needs Xcode restarted before it takes effect. See `SPIKE-REPORT.md`.
+/// Shortcuts, and needs Xcode restarted before it takes effect.
 @MainActor
 final class CommandExecutor {
 

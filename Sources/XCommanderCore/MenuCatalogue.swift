@@ -434,8 +434,7 @@ public struct MenuChange: Hashable, Sendable {
 /// The difference between two snapshots.
 ///
 /// `retitled` and `moved` are not failures — they are the churn the identifier absorbs, and
-/// they are reported because they make the book's screenshots and the palette's grouping
-/// stale. `removed` is the only category that costs a user a key, and even then the right
+/// they are reported because they make documentation and the palette's grouping stale. `removed` is the only category that costs a user a key, and even then the right
 /// response is usually to keep the binding: it still resolves on the Xcode that has it.
 public struct CatalogueDiff: Sendable {
     public var added: [MenuEntry] = []

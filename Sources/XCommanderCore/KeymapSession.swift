@@ -33,8 +33,7 @@ public enum CancelReason: Hashable, Sendable {
 /// The modal state machine: idle, or partway through a sequence.
 ///
 /// Pure and synchronous. The tap calls `press` and gets a decision back in the same
-/// breath, which is what keeps the callback in the microseconds — see the latency table
-/// in `SPIKE-REPORT.md`.
+/// breath, which is what keeps the callback in the microseconds.
 public struct KeymapSession: Sendable {
     public let leader: KeyEvent
     public private(set) var keymap: Keymap
@@ -134,7 +133,7 @@ public struct KeymapSession: Sendable {
     }
 
     /// Everything that ends a sequence without a keypress: a mouse click, an app switch,
-    /// the tap being disabled. §8 question 2 — every abandonment path resets the same way.
+    /// the tap being disabled. Every abandonment path resets the same way.
     public mutating func abandon() -> SessionOutcome? {
         guard isActive else { return nil }
         reset()

@@ -4,7 +4,7 @@ import Foundation
 ///
 /// **A closed list, not a key recorder, and that is the design.** A leader is swallowed while
 /// Xcode is frontmost, so a leader that can be typed as text arms a sequence by accident and
-/// the next word runs a command — the defect that moved the default off `⇧Space` (Chapter 5).
+/// the next word runs a command — the defect that moved the default off `⇧Space`.
 /// A recorder would let a user reintroduce it in one keystroke, and they would have no way to
 /// know they had.
 ///

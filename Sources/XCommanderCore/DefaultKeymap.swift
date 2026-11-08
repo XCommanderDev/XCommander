@@ -21,7 +21,7 @@ public enum DefaultKeymap {
     /// a Shift held a beat too long across a word break armed the sequence — and since the
     /// session has no way to know the space was an accident, the *next word you typed* was
     /// read as a command. `wo…` closed your other editor panes; `ma…` started a build. Nine
-    /// of eighteen ordinary English words reached something; see `NEXT-ANSWERS.md`.
+    /// of eighteen ordinary English words reached something.
     ///
     /// `⌥Return` cannot be produced as a character in the editor, so the failure is not
     /// mitigated but structurally absent. The sequence timeout below is separate hygiene: it

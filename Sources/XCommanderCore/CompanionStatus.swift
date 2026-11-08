@@ -8,7 +8,7 @@ public enum CompanionStatus: Hashable, Sendable {
     /// Switched off from the menu. Deliberate, so it says so rather than looking broken.
     case disabled
     /// Another app holds secure input, so the tap receives nothing, system-wide.
-    /// Detectable only by polling — there is no notification. See `SPIKE-REPORT.md`.
+    /// Detectable only by polling — there is no notification.
     case pausedBySecureInput
     /// Xcode is running, but older than this app supports. Said out loud, because the
     /// alternative is a user pressing keys that quietly do nothing and concluding the app is

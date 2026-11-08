@@ -16,8 +16,7 @@ import SwiftUI
 /// nothing else in here is worth the user's attention:
 ///
 /// - **The mark.** `NSApp.applicationIconImage` is the same image macOS is about to draw in its
-///   own alert, so the two read as one app rather than two events. Chapter 21 makes the
-///   argument at length: a generic placeholder is the worst possible answer to *"do I trust
+///   own alert, so the two read as one app rather than two events. A generic placeholder is the worst possible answer to *"do I trust
 ///   this?"*, and this window is where that answer is given first.
 /// - **Naming the wording before macOS does.** Telling someone in advance that the next prompt
 ///   will sound alarming, and that it is fair, costs one sentence and disarms it. Discovering

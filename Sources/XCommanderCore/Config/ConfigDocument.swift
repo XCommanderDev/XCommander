@@ -180,7 +180,7 @@ public enum ConfigDecoder {
             }
             do {
                 let sequence = try KeySequence.parse(written)
-                // Chapter 7's rule, enforced where a file could break it: Esc is how a user
+                // The session's rule, enforced where a file could break it: Esc is how a user
                 // leaves a sequence, including one their own config has just broken.
                 if sequence.first?.key == .special(.escape) {
                     error(entry.line, "ESC cannot be bound: it is how a sequence is cancelled")
