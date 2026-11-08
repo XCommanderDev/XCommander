@@ -1,0 +1,30 @@
+name: Idea or feature request
+description: Something XCommander could do.
+labels: ["idea"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        XCommander is a tool I'm building for myself first, so I may say no to ideas that pull it away from what I need. That's not a judgement on the idea. Ideas about the keyboard flow in Xcode are the most likely to land.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What you're trying to do
+      description: The situation in Xcode, and what gets in the way today.
+    validations:
+      required: true
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: What you'd like XCommander to do
+      description: If you have a key sequence in mind, write it (for example ⌥RET g b).
+    validations:
+      required: true
+
+  - type: textarea
+    id: elsewhere
+    attributes:
+      label: How other tools do it
+      description: Doom Emacs, Spacemacs, Vim, another app… Optional, but it helps.

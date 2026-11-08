@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Debugging guide
+    url: https://github.com/XCommanderDev/XCommander/blob/main/docs/debugging.md
+    about: Common problems (permission, keys arriving late, empty pickers) and how to check them.
+  - name: Build log
+    url: https://xcommander.dev/weblog/
+    about: What I'm working on and what I've learned along the way.
