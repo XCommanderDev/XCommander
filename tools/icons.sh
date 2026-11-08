@@ -51,7 +51,7 @@ rsvg-convert -w 2048 -h 2048 -f png -o "$WORK/hat.png" "$HAT"
 
 python3 - "$WORK" "$MARKSET" <<'PY'
 import sys, json
-from PIL import Image, ImageChops
+from PIL import Image, ImageChops, ImageDraw
 work, out = sys.argv[1], sys.argv[2]
 hat = Image.open(work + "/hat.png").convert("RGBA")
 r, g, b, a = hat.split()
@@ -59,10 +59,35 @@ darkness = ImageChops.invert(Image.merge("RGB", (r, g, b)).convert("L"))
 ink = ImageChops.multiply(a, darkness)
 ink = ink.crop(ink.getbbox())                       # trim to the ink
 
+# Fill the trim. The thin white line that follows the hat's edge is detail for the app icon
+# at 1024; at 13pt it only thins the hat out, and the mark loses its weight next to solid
+# system glyphs. The trim is one long hole, so the rule is: fill every hole wider than half
+# the hat. The ⌘ and the crossbones are small holes in the middle and stay cut out.
+iw, ih = ink.size
+solid = ink.point(lambda v: 255 if v > 127 else 0)
+outside = Image.new("L", (iw + 2, ih + 2), 0)
+outside.paste(solid, (1, 1))
+ImageDraw.floodfill(outside, (0, 0), 100)            # everything reachable from the edge
+outside = outside.crop((1, 1, iw + 1, ih + 1)).point(lambda v: 255 if v == 100 else 0)
+holes = ImageChops.subtract(ImageChops.invert(outside), solid)
+px = holes.load()
+for y in range(0, ih, 2):
+    for x in range(0, iw, 2):
+        if px[x, y] != 255:
+            continue
+        ImageDraw.floodfill(holes, (x, y), 77)          # one hole
+        one = holes.point(lambda v: 255 if v == 77 else 0)
+        left, _, right, _ = one.getbbox()
+        if right - left > iw / 2:
+            ink = ImageChops.lighter(ink, one)
+        holes = holes.point(lambda v: 0 if v == 77 else v)
+        px = holes.load()
+
 # The hat is 2.3 times wider than tall. In the 18pt square most marks use it would be 8pt
-# high and the ⌘ would vanish, so the canvas is wider: 24x18pt puts the hat at about 10pt,
-# level with the system's own icons. A variable-length status item takes the width as given.
-W, H = 24, 18
+# high. Measured against a real menu bar, the system's glyphs are 11-16pt tall, so the
+# canvas is 31x18pt and the hat comes out about 13pt high. A variable-length status item
+# takes the width as given.
+W, H = 31, 18
 for scale in (1, 2):
     w, h = ink.size
     f = W * scale / w
