@@ -190,7 +190,21 @@ final class AccessibilityXcodeContext: XcodeContext {
                             path: entry.path,
                             element: found.element,
                             shortcut: entry.shortcut,
-                            isEnabled: found.isEnabled)
+                            isEnabled: isEnabledNow(found.element))
+    }
+
+    /// Whether a menu item can be pressed right now, asked of Xcode at the moment of use.
+    ///
+    /// The scan's answer can't be trusted for this. Menus are scanned when Xcode comes to the
+    /// front, and many items change state after that without Xcode leaving the front: File >
+    /// Close Editor Pane is disabled with one pane and enabled the moment you split. Using the
+    /// scan's answer made `⌥RET w q` refuse to close a pane that was right there.
+    ///
+    /// One Accessibility call (about a millisecond), made when a command runs, never on the
+    /// keystroke path. If Xcode doesn't answer, say yes and let the press find out: a refused
+    /// press falls back to the item's shortcut.
+    private func isEnabledNow(_ element: AXUIElement) -> Bool {
+        Self.bool(element, kAXEnabledAttribute) ?? true
     }
 
     func allMenuItems() -> [MenuItemInfo] {
