@@ -1,0 +1,41 @@
+# Runs the tests and builds the app on every push to main and every pull request.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v5
+
+      # XCommander supports Xcode 27 and later. The runner has several Xcodes installed side
+      # by side, so pick the newest Xcode 27 explicitly instead of trusting the default.
+      - name: Use Xcode 27
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_27*.app 2>/dev/null | sort -V | tail -1)
+          if [ -z "$XCODE" ]; then
+            echo "::error::No Xcode 27 on this runner. Installed: $(ls -d /Applications/Xcode*.app)"
+            exit 1
+          fi
+          sudo xcode-select -s "$XCODE"
+          xcodebuild -version
+
+      - name: Test
+        run: swift test
+
+      - name: Build the app
+        run: |
+          xcodebuild -project XCommander.xcodeproj -scheme XCommander \
+            -configuration Release -derivedDataPath "$RUNNER_TEMP/build" \
+            CODE_SIGNING_ALLOWED=NO build

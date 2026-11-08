@@ -22,6 +22,8 @@ targets:
   XCommander:
     type: application
     platform: macOS
+    # A shared scheme, committed with the project, so command-line builds and CI can use it.
+    scheme: {}
     # DEVELOPMENT_TEAM and BUNDLE_ID_PREFIX come from here. To sign with your own
     # account, create Config/Signing.local.xcconfig (see the comments in Signing.xcconfig).
     configFiles:

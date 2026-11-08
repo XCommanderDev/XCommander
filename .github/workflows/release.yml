@@ -1,0 +1,197 @@
+# Builds, signs, notarizes and publishes XCommander.
+#
+# - Pushing a tag like v1.0.0 makes a signed, notarized DMG and a draft GitHub release.
+#   A tag with a hyphen (v1.0.0-beta.1) makes a prerelease.
+# - Running it by hand from the Actions tab with "dry run" checked builds an unsigned DMG,
+#   so the pipeline can be tested without any secrets. Nothing is published.
+#
+# Only the maintainer can push tags, and the signing secrets live in the "release"
+# environment, so pull requests and forks never see them.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run: build an unsigned DMG, don't notarize or publish"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: macos-26
+    environment: release
+    env:
+      SIGNED: ${{ github.event_name == 'push' || inputs.dry_run == false }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Use Xcode 27
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_27*.app 2>/dev/null | sort -V | tail -1)
+          if [ -z "$XCODE" ]; then
+            echo "::error::No Xcode 27 on this runner. Installed: $(ls -d /Applications/Xcode*.app)"
+            exit 1
+          fi
+          sudo xcode-select -s "$XCODE"
+          xcodebuild -version
+
+      # The version shown in the app comes from the tag (v1.2.0 → 1.2.0). The build number is
+      # the workflow's run number, so it only ever goes up.
+      - name: Work out the version
+        run: |
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          else
+            VERSION="0.0.${GITHUB_RUN_NUMBER}"
+          fi
+          TEAM_ID=$(awk -F' = ' '/^DEVELOPMENT_TEAM/ {print $2}' Config/Signing.xcconfig)
+          {
+            echo "VERSION=$VERSION"
+            echo "BUILD=$GITHUB_RUN_NUMBER"
+            echo "TEAM_ID=$TEAM_ID"
+            echo "KEYCHAIN=$RUNNER_TEMP/release.keychain-db"
+          } >> "$GITHUB_ENV"
+          echo "Version $VERSION, build $GITHUB_RUN_NUMBER, team $TEAM_ID, signed: $SIGNED"
+
+      - name: Test
+        run: swift test
+
+      # A throwaway keychain holding the Developer ID certificate, deleted at the end.
+      - name: Import the Developer ID certificate
+        if: env.SIGNED == 'true'
+        env:
+          DEVELOPER_ID_P12_BASE64: ${{ secrets.DEVELOPER_ID_P12_BASE64 }}
+          DEVELOPER_ID_P12_PASSWORD: ${{ secrets.DEVELOPER_ID_P12_PASSWORD }}
+        run: |
+          KEYCHAIN_PASSWORD=$(uuidgen)
+          echo "$DEVELOPER_ID_P12_BASE64" | base64 --decode > "$RUNNER_TEMP/developer-id.p12"
+          curl -fsSL -o "$RUNNER_TEMP/DeveloperIDG2CA.cer" \
+            https://www.apple.com/certificateauthority/DeveloperIDG2CA.cer
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security import "$RUNNER_TEMP/DeveloperIDG2CA.cer" -k "$KEYCHAIN" -A
+          security import "$RUNNER_TEMP/developer-id.p12" -k "$KEYCHAIN" \
+            -P "$DEVELOPER_ID_P12_PASSWORD" -f pkcs12 -A -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: \
+            -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN" > /dev/null
+          security list-keychains -d user -s "$KEYCHAIN" $(security list-keychains -d user | tr -d '"')
+          rm "$RUNNER_TEMP/developer-id.p12"
+          security find-identity -v -p codesigning "$KEYCHAIN"
+
+      - name: Build, sign and export the app
+        if: env.SIGNED == 'true'
+        run: |
+          xcodebuild -project XCommander.xcodeproj -scheme XCommander -configuration Release \
+            -archivePath "$RUNNER_TEMP/XCommander.xcarchive" archive \
+            MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$BUILD" \
+            DEVELOPMENT_TEAM="$TEAM_ID" CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="Developer ID Application" \
+            OTHER_CODE_SIGN_FLAGS="--timestamp --keychain $KEYCHAIN"
+
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>developer-id</string>
+            <key>signingStyle</key><string>manual</string>
+            <key>signingCertificate</key><string>Developer ID Application</string>
+            <key>teamID</key><string>$TEAM_ID</string>
+          </dict>
+          </plist>
+          EOF
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/XCommander.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -exportPath "$RUNNER_TEMP/export"
+
+          APP="$RUNNER_TEMP/export/XCommander.app"
+          codesign --verify --deep --strict --verbose=2 "$APP"
+          codesign -dv --verbose=2 "$APP" 2>&1 | grep -E "^(Identifier|TeamIdentifier|Authority|Runtime)"
+
+      - name: Build the app (unsigned, dry run)
+        if: env.SIGNED != 'true'
+        run: |
+          xcodebuild -project XCommander.xcodeproj -scheme XCommander -configuration Release \
+            -derivedDataPath "$RUNNER_TEMP/build" \
+            MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$BUILD" \
+            CODE_SIGNING_ALLOWED=NO build
+          mkdir -p "$RUNNER_TEMP/export"
+          cp -R "$RUNNER_TEMP/build/Build/Products/Release/XCommander.app" "$RUNNER_TEMP/export/"
+
+      - name: Notarize and staple the app
+        if: env.SIGNED == 'true'
+        env:
+          NOTARY_KEY_ID: ${{ secrets.NOTARY_KEY_ID }}
+          NOTARY_ISSUER_ID: ${{ secrets.NOTARY_ISSUER_ID }}
+          NOTARY_KEY_P8_BASE64: ${{ secrets.NOTARY_KEY_P8_BASE64 }}
+        run: |
+          echo "$NOTARY_KEY_P8_BASE64" | base64 --decode > "$RUNNER_TEMP/AuthKey.p8"
+          APP="$RUNNER_TEMP/export/XCommander.app"
+          ditto -c -k --keepParent "$APP" "$RUNNER_TEMP/XCommander.zip"
+          .github/scripts/notarize.sh "$RUNNER_TEMP/XCommander.zip"
+          xcrun stapler staple "$APP"
+
+      - name: Make the DMG
+        run: |
+          STAGE="$RUNNER_TEMP/dmg"
+          mkdir -p "$STAGE"
+          cp -R "$RUNNER_TEMP/export/XCommander.app" "$STAGE/"
+          ln -s /Applications "$STAGE/Applications"
+          hdiutil create -volname "XCommander" -srcfolder "$STAGE" -ov -format UDZO \
+            "$RUNNER_TEMP/XCommander.dmg"
+
+      - name: Sign, notarize and staple the DMG
+        if: env.SIGNED == 'true'
+        env:
+          NOTARY_KEY_ID: ${{ secrets.NOTARY_KEY_ID }}
+          NOTARY_ISSUER_ID: ${{ secrets.NOTARY_ISSUER_ID }}
+        run: |
+          DMG="$RUNNER_TEMP/XCommander.dmg"
+          codesign --sign "Developer ID Application" --timestamp --keychain "$KEYCHAIN" "$DMG"
+          .github/scripts/notarize.sh "$DMG"
+          xcrun stapler staple "$DMG"
+          xcrun stapler validate "$DMG"
+          spctl --assess --type open --context context:primary-signature --verbose=2 "$DMG"
+
+      - name: Checksum
+        run: |
+          cd "$RUNNER_TEMP"
+          shasum -a 256 XCommander.dmg | tee XCommander.dmg.sha256
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: XCommander-${{ env.VERSION }}
+          path: |
+            ${{ runner.temp }}/XCommander.dmg
+            ${{ runner.temp }}/XCommander.dmg.sha256
+
+      # A draft, so the release can be downloaded and checked on a real Mac before anyone
+      # else sees it. Publishing it is a click on the Releases page.
+      - name: Create a draft GitHub release
+        if: env.SIGNED == 'true' && github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PRERELEASE=""
+          case "$VERSION" in *-*) PRERELEASE="--prerelease" ;; esac
+          gh release create "$GITHUB_REF_NAME" \
+            "$RUNNER_TEMP/XCommander.dmg" "$RUNNER_TEMP/XCommander.dmg.sha256" \
+            --draft $PRERELEASE --verify-tag --generate-notes \
+            --title "XCommander $VERSION"
+
+      - name: Clean up
+        if: always()
+        run: |
+          security delete-keychain "$KEYCHAIN" 2>/dev/null || true
+          rm -f "$RUNNER_TEMP/AuthKey.p8"

@@ -73,7 +73,7 @@
 		B9209E9306278F2BD4E4EA79 /* XcodeContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XcodeContext.swift; sourceTree = "<group>"; };
 		C7ECB843F9158712AAE3C0FC /* IndexStoreLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndexStoreLibrary.swift; sourceTree = "<group>"; };
 		CF6AD33E49ED521368401224 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		DCAB06BFB422E695D118DE63 /* xc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = xc; path = .; sourceTree = SOURCE_ROOT; };
+		D2610B83145CD60C04DAB897 /* XCommander */ = {isa = PBXFileReference; lastKnownFileType = folder; name = XCommander; path = .; sourceTree = SOURCE_ROOT; };
 		E0A928F82764E8846B045472 /* XcodeOpen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XcodeOpen.swift; sourceTree = "<group>"; };
 		EC19D042A93C38B0675DA693 /* PaneController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaneController.swift; sourceTree = "<group>"; };
 		EC420551AE08374F0AF921A6 /* SourceKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceKit.swift; sourceTree = "<group>"; };
@@ -100,7 +100,7 @@
 		096A1784A86DF07AA1E88041 /* Packages */ = {
 			isa = PBXGroup;
 			children = (
-				DCAB06BFB422E695D118DE63 /* xc */,
+				D2610B83145CD60C04DAB897 /* XCommander */,
 			);
 			name = Packages;
 			sourceTree = "<group>";
