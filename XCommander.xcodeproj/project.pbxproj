@@ -38,6 +38,7 @@
 		B5C3D8EEEFCE798E1555A728 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CF6AD33E49ED521368401224 /* Assets.xcassets */; };
 		B8EE2D51D94D2F0D6ABF536E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CCED62656E810B0794FD7FB /* AppDelegate.swift */; };
 		BAD325FACFEF12DC3845F4A6 /* XcodeContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9209E9306278F2BD4E4EA79 /* XcodeContext.swift */; };
+		C8C84331FF99D99F985A0BAC /* UpdateChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F413B80E09D10B0468826938 /* UpdateChecker.swift */; };
 		CCD7DC1ED3E190CAEE04A155 /* FileIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABB9B34EA9C5BE53FD520FD /* FileIndex.swift */; };
 		CE7A4455FE96E9F13DDCD7B3 /* XCommanderCore in Frameworks */ = {isa = PBXBuildFile; productRef = 9002247FE978C419B53B507A /* XCommanderCore */; };
 		EDA47C22262CABA2F0EBB704 /* ConfigCommandLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EDBFC26B4AAFA3A8EB9D3C8 /* ConfigCommandLine.swift */; };
@@ -78,6 +79,7 @@
 		EC19D042A93C38B0675DA693 /* PaneController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaneController.swift; sourceTree = "<group>"; };
 		EC420551AE08374F0AF921A6 /* SourceKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceKit.swift; sourceTree = "<group>"; };
 		EE8BBCE81724270F1407FE00 /* ProjectSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectSearch.swift; sourceTree = "<group>"; };
+		F413B80E09D10B0468826938 /* UpdateChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateChecker.swift; sourceTree = "<group>"; };
 		F6ADD4912488A2D31EF5852E /* EventBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventBridge.swift; sourceTree = "<group>"; };
 		FAA2C8223F99CE3D835EE30F /* PickerOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerOverlay.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -162,6 +164,7 @@
 				EC420551AE08374F0AF921A6 /* SourceKit.swift */,
 				7AE80277EBF71C7423692918 /* SymbolIndex.swift */,
 				46E8F20578C1BC0F2930E2A1 /* Theme.swift */,
+				F413B80E09D10B0468826938 /* UpdateChecker.swift */,
 				86040B0F3178798014D9C91C /* WindowTracker.swift */,
 				B9209E9306278F2BD4E4EA79 /* XcodeContext.swift */,
 				E0A928F82764E8846B045472 /* XcodeOpen.swift */,
@@ -281,6 +284,7 @@
 				AC301E82C69CACCC47D52DCB /* SourceKit.swift in Sources */,
 				90F2E8A2F463EC66E32CD827 /* SymbolIndex.swift in Sources */,
 				4D3C9419E84E6435FBB1CAC4 /* Theme.swift in Sources */,
+				C8C84331FF99D99F985A0BAC /* UpdateChecker.swift in Sources */,
 				2470425199BEF2B81F86762B /* WindowTracker.swift in Sources */,
 				BAD325FACFEF12DC3845F4A6 /* XcodeContext.swift in Sources */,
 				01EB671641D5CDDB79D8C1D2 /* XcodeOpen.swift in Sources */,

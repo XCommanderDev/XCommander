@@ -65,6 +65,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var hasAccessibility = false
     private var accessibilityPollTimer: Timer?
     private let firstRun = FirstRunWindow()
+    private let updateChecker = UpdateChecker()
 
     private let log = Logger(subsystem: "dev.xcommander.XCommander", category: "app")
 
@@ -103,6 +104,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             self?.applySettings()
         }
         menuBar.onShowSettings = { [weak self] in self?.settings.show() }
+        menuBar.bugReportURL = { [weak self] in self?.bugReportURL() ?? Self.issuesPage }
+        updateChecker.onUpdateAvailable = { [weak self] version, page in
+            self?.menuBar.announceUpdate(version: version, page: page)
+        }
+        updateChecker.start()
         settings.onChange = { [weak self] in self?.applySettings() }
         settings.checkKeymap = { [weak self] in self?.keymapCheckSummary() ?? "unavailable" }
         settings.rereadMenus = { [weak self] in
@@ -1015,5 +1021,29 @@ extension AppDelegate {
         }
         log.notice("\(command.id, privacy: .public) failed and Xcode \(release.build, privacy: .public)'s window does not match: \(needed.rawValue, privacy: .public)")
         menuBar.announceXcodeChanges("Xcode \(release.version) may have changed its window. See the report.")
+    }
+}
+
+// MARK: - reporting a bug
+
+extension AppDelegate {
+
+    static let issuesPage = URL(string: "https://github.com/XCommanderDev/XCommander/issues/new/choose")!
+
+    /// GitHub's bug report form, with the versions filled in. Issue forms read a field's value
+    /// from a query parameter named after the field's `id` in `.github/ISSUE_TEMPLATE/bug_report.yml`.
+    func bugReportURL() -> URL {
+        let info = Bundle.main.infoDictionary ?? [:]
+        let app = [info["CFBundleShortVersionString"], info["CFBundleVersion"]]
+            .compactMap { $0 as? String }.joined(separator: " build ")
+        let xcode = context.release.map { "\($0.version) (\($0.build))" } ?? "Xcode not running"
+        var components = URLComponents(string: "https://github.com/XCommanderDev/XCommander/issues/new")!
+        components.queryItems = [
+            URLQueryItem(name: "template", value: "bug_report.yml"),
+            URLQueryItem(name: "xcommander", value: app),
+            URLQueryItem(name: "xcode", value: xcode),
+            URLQueryItem(name: "macos", value: ProcessInfo.processInfo.operatingSystemVersionString),
+        ]
+        return components.url ?? Self.issuesPage
     }
 }

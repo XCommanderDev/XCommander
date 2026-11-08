@@ -130,7 +130,8 @@ pieces together with closures. None of the controllers know about each other.
 | `PickerOverlay` | `Companion/PickerOverlay.swift` | The picker window (query line, ranked list, optional preview pane). Never takes focus. |
 | `WindowTracker` | `Companion/WindowTracker.swift` | `AXObserver` on Xcode's window, so the panels follow it when it moves or resizes. |
 | `PaneController`, `AreaController` | `Companion/` | Editor panes, navigator, inspector and debug area, over Accessibility. |
-| `MenuBarController` | `Companion/MenuBarController.swift` | The status item and its menu. |
+| `MenuBarController` | `Companion/MenuBarController.swift` | The status item and its menu, including "Report a Bug…" and the update line. |
+| `UpdateChecker` | `Companion/UpdateChecker.swift` | Asks GitHub once a day for a newer release (the app's only network request; off in debug builds and in Settings). Which release counts as newer is `UpdateCheck` in Core. |
 | `SettingsWindow`, `FirstRunWindow` | `Companion/` | SwiftUI windows hosted in AppKit. |
 | `ConfigStore` | `Companion/ConfigStore.swift` | Finds, watches and reloads `config.toml`, keeps the last good result. |
 | `FileIndex`, `DocumentHistory`, `ProjectSearch`, `SymbolIndex`, `PreviewLoader` | `Companion/` | Data for the pickers: project files, recent files, ripgrep, Xcode's index store, the preview pane. |

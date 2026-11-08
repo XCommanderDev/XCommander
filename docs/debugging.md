@@ -18,7 +18,7 @@ The tooltip and the first line of the menu say the same thing in words.
 
 XCommander logs with `os.Logger` under the subsystem `dev.xcommander.XCommander`, with one
 category per area: `app`, `tap`, `menus`, `executor`, `panes`, `navigator`, `config`, `search`,
-`index`, `preview`, `tracker`, `open`.
+`index`, `preview`, `tracker`, `open`, `updates`.
 
 ```sh
 swift run xcdev logs                   # everything, live, including debug messages

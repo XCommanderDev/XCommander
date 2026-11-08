@@ -33,6 +33,7 @@ final class SettingsWindow {
         static let timeout = "sequenceTimeout"
         static let leader = "leaderChoice"
         static let preview = "pickerPreview"
+        static let checkForUpdates = "checkForUpdates"
     }
 
     /// The accessors below are what the rest of the app reads; the panes bind to the same keys
@@ -44,6 +45,12 @@ final class SettingsWindow {
     static var isEnabled: Bool {
         get { UserDefaults.standard.object(forKey: Key.enabled) as? Bool ?? true }
         set { UserDefaults.standard.set(newValue, forKey: Key.enabled) }
+    }
+
+    /// Whether to ask GitHub once a day for a newer release. On unless turned off.
+    static var checksForUpdates: Bool {
+        get { UserDefaults.standard.object(forKey: Key.checkForUpdates) as? Bool ?? true }
+        set { UserDefaults.standard.set(newValue, forKey: Key.checkForUpdates) }
     }
 
     static let defaultOverlayDelay = 0.35
@@ -167,6 +174,7 @@ private struct GeneralPane: View {
     @AppStorage(SettingsWindow.Key.enabled) private var isEnabled = true
     @AppStorage(SettingsWindow.Key.leader) private var leader = LeaderChoice.default
     @AppStorage(SettingsWindow.Key.preview) private var preview = PreviewMode.default
+    @AppStorage(SettingsWindow.Key.checkForUpdates) private var checksForUpdates = true
 
     /// Not a stored setting: the login item lives in `SMAppService`, and this mirrors it.
     @State private var launchesAtLogin = SMAppService.mainApp.status == .enabled
@@ -211,6 +219,10 @@ private struct GeneralPane: View {
                 // "is it safe to let this run all the time", which is the actual question.
                 Explained("XCommander passes every key through while Xcode is not frontmost.") {
                     Toggle("Launch at login", isOn: $launchesAtLogin)
+                }
+                Explained("Once a day, asks GitHub whether a newer release exists. Nothing is "
+                          + "downloaded, and nothing about you is sent.") {
+                    Toggle("Check for updates", isOn: $checksForUpdates)
                 }
             }
         }

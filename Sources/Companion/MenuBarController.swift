@@ -15,6 +15,8 @@ final class MenuBarController {
     var onOpenAccessibilitySettings: (() -> Void)?
     var onToggleEnabled: (() -> Void)?
     var onShowSettings: (() -> Void)?
+    /// The pre-filled bug report page. Supplied by the app, which knows which Xcode is running.
+    var bugReportURL: (() -> URL)?
 
     /// A **noun with a checkmark**, not a flipping verb.
     ///
@@ -33,6 +35,11 @@ final class MenuBarController {
     /// support conversation, and the menu is the only place they can read it without hunting
     /// through a settings window.
     private let versionEntry = NSMenuItem(title: "", action: nil, keyEquivalent: "")
+
+    /// "Update available: 0.2.0". Hidden until the update check finds something, and then it's
+    /// a link to the release page: it never downloads anything itself.
+    private let updateEntry = NSMenuItem(title: "", action: nil, keyEquivalent: "")
+    private var updatePage: URL?
 
     /// Shown next to the status line so the one thing a new user needs to know — which key
     /// starts everything — is visible without reading any documentation. Discovery is this
@@ -64,12 +71,23 @@ final class MenuBarController {
         versionEntry.isEnabled = false
         menu.addItem(versionEntry)
 
+        updateEntry.action = #selector(openUpdatePage)
+        updateEntry.target = self
+        updateEntry.isHidden = true
+        menu.addItem(updateEntry)
+
         menu.addItem(.separator())
 
         let settings = NSMenuItem(title: "Settings…", action: #selector(showSettings),
                                   keyEquivalent: ",")
         settings.target = self
         menu.addItem(settings)
+
+        // Opens GitHub's bug report form with the versions already filled in, because "which
+        // Xcode?" is the first question every report needs answered.
+        let report = NSMenuItem(title: "Report a Bug…", action: #selector(reportBug), keyEquivalent: "")
+        report.target = self
+        menu.addItem(report)
 
         // **Kept, but only when it is the answer to something.** This is the one item that
         // cannot live in the settings window: with no Accessibility permission the app sees
@@ -172,6 +190,15 @@ final class MenuBarController {
     }
 
     @objc private func toggleEnabled() { onToggleEnabled?() }
+    @objc private func openUpdatePage() { if let updatePage { NSWorkspace.shared.open(updatePage) } }
+    @objc private func reportBug() { if let url = bugReportURL?() { NSWorkspace.shared.open(url) } }
+
+    /// Show the update line. Called by `UpdateChecker` when GitHub has a newer release.
+    func announceUpdate(version: String, page: URL) {
+        updateEntry.title = "Update Available: \(version)…"
+        updatePage = page
+        updateEntry.isHidden = false
+    }
     @objc private func showSettings() { onShowSettings?() }
     @objc private func quit() { onQuit?() }
     @objc private func reload() { onReloadMenus?() }
