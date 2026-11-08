@@ -47,5 +47,10 @@ jobs:
       - uses: actions/upload-pages-artifact@v4
         with:
           path: site
+      # Pages names each deployment after the commit, and skips one whose name it has already
+      # deployed. A release published on the same commit as the last one, or edited later,
+      # would then never reach the feed, so every run gets its own name.
       - id: deploy
         uses: actions/deploy-pages@v4
+        env:
+          GITHUB_SHA: ${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
