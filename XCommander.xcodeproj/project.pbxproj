@@ -26,11 +26,13 @@
 		56B138874367116110EC2B43 /* SettingsWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1663C52F53C0DF204E990EA9 /* SettingsWindow.swift */; };
 		589F9347E4F04ECB17AFCDBC /* XCommanderAppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 61966EA14882DA76306471FC /* XCommanderAppIcon.icon */; };
 		69561F06433427EE3E1432E8 /* KeyboardLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69F9D96902D658BF4B04911B /* KeyboardLayout.swift */; };
+		714AB8F2A60F3AABE83975F9 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = A5B2B3E9F48B612A9B37542D /* Sparkle */; };
 		748CEB0136DD16269052CF5F /* DocumentHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 629A2174273413753E7C499E /* DocumentHistory.swift */; };
 		7622BB9F9D339B0EA6C2B337 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9981FBFA361BDD47B6BB2C /* main.swift */; };
 		84A1CD909BD84EE58D40F598 /* PreviewImageCommandLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 745181ADD8DE5489D36EC4EC /* PreviewImageCommandLine.swift */; };
 		90F2E8A2F463EC66E32CD827 /* SymbolIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE80277EBF71C7423692918 /* SymbolIndex.swift */; };
 		959DA1D2F8FDBC4B554BB73C /* PanelBacking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E6EC3F7885D543DFC820C50 /* PanelBacking.swift */; };
+		95C8E9D5D2F89515BD94051B /* Updater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85C62D722FDC70EAE624102C /* Updater.swift */; };
 		A19D8A09B16AF2152DD57433 /* FirstRunWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D1A30606D97908B01B8CE9 /* FirstRunWindow.swift */; };
 		AC301E82C69CACCC47D52DCB /* SourceKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC420551AE08374F0AF921A6 /* SourceKit.swift */; };
 		B1E5D56357E92907B86C0792 /* ConfigStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63318492F091E423199407A6 /* ConfigStore.swift */; };
@@ -38,7 +40,6 @@
 		B5C3D8EEEFCE798E1555A728 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CF6AD33E49ED521368401224 /* Assets.xcassets */; };
 		B8EE2D51D94D2F0D6ABF536E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CCED62656E810B0794FD7FB /* AppDelegate.swift */; };
 		BAD325FACFEF12DC3845F4A6 /* XcodeContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9209E9306278F2BD4E4EA79 /* XcodeContext.swift */; };
-		C8C84331FF99D99F985A0BAC /* UpdateChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F413B80E09D10B0468826938 /* UpdateChecker.swift */; };
 		CCD7DC1ED3E190CAEE04A155 /* FileIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABB9B34EA9C5BE53FD520FD /* FileIndex.swift */; };
 		CE7A4455FE96E9F13DDCD7B3 /* XCommanderCore in Frameworks */ = {isa = PBXBuildFile; productRef = 9002247FE978C419B53B507A /* XCommanderCore */; };
 		EDA47C22262CABA2F0EBB704 /* ConfigCommandLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EDBFC26B4AAFA3A8EB9D3C8 /* ConfigCommandLine.swift */; };
@@ -64,6 +65,7 @@
 		745181ADD8DE5489D36EC4EC /* PreviewImageCommandLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewImageCommandLine.swift; sourceTree = "<group>"; };
 		78FFE4183C66C33C721A5053 /* MenuBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarController.swift; sourceTree = "<group>"; };
 		7AE80277EBF71C7423692918 /* SymbolIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SymbolIndex.swift; sourceTree = "<group>"; };
+		85C62D722FDC70EAE624102C /* Updater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Updater.swift; sourceTree = "<group>"; };
 		86040B0F3178798014D9C91C /* WindowTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowTracker.swift; sourceTree = "<group>"; };
 		8E6EC3F7885D543DFC820C50 /* PanelBacking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelBacking.swift; sourceTree = "<group>"; };
 		9A9981FBFA361BDD47B6BB2C /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
@@ -79,7 +81,6 @@
 		EC19D042A93C38B0675DA693 /* PaneController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaneController.swift; sourceTree = "<group>"; };
 		EC420551AE08374F0AF921A6 /* SourceKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceKit.swift; sourceTree = "<group>"; };
 		EE8BBCE81724270F1407FE00 /* ProjectSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectSearch.swift; sourceTree = "<group>"; };
-		F413B80E09D10B0468826938 /* UpdateChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateChecker.swift; sourceTree = "<group>"; };
 		F6ADD4912488A2D31EF5852E /* EventBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventBridge.swift; sourceTree = "<group>"; };
 		FAA2C8223F99CE3D835EE30F /* PickerOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerOverlay.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -93,6 +94,7 @@
 				2B742E76F87D1C0638A76D6D /* CIndexStore in Frameworks */,
 				22DED6E837435A04F3AA7C1C /* CSourceKit in Frameworks */,
 				18DC433406F620EB21DD9C37 /* XcodeMenus in Frameworks */,
+				714AB8F2A60F3AABE83975F9 /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -164,7 +166,7 @@
 				EC420551AE08374F0AF921A6 /* SourceKit.swift */,
 				7AE80277EBF71C7423692918 /* SymbolIndex.swift */,
 				46E8F20578C1BC0F2930E2A1 /* Theme.swift */,
-				F413B80E09D10B0468826938 /* UpdateChecker.swift */,
+				85C62D722FDC70EAE624102C /* Updater.swift */,
 				86040B0F3178798014D9C91C /* WindowTracker.swift */,
 				B9209E9306278F2BD4E4EA79 /* XcodeContext.swift */,
 				E0A928F82764E8846B045472 /* XcodeOpen.swift */,
@@ -202,6 +204,7 @@
 				419C3030577060A7D2A70756 /* CIndexStore */,
 				E2130E98F0AA4A9FE33CCF4B /* CSourceKit */,
 				166136536EA27171FB618A54 /* XcodeMenus */,
+				A5B2B3E9F48B612A9B37542D /* Sparkle */,
 			);
 			productName = XCommander;
 			productReference = 2F46EDA00CD1772A8859C7C9 /* XCommander.app */;
@@ -232,6 +235,7 @@
 			);
 			mainGroup = 51B9D7063FBBF2B3D603BA8D;
 			packageReferences = (
+				B0B748628613A090AAD9403C /* XCRemoteSwiftPackageReference "Sparkle" */,
 				AA90BA1A3C83F8B9D7886C4B /* XCLocalSwiftPackageReference "." */,
 			);
 			projectDirPath = "";
@@ -284,7 +288,7 @@
 				AC301E82C69CACCC47D52DCB /* SourceKit.swift in Sources */,
 				90F2E8A2F463EC66E32CD827 /* SymbolIndex.swift in Sources */,
 				4D3C9419E84E6435FBB1CAC4 /* Theme.swift in Sources */,
-				C8C84331FF99D99F985A0BAC /* UpdateChecker.swift in Sources */,
+				95C8E9D5D2F89515BD94051B /* Updater.swift in Sources */,
 				2470425199BEF2B81F86762B /* WindowTracker.swift in Sources */,
 				BAD325FACFEF12DC3845F4A6 /* XcodeContext.swift in Sources */,
 				01EB671641D5CDDB79D8C1D2 /* XcodeOpen.swift in Sources */,
@@ -477,6 +481,17 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		B0B748628613A090AAD9403C /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.10.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCLocalSwiftPackageReference section */
 		AA90BA1A3C83F8B9D7886C4B /* XCLocalSwiftPackageReference "." */ = {
 			isa = XCLocalSwiftPackageReference;
@@ -496,6 +511,11 @@
 		9002247FE978C419B53B507A /* XCommanderCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = XCommanderCore;
+		};
+		A5B2B3E9F48B612A9B37542D /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B0B748628613A090AAD9403C /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
 		};
 		E2130E98F0AA4A9FE33CCF4B /* CSourceKit */ = {
 			isa = XCSwiftPackageProductDependency;

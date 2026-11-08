@@ -33,7 +33,6 @@ final class SettingsWindow {
         static let timeout = "sequenceTimeout"
         static let leader = "leaderChoice"
         static let preview = "pickerPreview"
-        static let checkForUpdates = "checkForUpdates"
     }
 
     /// The accessors below are what the rest of the app reads; the panes bind to the same keys
@@ -45,12 +44,6 @@ final class SettingsWindow {
     static var isEnabled: Bool {
         get { UserDefaults.standard.object(forKey: Key.enabled) as? Bool ?? true }
         set { UserDefaults.standard.set(newValue, forKey: Key.enabled) }
-    }
-
-    /// Whether to ask GitHub once a day for a newer release. On unless turned off.
-    static var checksForUpdates: Bool {
-        get { UserDefaults.standard.object(forKey: Key.checkForUpdates) as? Bool ?? true }
-        set { UserDefaults.standard.set(newValue, forKey: Key.checkForUpdates) }
     }
 
     static let defaultOverlayDelay = 0.35
@@ -106,6 +99,8 @@ final class SettingsWindow {
     /// Re-reads the config file and reports what it said. The one place a user will look
     /// when their `config.toml` does not seem to have taken effect.
     var configSummary: (() -> String)?
+    /// For the "Check for updates" toggle, which only appears when there's an updater.
+    var updater: Updater?
 
     private var window: NSWindow?
 
@@ -123,7 +118,7 @@ final class SettingsWindow {
 
         let tabs = SettingsTabController()
         tabs.tabStyle = .toolbar
-        tabs.addTab(GeneralPane(onChange: notify),
+        tabs.addTab(GeneralPane(onChange: notify, updater: updater),
                     label: "General", symbol: "gearshape")
         tabs.addTab(TimingPane(onChange: notify),
                     label: "Timing", symbol: "timer")
@@ -170,11 +165,13 @@ private final class SettingsTabController: NSTabViewController {
 private struct GeneralPane: View {
 
     let onChange: () -> Void
+    let updater: Updater?
 
     @AppStorage(SettingsWindow.Key.enabled) private var isEnabled = true
     @AppStorage(SettingsWindow.Key.leader) private var leader = LeaderChoice.default
     @AppStorage(SettingsWindow.Key.preview) private var preview = PreviewMode.default
-    @AppStorage(SettingsWindow.Key.checkForUpdates) private var checksForUpdates = true
+    /// Sparkle's own setting, on by default (`SUEnableAutomaticChecks` in the Info.plist).
+    @AppStorage(Updater.automaticChecksKey) private var checksForUpdates = true
 
     /// Not a stored setting: the login item lives in `SMAppService`, and this mirrors it.
     @State private var launchesAtLogin = SMAppService.mainApp.status == .enabled
@@ -220,9 +217,11 @@ private struct GeneralPane: View {
                 Explained("XCommander passes every key through while Xcode is not frontmost.") {
                     Toggle("Launch at login", isOn: $launchesAtLogin)
                 }
-                Explained("Once a day, asks GitHub whether a newer release exists. Nothing is "
-                          + "downloaded, and nothing about you is sent.") {
-                    Toggle("Check for updates", isOn: $checksForUpdates)
+                if updater?.isAvailable == true {
+                    Explained("Once a day, asks xcommander.dev whether a newer release exists, and "
+                              + "asks you before installing it. Nothing about you is sent.") {
+                        Toggle("Check for updates", isOn: $checksForUpdates)
+                    }
                 }
             }
         }
@@ -230,6 +229,7 @@ private struct GeneralPane: View {
         .frame(width: SettingsMetrics.width)
         .onChange(of: isEnabled) { _, _ in onChange() }
         .onChange(of: leader) { _, _ in onChange() }
+        .onChange(of: checksForUpdates) { _, on in updater?.setChecksAutomatically(on) }
         .onChange(of: launchesAtLogin) { _, wanted in setLoginItem(wanted) }
         .alert("Could not change the login item", isPresented: showingLoginError) {
             Button("OK") { loginError = nil }

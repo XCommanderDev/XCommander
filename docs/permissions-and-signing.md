@@ -111,5 +111,12 @@ Developer ID, notarized by Apple and published on the
 release workflow in `.github/workflows/release.yml` when I push a version tag, so once your pull
 request is merged, it's in the next release.
 
+Installed copies update themselves with [Sparkle](https://sparkle-project.org). When a release is
+published, `.github/workflows/appcast.yml` rebuilds the update feed (`swift run xcdev appcast`)
+from the published releases and serves it with GitHub Pages; the app reads it through
+`https://xcommander.dev/appcast.xml`. Each DMG is signed for Sparkle by the release workflow, and
+the app only installs an update whose signature matches the `SUPublicEDKey` in its `Info.plist`.
+Builds from source don't include Sparkle, so they never replace themselves.
+
 Every push and pull request also runs the tests and builds the app on GitHub Actions
 (`.github/workflows/ci.yml`), so you can see whether a change builds before anyone reviews it.

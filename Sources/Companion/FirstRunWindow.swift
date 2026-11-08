@@ -162,7 +162,7 @@ private struct FirstRunView: View {
             VStack(alignment: .leading, spacing: 6) {
                 bullet("Watches for one key, \(leader), and only while Xcode is in front.")
                 bullet("Reads Xcode's menus, and presses the item you choose.")
-                bullet("Nothing else. No analytics. Its only connection is a daily update check with GitHub, which you can turn off in Settings.")
+                bullet("Nothing else. No analytics. Its only connection is a daily update check, which you can turn off in Settings.")
             }
             .padding(.leading, 2)
 

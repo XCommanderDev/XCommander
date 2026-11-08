@@ -18,6 +18,11 @@ settings:
 packages:
   XCommanderCore:
     path: .
+  # In-app updates. Only the Xcode-built app links it: `xcdev` builds with SwiftPM and
+  # leaves it out, so a build from source never tries to replace itself.
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: "2.10.1"
 targets:
   XCommander:
     type: application
@@ -48,6 +53,7 @@ targets:
       # The AX menu walk, shared with the `xcmdr` maintenance tool.
       - package: XCommanderCore
         product: XcodeMenus
+      - package: Sparkle
     info:
       path: Sources/Companion/Info.plist
       properties:
@@ -60,6 +66,13 @@ targets:
         NSHumanReadableCopyright: "Copyright © 2026 Wassim Mansouri. Licensed under GPLv3."
         # A menu-bar app: no Dock icon, no app switcher entry.
         LSUIElement: true
+        # Sparkle. The feed is on xcommander.dev, which redirects to the copy GitHub Pages
+        # serves, so it can move later without stranding anyone. Updates must be signed with
+        # the private half of this key (kept in the maintainer's keychain and in the release
+        # environment's secrets). Automatic checks are on: the first-run window says so.
+        SUFeedURL: https://xcommander.dev/appcast.xml
+        SUPublicEDKey: HvdG3cQ42Ug2N00RGmfN8lfinUioZK6a2YW0bZuNK7A=
+        SUEnableAutomaticChecks: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: $(BUNDLE_ID_PREFIX).XCommander

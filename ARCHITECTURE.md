@@ -131,7 +131,7 @@ pieces together with closures. None of the controllers know about each other.
 | `WindowTracker` | `Companion/WindowTracker.swift` | `AXObserver` on Xcode's window, so the panels follow it when it moves or resizes. |
 | `PaneController`, `AreaController` | `Companion/` | Editor panes, navigator, inspector and debug area, over Accessibility. |
 | `MenuBarController` | `Companion/MenuBarController.swift` | The status item and its menu, including "Report a Bug…" and the update line. |
-| `UpdateChecker` | `Companion/UpdateChecker.swift` | Asks GitHub once a day for a newer release (the app's only network request; off in debug builds and in Settings). Which release counts as newer is `UpdateCheck` in Core. |
+| `Updater` | `Companion/Updater.swift` | Wraps Sparkle: once a day it reads the appcast at xcommander.dev (the app's only network request), shows the release notes and installs the update when you agree. Prereleases go only to people already running one. Off in debug builds and in builds made with `xcdev`, and can be turned off in Settings. |
 | `SettingsWindow`, `FirstRunWindow` | `Companion/` | SwiftUI windows hosted in AppKit. |
 | `ConfigStore` | `Companion/ConfigStore.swift` | Finds, watches and reloads `config.toml`, keeps the last good result. |
 | `FileIndex`, `DocumentHistory`, `ProjectSearch`, `SymbolIndex`, `PreviewLoader` | `Companion/` | Data for the pickers: project files, recent files, ripgrep, Xcode's index store, the preview pane. |

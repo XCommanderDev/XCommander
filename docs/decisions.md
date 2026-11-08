@@ -91,10 +91,17 @@ editor focused. See [Surviving Xcode upgrades](xcode-upgrades.md).
 **Why:** `~/.config` is where developers keep their tool settings, and a file can be shared and
 committed. A broken file never half-applies: you keep the last good keymap and get a message.
 
-### No third-party dependencies
+### One third-party dependency: Sparkle, for updates
 
 **Why:** the app reads keystrokes on your machine, so every dependency is code with that access.
-The TOML reader and the argument parsing in `xcmdr` are small and written by hand.
+The TOML reader and the argument parsing in `xcmdr` are small and written by hand. The one
+exception is [Sparkle](https://sparkle-project.org), because updating an app safely is hard to get
+right and Sparkle is what most Mac apps outside the App Store use: open source, widely audited,
+and it checks every update against both an EdDSA key and the app's Developer ID before installing
+it. It's linked only into the app Xcode builds. A build made with `xcdev` leaves it out and never
+updates itself.
+**Cost:** a pinned version to keep up with (`project.yml`), and a signing key to look after. If
+the private key is lost, installed copies can't verify updates any more, so it's backed up.
 
 ### The Xcode project is generated
 

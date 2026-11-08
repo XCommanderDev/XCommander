@@ -96,6 +96,7 @@ jobs:
         run: |
           xcodebuild -project XCommander.xcodeproj -scheme XCommander -configuration Release \
             -archivePath "$RUNNER_TEMP/XCommander.xcarchive" archive \
+            -clonedSourcePackagesDirPath "$RUNNER_TEMP/spm" \
             MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$BUILD" \
             DEVELOPMENT_TEAM="$TEAM_ID" CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="Developer ID Application" \
@@ -166,6 +167,31 @@ jobs:
           xcrun stapler validate "$DMG"
           spctl --assess --type open --context context:primary-signature --verbose=2 "$DMG"
 
+      # Sparkle checks every update against the EdDSA public key built into the app, so the
+      # DMG is signed with the private half. The signature, and the build number Sparkle
+      # compares versions with, go in sparkle-update.json, which the Appcast workflow reads
+      # when the release is published. sign_update comes with the Sparkle package.
+      - name: Sign the update for Sparkle
+        if: env.SIGNED == 'true'
+        env:
+          SPARKLE_ED_PRIVATE_KEY: ${{ secrets.SPARKLE_ED_PRIVATE_KEY }}
+        run: |
+          DMG="$RUNNER_TEMP/XCommander.dmg"
+          SIGNATURE=$(echo "$SPARKLE_ED_PRIVATE_KEY" \
+            | "$RUNNER_TEMP/spm/artifacts/sparkle/Sparkle/bin/sign_update" --ed-key-file - -p "$DMG")
+          swift .github/scripts/verify-sparkle-signature.swift \
+            "$RUNNER_TEMP/export/XCommander.app" "$DMG" "$SIGNATURE"
+          cat > "$RUNNER_TEMP/sparkle-update.json" <<EOF
+          {
+            "version": "$VERSION",
+            "build": "$BUILD",
+            "edSignature": "$SIGNATURE",
+            "length": $(stat -f%z "$DMG"),
+            "minimumSystemVersion": "14.0"
+          }
+          EOF
+          cat "$RUNNER_TEMP/sparkle-update.json"
+
       - name: Checksum
         run: |
           cd "$RUNNER_TEMP"
@@ -177,9 +203,11 @@ jobs:
           path: |
             ${{ runner.temp }}/XCommander.dmg
             ${{ runner.temp }}/XCommander.dmg.sha256
+            ${{ runner.temp }}/sparkle-update.json
 
       # A draft, so the release can be downloaded and checked on a real Mac before anyone
-      # else sees it. Publishing it is a click on the Releases page.
+      # else sees it. Publishing it is a click on the Releases page, and that's also what
+      # puts it in the appcast (see appcast.yml), so nobody is offered an unchecked build.
       - name: Create a draft GitHub release
         if: env.SIGNED == 'true' && github.ref_type == 'tag'
         env:
@@ -189,6 +217,7 @@ jobs:
           case "$VERSION" in *-*) PRERELEASE="--prerelease" ;; esac
           gh release create "$GITHUB_REF_NAME" \
             "$RUNNER_TEMP/XCommander.dmg" "$RUNNER_TEMP/XCommander.dmg.sha256" \
+            "$RUNNER_TEMP/sparkle-update.json" \
             --draft $PRERELEASE --verify-tag --generate-notes \
             --title "XCommander $VERSION"
 

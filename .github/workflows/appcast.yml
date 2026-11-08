@@ -1,0 +1,51 @@
+# Publishes Sparkle's update feed, appcast.xml, with GitHub Pages.
+#
+# Runs when a release is published, edited, unpublished or deleted, so the feed always lists
+# exactly the published releases. Drafts never appear in it: a release reaches people's Macs
+# only after it has been checked and published by hand.
+#
+# The app reads https://xcommander.dev/appcast.xml, which redirects here. Keeping our own
+# domain in the app means the feed can move without stranding anyone on an old build.
+name: Appcast
+
+on:
+  release:
+    types: [published, edited, unpublished, deleted]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: appcast
+  cancel-in-progress: true
+
+jobs:
+  appcast:
+    runs-on: xcode-27
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}appcast.xml
+    steps:
+      # The generator comes from main, whichever release triggered the run.
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+
+      - name: Write the appcast
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          swift run xcdev appcast site/appcast.xml
+          # Anyone opening the Pages address in a browser lands on the website.
+          echo '<!doctype html><meta http-equiv="refresh" content="0; url=https://xcommander.dev">' \
+            > site/index.html
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4

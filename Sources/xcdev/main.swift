@@ -8,6 +8,7 @@ import Foundation
 //   swift run xcdev bundle    build and sign the app without launching it
 //   swift run xcdev build     just compile
 //   swift run xcdev icons     regenerate the app icon and menu bar mark from Graphics/
+//   swift run xcdev appcast <file>   write Sparkle's update feed from the GitHub releases
 //
 // Add --release to build an optimised app instead of a debug one.
 //
@@ -16,7 +17,7 @@ import Foundation
 // does it from Terminal, which is faster when you're iterating.
 
 let usage = """
-    usage: swift run xcdev [run|stop|logs|bundle|build|icons] [--release]
+    usage: swift run xcdev [run|stop|logs|bundle|build|icons|appcast <file>] [--release]
 
       run      build the app, sign it and launch it (the default)
       stop     quit the running app
@@ -24,6 +25,7 @@ let usage = """
       bundle   build and sign the app without launching it
       build    just compile
       icons    regenerate the app icon and menu bar mark from Graphics/
+      appcast  write Sparkle's update feed to <file>, from the published GitHub releases
     """
 
 let arguments = Array(CommandLine.arguments.dropFirst())
@@ -43,6 +45,10 @@ do {
     case "stop": app.stop()
     case "logs": try app.streamLogs()
     case "icons": try IconMaker(project: project).make()
+    case "appcast":
+        let rest = arguments.filter { !$0.hasPrefix("-") }.dropFirst()
+        guard let path = rest.first else { throw Message("usage: swift run xcdev appcast <file>") }
+        try Appcast().write(to: URL(fileURLWithPath: path))
     case "help", "--help", "-h":
         print(usage)
     default:

@@ -83,7 +83,7 @@ From Terminal, `swift run xcdev run` builds, signs and launches the app, and `sw
 
 ## Official builds
 
-When XCommander is ready, official builds will be published on this repository's [Releases](https://github.com/XCommanderDev/XCommander/releases) page and linked from [xcommander.dev](https://xcommander.dev). They're built by GitHub Actions from a tagged commit, signed with my Developer ID and notarized by Apple. Builds from anywhere else are not the official app.
+Official builds are published on this repository's [Releases](https://github.com/XCommanderDev/XCommander/releases) page and linked from [xcommander.dev](https://xcommander.dev). They're built by GitHub Actions from a tagged commit, signed with my Developer ID and notarized by Apple, and they update themselves with [Sparkle](https://sparkle-project.org). Builds from anywhere else are not the official app. For now they're early alphas: expect bugs.
 
 ## Follow along
 

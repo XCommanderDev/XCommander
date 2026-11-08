@@ -17,6 +17,8 @@ final class MenuBarController {
     var onShowSettings: (() -> Void)?
     /// The pre-filled bug report page. Supplied by the app, which knows which Xcode is running.
     var bugReportURL: (() -> URL)?
+    /// Opens Sparkle's update window.
+    var onCheckForUpdates: (() -> Void)?
 
     /// A **noun with a checkmark**, not a flipping verb.
     ///
@@ -36,10 +38,13 @@ final class MenuBarController {
     /// through a settings window.
     private let versionEntry = NSMenuItem(title: "", action: nil, keyEquivalent: "")
 
-    /// "Update available: 0.2.0". Hidden until the update check finds something, and then it's
-    /// a link to the release page: it never downloads anything itself.
+    /// "Update Available: 0.2.0…". Hidden until Sparkle finds an update in the background;
+    /// clicking it opens Sparkle's window with the release notes.
     private let updateEntry = NSMenuItem(title: "", action: nil, keyEquivalent: "")
-    private var updatePage: URL?
+
+    /// "Check for Updates…". Hidden in builds without a running updater (debug builds, and
+    /// builds made with `xcdev`), where it could only ever fail.
+    private let checkForUpdatesEntry = NSMenuItem(title: "Check for Updates…", action: nil, keyEquivalent: "")
 
     /// Shown next to the status line so the one thing a new user needs to know — which key
     /// starts everything — is visible without reading any documentation. Discovery is this
@@ -71,7 +76,7 @@ final class MenuBarController {
         versionEntry.isEnabled = false
         menu.addItem(versionEntry)
 
-        updateEntry.action = #selector(openUpdatePage)
+        updateEntry.action = #selector(checkForUpdates)
         updateEntry.target = self
         updateEntry.isHidden = true
         menu.addItem(updateEntry)
@@ -82,6 +87,11 @@ final class MenuBarController {
                                   keyEquivalent: ",")
         settings.target = self
         menu.addItem(settings)
+
+        checkForUpdatesEntry.action = #selector(checkForUpdates)
+        checkForUpdatesEntry.target = self
+        checkForUpdatesEntry.isHidden = true
+        menu.addItem(checkForUpdatesEntry)
 
         // Opens GitHub's bug report form with the versions already filled in, because "which
         // Xcode?" is the first question every report needs answered.
@@ -190,14 +200,19 @@ final class MenuBarController {
     }
 
     @objc private func toggleEnabled() { onToggleEnabled?() }
-    @objc private func openUpdatePage() { if let updatePage { NSWorkspace.shared.open(updatePage) } }
+    @objc private func checkForUpdates() { onCheckForUpdates?() }
     @objc private func reportBug() { if let url = bugReportURL?() { NSWorkspace.shared.open(url) } }
 
-    /// Show the update line. Called by `UpdateChecker` when GitHub has a newer release.
-    func announceUpdate(version: String, page: URL) {
-        updateEntry.title = "Update Available: \(version)…"
-        updatePage = page
-        updateEntry.isHidden = false
+    /// Whether to offer "Check for Updates…". Set once at launch by the app.
+    var offersUpdateCheck: Bool {
+        get { !checkForUpdatesEntry.isHidden }
+        set { checkForUpdatesEntry.isHidden = !newValue }
+    }
+
+    /// Show the update line, or hide it with nil. Called by `Updater`.
+    func announceUpdate(version: String?) {
+        if let version { updateEntry.title = "Update Available: \(version)…" }
+        updateEntry.isHidden = version == nil
     }
     @objc private func showSettings() { onShowSettings?() }
     @objc private func quit() { onQuit?() }

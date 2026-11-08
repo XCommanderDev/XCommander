@@ -26,5 +26,11 @@
 	<string>Copyright © 2026 Wassim Mansouri. Licensed under GPLv3.</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<key>SUFeedURL</key>
+	<string>https://xcommander.dev/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>HvdG3cQ42Ug2N00RGmfN8lfinUioZK6a2YW0bZuNK7A=</string>
 </dict>
 </plist>

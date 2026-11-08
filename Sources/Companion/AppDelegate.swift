@@ -65,7 +65,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var hasAccessibility = false
     private var accessibilityPollTimer: Timer?
     private let firstRun = FirstRunWindow()
-    private let updateChecker = UpdateChecker()
+    private let updater = Updater()
 
     private let log = Logger(subsystem: "dev.xcommander.XCommander", category: "app")
 
@@ -105,10 +105,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         menuBar.onShowSettings = { [weak self] in self?.settings.show() }
         menuBar.bugReportURL = { [weak self] in self?.bugReportURL() ?? Self.issuesPage }
-        updateChecker.onUpdateAvailable = { [weak self] version, page in
-            self?.menuBar.announceUpdate(version: version, page: page)
-        }
-        updateChecker.start()
+        updater.onUpdateWaiting = { [weak self] version in self?.menuBar.announceUpdate(version: version) }
+        updater.onUpdateHandled = { [weak self] in self?.menuBar.announceUpdate(version: nil) }
+        menuBar.onCheckForUpdates = { [weak self] in self?.updater.checkForUpdates() }
+        updater.start()
+        menuBar.offersUpdateCheck = updater.canCheckForUpdates
+        settings.updater = updater
         settings.onChange = { [weak self] in self?.applySettings() }
         settings.checkKeymap = { [weak self] in self?.keymapCheckSummary() ?? "unavailable" }
         settings.rereadMenus = { [weak self] in
