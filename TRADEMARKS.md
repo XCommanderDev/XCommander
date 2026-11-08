@@ -15,8 +15,12 @@ The XCommander source code is free software under the [GPLv3](LICENSE). The lice
 - Using a name or icon close enough to be confused with XCommander.
 - Suggesting that your fork, product or service is official or endorsed.
 
+## Artwork
+
+The hat artwork and app icon are © 2026 Wassim Mansouri, all rights reserved. That covers the files in `Graphics/`, the icon in `Sources/Companion/XCommanderAppIcon.icon` and the images generated from them. They're in this repository so the official app can be built from source. They're not under the GPLv3, and a fork that's distributed needs its own icon.
+
 ## Official builds
 
-The only official builds of XCommander are published at [xcommander.dev](https://xcommander.dev), signed with Wassim Mansouri's Developer ID and notarized by Apple. If you got XCommander anywhere else, it's not the official app.
+The only official builds of XCommander are published on this repository's [GitHub Releases](https://github.com/XCommanderDev/XCommander/releases) page, linked from [xcommander.dev](https://xcommander.dev), signed with Wassim Mansouri's Developer ID and notarized by Apple. If you got XCommander anywhere else, it's not the official app.
 
 For permission or questions, write to wassim@xcommander.dev.
