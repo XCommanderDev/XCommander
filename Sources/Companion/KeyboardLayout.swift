@@ -1,6 +1,6 @@
 import Carbon
 import CoreGraphics
-import AutographeCore
+import XCommanderCore
 
 /// Translates between characters and virtual keycodes using the layout that is actually
 /// installed, rather than assuming ANSI.

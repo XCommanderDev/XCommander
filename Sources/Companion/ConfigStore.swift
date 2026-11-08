@@ -1,10 +1,10 @@
 import AppKit
-import AutographeCore
+import XCommanderCore
 import os
 
 /// Finds the configuration files, reads them, watches them, and keeps the last good result.
 ///
-/// Everything that decides what a file *means* lives in `AutographeCore` and is tested without
+/// Everything that decides what a file *means* lives in `XCommanderCore` and is tested without
 /// a disk. This type is the part that cannot be: paths, file descriptors, and the debounce
 /// around an editor that writes three times in a row. Keeping the split means the interesting
 /// half is testable and this half is small enough to read.
@@ -15,16 +15,16 @@ import os
 @MainActor
 final class ConfigStore {
 
-    /// `~/.config/autographe/config.toml`, where this audience already keeps such things.
+    /// `~/.config/xcommander/config.toml`, where this audience already keeps such things.
     static var directory: URL {
         URL(fileURLWithPath: NSHomeDirectory())
-            .appending(path: ".config/autographe", directoryHint: .isDirectory)
+            .appending(path: ".config/xcommander", directoryHint: .isDirectory)
     }
 
     static var globalFile: URL { directory.appending(path: "config.toml") }
 
     /// Committed in a repo, layered over the global file.
-    static let projectFileName = ".autographe.toml"
+    static let projectFileName = ".xcommander.toml"
 
     /// Supplied by the app, because the project root follows Xcode's frontmost document.
     var projectRoot: () -> URL? = { nil }
@@ -47,7 +47,7 @@ final class ConfigStore {
     private var fileWatch: DispatchSourceFileSystemObject?
     private var directoryWatch: DispatchSourceFileSystemObject?
     private var debounce: Timer?
-    private let log = Logger(subsystem: "com.wassimans.AutographeForXcode", category: "config")
+    private let log = Logger(subsystem: "dev.xcommander.XCommander", category: "config")
 
     init(registry: CommandRegistry) {
         self.registry = registry

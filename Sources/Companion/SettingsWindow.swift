@@ -1,5 +1,5 @@
 import AppKit
-import AutographeCore
+import XCommanderCore
 import ServiceManagement
 import SwiftUI
 
@@ -209,7 +209,7 @@ private struct GeneralPane: View {
             Section {
                 // The hint is an argument for the switch, not a description of it: it answers
                 // "is it safe to let this run all the time", which is the actual question.
-                Explained("Autographe passes every key through while Xcode is not frontmost.") {
+                Explained("XCommander passes every key through while Xcode is not frontmost.") {
                     Toggle("Launch at login", isOn: $launchesAtLogin)
                 }
             }
@@ -298,7 +298,7 @@ private struct DiagnosticsPane: View {
 
     @State private var result = "Verifies every binding still resolves against Xcode's menus."
     @State private var configResult =
-        "Re-reads ~/.config/autographe/config.toml and reports what it said."
+        "Re-reads ~/.config/xcommander/config.toml and reports what it said."
 
     var body: some View {
         Form {
@@ -332,7 +332,7 @@ private struct DiagnosticsPane: View {
                 }
             }
             Section {
-                LabeledContent("Autographe for Xcode", value: version)
+                LabeledContent("XCommander", value: version)
             }
         }
         .formStyle(.grouped)

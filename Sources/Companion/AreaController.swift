@@ -1,6 +1,6 @@
 import AppKit
 import ApplicationServices
-import AutographeCore
+import XCommanderCore
 import XcodeMenus
 import os
 
@@ -32,7 +32,7 @@ import os
 @MainActor
 final class AreaController {
 
-    private let log = Logger(subsystem: "com.wassimans.AutographeForXcode", category: "navigator")
+    private let log = Logger(subsystem: "dev.xcommander.XCommander", category: "navigator")
 
     init() {}
 

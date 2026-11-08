@@ -1,53 +1,68 @@
-name: Autographe for Xcode
+# The Xcode project is generated from this file by XcodeGen:
+#
+#   brew install xcodegen
+#   xcodegen
+#
+# Edit this file, not XCommander.xcodeproj, then regenerate. The generated project is
+# committed so the repo opens in Xcode without installing anything.
+name: XCommander
 options:
-  bundleIdPrefix: com.wassimans
   deploymentTarget:
     macOS: "14.0"
   createIntermediateGroups: true
 settings:
   base:
-    DEVELOPMENT_TEAM: D3XY49J59H
     CODE_SIGN_STYLE: Automatic
     SWIFT_VERSION: "6.0"
     ENABLE_HARDENED_RUNTIME: YES
 packages:
-  AutographeCore:
+  XCommanderCore:
     path: .
 targets:
-  Autographe for Xcode:
+  XCommander:
     type: application
     platform: macOS
+    # DEVELOPMENT_TEAM and BUNDLE_ID_PREFIX come from here. To sign with your own
+    # account, create Config/Signing.local.xcconfig (see the comments in Signing.xcconfig).
+    configFiles:
+      Debug: Config/Signing.xcconfig
+      Release: Config/Signing.xcconfig
     sources:
       - path: Sources/Companion
         excludes:
-          - "AutographeAppIcon.icon/**"
-      # Declared as a single file, not scanned as a group: otherwise xcodegen adds
-      # icon.json and pens.png individually and they are copied into Resources as loose
-      # files instead of being compiled by actool.
-      - path: Sources/Companion/AutographeAppIcon.icon
+          - "XCommanderAppIcon.icon/**"
+      # Declared as a single file, not scanned as a group: otherwise XcodeGen adds the
+      # document's icon.json and layer individually, they are copied into Resources as loose
+      # files, and actool never compiles the icon.
+      - path: Sources/Companion/XCommanderAppIcon.icon
         type: file
     dependencies:
-      - package: AutographeCore
-        product: AutographeCore
-      - package: AutographeCore
+      - package: XCommanderCore
+        product: XCommanderCore
+      - package: XCommanderCore
         product: CIndexStore
+      - package: XCommanderCore
+        product: CSourceKit
       # The AX menu walk, shared with the `xcmdr` maintenance tool.
-      - package: AutographeCore
+      - package: XCommanderCore
         product: XcodeMenus
     info:
       path: Sources/Companion/Info.plist
       properties:
-        CFBundleName: Autographe for Xcode
-        CFBundleIdentifier: com.wassimans.AutographeForXcode
+        CFBundleName: XCommander
+        CFBundleIdentifier: $(PRODUCT_BUNDLE_IDENTIFIER)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSMinimumSystemVersion: "14.0"
         NSPrincipalClass: NSApplication
+        NSHumanReadableCopyright: "Copyright © 2026 Wassim Mansouri. Licensed under GPLv3."
         # A menu-bar app: no Dock icon, no app switcher entry.
         LSUIElement: true
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.wassimans.AutographeForXcode
-        # The Icon Composer document, not the asset catalogue's AppIcon: macOS 26 draws it
-        # with the layered treatment, and actool compiles legacy representations from the
-        # same file for the deployment target. Regenerate its layer with tools/icons.sh.
-        ASSETCATALOG_COMPILER_APPICON_NAME: AutographeAppIcon
-        INFOPLIST_KEY_NSHumanReadableCopyright: ""
+        PRODUCT_BUNDLE_IDENTIFIER: $(BUNDLE_ID_PREFIX).XCommander
+        MARKETING_VERSION: "0.1"
+        CURRENT_PROJECT_VERSION: "1"
+        # The Icon Composer document, not an asset catalogue AppIcon: macOS 26 draws it with
+        # the layered treatment, and actool builds older sizes from the same file.
+        ASSETCATALOG_COMPILER_APPICON_NAME: XCommanderAppIcon

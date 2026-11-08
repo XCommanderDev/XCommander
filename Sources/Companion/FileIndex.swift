@@ -1,5 +1,5 @@
 import Foundation
-import AutographeCore
+import XCommanderCore
 
 /// The project's files, for the file picker.
 ///

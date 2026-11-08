@@ -1,8 +1,8 @@
 import AppKit
-import AutographeCore
+import XCommanderCore
 import Foundation
 
-/// `Autographe --preview-image <file> <out.png> [line]` — the picker panel, rendered offscreen.
+/// `XCommander --preview-image <file> <out.png> [line]` — the picker panel, rendered offscreen.
 ///
 /// The panel is borderless, ignores the mouse, sits above everything and vanishes on Escape.
 /// That makes it the hardest surface in the app to *look* at, and design work needs looking.
@@ -40,9 +40,9 @@ enum PreviewImageCommandLine {
             PickerItem(id: "file:\(path)", title: name,
                        detail: (path as NSString).deletingLastPathComponent, icon: .file),
             PickerItem(id: "file:/other/Keymap.swift", title: "Keymap.swift",
-                       detail: "Sources/AutographeCore", icon: .file),
+                       detail: "Sources/XCommanderCore", icon: .file),
             PickerItem(id: "file:/other/Picker.swift", title: "Picker.swift",
-                       detail: "Sources/AutographeCore", icon: .file),
+                       detail: "Sources/XCommanderCore", icon: .file),
         ])
         session.pageSize = 8
         view.session = session

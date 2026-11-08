@@ -1,4 +1,4 @@
-import AutographeCore
+import XCommanderCore
 import Foundation
 
 /// The two things a person publishing a configuration file needs from this app.
@@ -29,12 +29,12 @@ enum ConfigCommandLine {
     private static func printReference() {
         let (registry, keymap) = DefaultKeymap.build()
 
-        print("# Autographe configuration reference")
+        print("# XCommander configuration reference")
         print("")
         print("Format version \(ConfigSchema.version). A file must begin with "
               + "`version = \(ConfigSchema.version)`.")
-        print("Global file: ~/.config/autographe/config.toml")
-        print("Per-project: .autographe.toml in the project root, layered over the global one.")
+        print("Global file: ~/.config/xcommander/config.toml")
+        print("Per-project: .xcommander.toml in the project root, layered over the global one.")
         print("")
 
         print("## Sections")
@@ -75,7 +75,7 @@ enum ConfigCommandLine {
 
     private static func check(_ files: [String]) -> Bool {
         guard !files.isEmpty else {
-            print("usage: Autographe --check <file>…")
+            print("usage: XCommander --check <file>…")
             return false
         }
 

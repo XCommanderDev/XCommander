@@ -1,6 +1,6 @@
 import AppKit
 import CoreGraphics
-import AutographeCore
+import XCommanderCore
 import os
 
 /// Runs a command against Xcode.
@@ -57,7 +57,7 @@ final class CommandExecutor {
 
     private let context: XcodeContext
     private let source = CGEventSource(stateID: .hidSystemState)
-    private let log = Logger(subsystem: "com.wassimans.AutographeForXcode", category: "executor")
+    private let log = Logger(subsystem: "dev.xcommander.XCommander", category: "executor")
 
     /// Companion commands (quit, reload) are handed back out rather than performed here,
     /// so the executor has no opinion about the app's lifecycle.

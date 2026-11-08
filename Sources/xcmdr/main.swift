@@ -1,7 +1,7 @@
 import AppKit
 import ApplicationServices
 import Foundation
-import AutographeCore
+import XCommanderCore
 import XcodeMenus
 
 // xcmdr — the maintainer's tool.

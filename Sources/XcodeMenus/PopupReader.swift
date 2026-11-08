@@ -1,6 +1,6 @@
 import AppKit
 import ApplicationServices
-import AutographeCore
+import XCommanderCore
 
 /// Reading one of Xcode's toolbar popups.
 ///

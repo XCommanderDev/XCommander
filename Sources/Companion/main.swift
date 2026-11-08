@@ -1,5 +1,5 @@
 import AppKit
-import AutographeCore
+import XCommanderCore
 
 // Two command-line modes, handled before any UI exists.
 //
@@ -8,10 +8,10 @@ import AutographeCore
 // it certifies a file that will not work. Both modes go through `ConfigDecoder` and
 // `ConfigResolver` exactly as a live reload does.
 //
-//   Autographe --check <file>...    validate configs, print diagnostics, exit non-zero on error
-//   Autographe --print-reference    the whole contract: sections, key syntax, command ids
-//   Autographe --preview <file> [n] what the preview pane would draw, as text
-//   Autographe --preview-image …     the same, rendered as a PNG to look at
+//   XCommander --check <file>...    validate configs, print diagnostics, exit non-zero on error
+//   XCommander --print-reference    the whole contract: sections, key syntax, command ids
+//   XCommander --preview <file> [n] what the preview pane would draw, as text
+//   XCommander --preview-image …     the same, rendered as a PNG to look at
 if let mode = CommandLine.arguments.dropFirst().first,
    mode == "--check" || mode == "--print-reference" {
     let files = Array(CommandLine.arguments.dropFirst(2))

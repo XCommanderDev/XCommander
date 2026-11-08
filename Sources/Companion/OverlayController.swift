@@ -1,5 +1,5 @@
 import AppKit
-import AutographeCore
+import XCommanderCore
 
 /// The which-key panel: a borderless, non-activating window pinned to the bottom inner
 /// edge of Xcode's frontmost window.

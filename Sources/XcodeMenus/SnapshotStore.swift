@@ -1,9 +1,9 @@
 import Foundation
-import AutographeCore
+import XCommanderCore
 
 /// Where what we know about each Xcode is kept, and how it accumulates.
 ///
-/// Beside the user's config, in `~/.config/autographe/xcode/`, as plain sorted JSON. That is
+/// Beside the user's config, in `~/.config/xcommander/xcode/`, as plain sorted JSON. That is
 /// deliberate: this audience reads their dotfiles, and a file they can `cat`, `git diff` and
 /// delete is a better answer than a database they cannot see. Deleting one costs nothing —
 /// the app rebuilds it by looking at Xcode again.
@@ -11,7 +11,7 @@ public struct SnapshotStore {
 
     public static var directory: URL {
         URL(fileURLWithPath: NSHomeDirectory())
-            .appending(path: ".config/autographe/xcode", directoryHint: .isDirectory)
+            .appending(path: ".config/xcommander/xcode", directoryHint: .isDirectory)
     }
 
     public var directory: URL

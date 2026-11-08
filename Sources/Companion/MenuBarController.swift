@@ -1,6 +1,6 @@
 import AppKit
 import XcodeMenus
-import AutographeCore
+import XCommanderCore
 
 /// The status item. Small, but it is the only surface the app has when something is wrong,
 /// so it says *why* rather than just going quiet.
@@ -60,7 +60,7 @@ final class MenuBarController {
 
         let short = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String
-        versionEntry.title = build.map { "Autographe \(short) (\($0))" } ?? "Autographe \(short)"
+        versionEntry.title = build.map { "XCommander \(short) (\($0))" } ?? "XCommander \(short)"
         versionEntry.isEnabled = false
         menu.addItem(versionEntry)
 

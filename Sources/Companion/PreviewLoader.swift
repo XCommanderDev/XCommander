@@ -1,4 +1,4 @@
-import AutographeCore
+import XCommanderCore
 import Foundation
 import os
 
@@ -50,9 +50,9 @@ final class PreviewLoader {
 
     private var generation = 0
     private var debounce: Timer?
-    private let queue = DispatchQueue(label: "com.wassimans.AutographeForXcode.preview",
+    private let queue = DispatchQueue(label: "dev.xcommander.XCommander.preview",
                                       qos: .userInitiated)
-    private let log = Logger(subsystem: "com.wassimans.AutographeForXcode", category: "preview")
+    private let log = Logger(subsystem: "dev.xcommander.XCommander", category: "preview")
 
     /// The project the picker is working in. Nothing outside it is ever read.
     ///

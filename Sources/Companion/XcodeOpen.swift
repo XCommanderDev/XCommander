@@ -1,6 +1,6 @@
 import AppKit
 import Foundation
-import AutographeCore
+import XCommanderCore
 import os
 
 /// Opening a file **in Xcode**, which is not the same thing as opening it.
@@ -15,7 +15,7 @@ import os
 /// `xed` is the developer tools' own "open in Xcode" command. It ignores the default handler,
 /// takes an optional line, and brings Xcode forward.
 enum XcodeOpen {
-    private static let log = Logger(subsystem: "com.wassimans.AutographeForXcode", category: "open")
+    private static let log = Logger(subsystem: "dev.xcommander.XCommander", category: "open")
     private static let xed = "/usr/bin/xed"
 
     static func file(at path: String, line: Int? = nil) {

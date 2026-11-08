@@ -1,6 +1,6 @@
 import AppKit
 import ApplicationServices
-import AutographeCore
+import XCommanderCore
 import Carbon
 
 /// Reading Xcode's menu bar over Accessibility, in one place.

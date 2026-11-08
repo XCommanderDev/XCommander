@@ -11,7 +11,7 @@
 # If either changes, run this and commit what it writes.
 #
 # What it produces:
-#   Sources/Companion/AutographeAppIcon.icon/                    the app icon, copied as is
+#   Sources/Companion/XCommanderAppIcon.icon/                    the app icon, copied as is
 #   Sources/Companion/Assets.xcassets/MenuBarMark.imageset/*.png the menu-bar template mark
 #   Design/XCommander.icns                                       for the DMG volume icon
 set -euo pipefail
@@ -24,7 +24,7 @@ ICON_SRC="Graphics/XCommanderAppIconDefault.icon"
 HAT="Graphics/X-hat-black-on-white2.svg"
 # The document keeps the old name until the app is renamed: the build settings, project.yml
 # and tools/xc.sh all refer to it, and a rename belongs with the rest of the rename.
-ICON_DST="Sources/Companion/AutographeAppIcon.icon"
+ICON_DST="Sources/Companion/XCommanderAppIcon.icon"
 MARKSET="Sources/Companion/Assets.xcassets/MenuBarMark.imageset"
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
@@ -117,10 +117,10 @@ PY
 # taken from there instead of being rendered separately.
 echo "==> .icns"
 actool "$ICON_DST" --compile "$WORK" --platform macosx --minimum-deployment-target 14.0 \
-  --app-icon AutographeAppIcon --output-partial-info-plist "$WORK/partial.plist" \
+  --app-icon XCommanderAppIcon --output-partial-info-plist "$WORK/partial.plist" \
   --output-format human-readable-text >/dev/null
 mkdir -p Design
-cp "$WORK/AutographeAppIcon.icns" Design/XCommander.icns
+cp "$WORK/XCommanderAppIcon.icns" Design/XCommander.icns
 echo "    Design/XCommander.icns"
 
 echo "done."

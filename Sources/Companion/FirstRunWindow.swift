@@ -1,6 +1,6 @@
 import AppKit
 import XcodeMenus
-import AutographeCore
+import XCommanderCore
 import SwiftUI
 
 /// What the user sees *before* macOS asks for Accessibility.
@@ -80,7 +80,7 @@ final class FirstRunWindow: NSObject, NSWindowDelegate {
     private static func xcodeNotice() -> String? {
         guard let xcode = MenuScanner.target(), let release = MenuScanner.release(of: xcode),
               release.major > 0, !release.isSupported else { return nil }
-        return "You have Xcode \(release.version). Autographe needs Xcode "
+        return "You have Xcode \(release.version). XCommander needs Xcode "
             + "\(XcodeRelease.minimumMajor) or later — most of its commands will be missing "
             + "until you upgrade."
     }
@@ -140,7 +140,7 @@ private struct FirstRunView: View {
                     .resizable()
                     .frame(width: 64, height: 64)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Autographe")
+                    Text("XCommander")
                         .font(.system(size: 22, weight: .semibold))
                     Text("A keyboard layer for Xcode.")
                         .foregroundStyle(.secondary)
@@ -149,7 +149,7 @@ private struct FirstRunView: View {
 
             Text("""
                 Xcode has around seven hundred menu commands and fewer than a third of them \
-                have a keyboard shortcut. Autographe puts the rest a few keystrokes away.
+                have a keyboard shortcut. XCommander puts the rest a few keystrokes away.
                 """)
 
             Text("""
@@ -157,7 +157,7 @@ private struct FirstRunView: View {
                 an app see a keystroke and press a menu item on your behalf. The prompt after \
                 this one is the system's own, and it is blunt: it says this app wants to \
                 control your computer. That is fair. The permission really is that broad, so \
-                here is everything Autographe does with it:
+                here is everything XCommander does with it:
                 """)
 
             VStack(alignment: .leading, spacing: 6) {
@@ -182,13 +182,13 @@ private struct FirstRunView: View {
             }
 
             Text("""
-                Autographe is signed and notarised by Apple. You can revoke this permission at \
-                any time in System Settings.
+                XCommander is free and open source, so you can read exactly what it does with this. \
+                You can revoke the permission at any time in System Settings.
                 """)
             .foregroundStyle(.secondary)
 
             HStack {
-                Text(verbatim: "autographe.app")
+                Text(verbatim: "xcommander.dev")
                     .font(.footnote)
                     .foregroundStyle(.tertiary)
                 Spacer()

@@ -1,5 +1,5 @@
 import Foundation
-import AutographeCore
+import XCommanderCore
 import os
 
 /// Project-wide search, backed by ripgrep.
@@ -30,7 +30,7 @@ final class ProjectSearch {
     private var pending: Timer?
     private var generation = 0
 
-    private let log = Logger(subsystem: "com.wassimans.AutographeForXcode", category: "search")
+    private let log = Logger(subsystem: "dev.xcommander.XCommander", category: "search")
 
     var isAvailable: Bool { Self.executable != nil }
 

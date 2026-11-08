@@ -1,5 +1,5 @@
 import Foundation
-import AutographeCore
+import XCommanderCore
 
 /// What to tell the user after Xcode changed under them.
 ///
@@ -95,7 +95,7 @@ public struct ChangeReport {
 
             Xcode no longer offers these commands, so XCommander hides them from the
             which-key panel rather than leaving a key that silently fails. To put the key to
-            another use, bind it in `~/.config/autographe/config.toml`.
+            another use, bind it in `~/.config/xcommander/config.toml`.
 
             """
             for lost in lostBindings {

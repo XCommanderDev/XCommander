@@ -1,5 +1,5 @@
 #!/bin/bash
-# Build "Autographe for Xcode" and assemble it into a .app bundle.
+# Build "XCommander" and assemble it into a .app bundle.
 #
 #   tools/xc.sh build      swift build only
 #   tools/xc.sh bundle     build + assemble the .app
@@ -15,11 +15,11 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 CONFIG="${XC_CONFIG:-debug}"
-APP_NAME="Autographe for Xcode"
-BUNDLE_ID="com.wassimans.AutographeForXcode"
+APP_NAME="XCommander"
+BUNDLE_ID="dev.xcommander.XCommander"
 # Kept out of ~/Documents on purpose: building under it attaches extended attributes that
 # make codesign fail with "resource fork, Finder information, or similar detritus".
-BUILD_ROOT="${XC_BUILD_ROOT:-$HOME/Library/Caches/AutographeForXcode}"
+BUILD_ROOT="${XC_BUILD_ROOT:-$HOME/Library/Caches/XCommander}"
 BUNDLE="$BUILD_ROOT/$APP_NAME.app"
 
 build() {
@@ -51,8 +51,8 @@ bundle() {
   <key>LSMinimumSystemVersion</key><string>14.0</string>
   <!-- A menu-bar app: no Dock icon, no app switcher entry. -->
   <key>LSUIElement</key><true/>
-  <key>CFBundleIconFile</key><string>AutographeAppIcon</string>
-  <key>CFBundleIconName</key><string>AutographeAppIcon</string>
+  <key>CFBundleIconFile</key><string>XCommanderAppIcon</string>
+  <key>CFBundleIconName</key><string>XCommanderAppIcon</string>
 </dict>
 </plist>
 PLIST
@@ -62,11 +62,11 @@ PLIST
   # uses. It matters for more than the menu-bar mark: an app with no icon shows the generic
   # placeholder in the "would like to control this computer" prompt, which is the worst
   # possible answer to "do I trust this?".
-  actool "Sources/Companion/Assets.xcassets" "Sources/Companion/AutographeAppIcon.icon" \
+  actool "Sources/Companion/Assets.xcassets" "Sources/Companion/XCommanderAppIcon.icon" \
     --compile "$BUNDLE/Contents/Resources" \
     --platform macosx \
     --minimum-deployment-target 14.0 \
-    --app-icon AutographeAppIcon \
+    --app-icon XCommanderAppIcon \
     --output-partial-info-plist "$BUILD_ROOT/assets-partial.plist" \
     --output-format human-readable-text >/dev/null
 

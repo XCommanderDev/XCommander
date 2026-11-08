@@ -1,4 +1,4 @@
-import AutographeCore
+import XCommanderCore
 import CSourceKit
 import Foundation
 import os
@@ -26,7 +26,7 @@ final class SourceKit: @unchecked Sendable {
 
     static let shared = SourceKit()
 
-    private let log = Logger(subsystem: "com.wassimans.AutographeForXcode", category: "preview")
+    private let log = Logger(subsystem: "dev.xcommander.XCommander", category: "preview")
     private let lock = NSLock()
     private var handle: UnsafeMutableRawPointer?
     private var didAttemptLoad = false
@@ -175,7 +175,7 @@ final class SourceKit: @unchecked Sendable {
 
         // A name unique per call: sourcekitd keeps documents open by name, and reusing one
         // would make every request after the first an edit of the last file.
-        let name = "autographe.preview.\(UUID().uuidString)"
+        let name = "xcommander.preview.\(UUID().uuidString)"
         let escaped = path.replacingOccurrences(of: "\\", with: "\\\\")
                           .replacingOccurrences(of: "\"", with: "\\\"")
         let yaml = """

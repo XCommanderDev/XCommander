@@ -1,6 +1,6 @@
 import Foundation
 import CIndexStore
-import AutographeCore
+import XCommanderCore
 import os
 
 /// Xcode's symbol knowledge, read rather than recomputed.
@@ -26,7 +26,7 @@ final class SymbolIndex {
     private var cacheStamp: [String: Date] = [:]
     private var loading = false
 
-    private let log = Logger(subsystem: "com.wassimans.AutographeForXcode", category: "index")
+    private let log = Logger(subsystem: "dev.xcommander.XCommander", category: "index")
 
     var isAvailable: Bool { IndexStoreLibrary.shared.isAvailable }
 

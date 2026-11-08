@@ -32,7 +32,7 @@ final class WindowTracker {
     private var lastDocument: URL?
 
     private let context: XcodeContext
-    private let log = Logger(subsystem: "com.wassimans.AutographeForXcode", category: "tracker")
+    private let log = Logger(subsystem: "dev.xcommander.XCommander", category: "tracker")
 
     init(context: XcodeContext) {
         self.context = context

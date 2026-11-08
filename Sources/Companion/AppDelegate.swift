@@ -1,6 +1,6 @@
 import AppKit
 import ApplicationServices
-import AutographeCore
+import XCommanderCore
 import XcodeMenus
 import os
 
@@ -66,7 +66,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var accessibilityPollTimer: Timer?
     private let firstRun = FirstRunWindow()
 
-    private let log = Logger(subsystem: "com.wassimans.AutographeForXcode", category: "app")
+    private let log = Logger(subsystem: "dev.xcommander.XCommander", category: "app")
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
@@ -793,7 +793,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         let file = ConfigStore.globalFile
         guard FileManager.default.fileExists(atPath: file.path) else {
-            return "No config file. Create ~/.config/autographe/config.toml to customise the keymap."
+            return "No config file. Create ~/.config/xcommander/config.toml to customise the keymap."
         }
         return "\(file.lastPathComponent) loaded, no problems."
     }

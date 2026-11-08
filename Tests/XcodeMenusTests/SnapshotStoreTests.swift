@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 @testable import XcodeMenus
-@testable import AutographeCore
+@testable import XCommanderCore
 
 /// The store is what turns "one scan of one context" into "what this Xcode can do".
 ///

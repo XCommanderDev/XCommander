@@ -1,6 +1,6 @@
 import AppKit
 import ApplicationServices
-import AutographeCore
+import XCommanderCore
 import XcodeMenus
 import os
 
@@ -80,7 +80,7 @@ struct MenuItemInfo {
 @MainActor
 final class AccessibilityXcodeContext: XcodeContext {
 
-    private static let log = Logger(subsystem: "com.wassimans.AutographeForXcode", category: "menus")
+    private static let log = Logger(subsystem: "dev.xcommander.XCommander", category: "menus")
 
     private var app: AXUIElement?
     private var pid: pid_t?

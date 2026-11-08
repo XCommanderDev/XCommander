@@ -12,7 +12,7 @@ final class IndexStoreLibrary: @unchecked Sendable {
     static let shared = IndexStoreLibrary()
 
     private let handle: UnsafeMutableRawPointer?
-    private let log = Logger(subsystem: "com.wassimans.AutographeForXcode", category: "index")
+    private let log = Logger(subsystem: "dev.xcommander.XCommander", category: "index")
 
     let storeCreate: fn_store_create?
     let storeDispose: fn_store_dispose?

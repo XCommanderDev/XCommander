@@ -1,6 +1,6 @@
 import AppKit
 import ApplicationServices
-import AutographeCore
+import XCommanderCore
 import XcodeMenus
 import os
 
@@ -14,7 +14,7 @@ import os
 final class PaneController {
 
     private let context: XcodeContext
-    private let log = Logger(subsystem: "com.wassimans.AutographeForXcode", category: "panes")
+    private let log = Logger(subsystem: "dev.xcommander.XCommander", category: "panes")
     /// Where the divider was before a zoom, so the same key puts it back.
     private var zoomedFrom: Int?
 

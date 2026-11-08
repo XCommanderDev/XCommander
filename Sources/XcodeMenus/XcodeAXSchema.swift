@@ -1,6 +1,6 @@
 import AppKit
 import ApplicationServices
-import AutographeCore
+import XCommanderCore
 
 /// Everything this app assumes about the *shape* of Xcode's window, in one place.
 ///

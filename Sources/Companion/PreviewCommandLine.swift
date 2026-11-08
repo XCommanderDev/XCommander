@@ -1,7 +1,7 @@
-import AutographeCore
+import XCommanderCore
 import Foundation
 
-/// `Autographe --preview <file> [line]` — what the preview pane would show, as text.
+/// `XCommander --preview <file> [line]` — what the preview pane would show, as text.
 ///
 /// Here for the same reason `--check` is: **it must be the same code the app runs.** The pane
 /// is drawn in a borderless panel that ignores the mouse and vanishes on Escape, which is the

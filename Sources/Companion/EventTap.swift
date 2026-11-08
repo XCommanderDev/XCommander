@@ -1,7 +1,7 @@
 import AppKit
 import Carbon
 import CoreGraphics
-import AutographeCore
+import XCommanderCore
 import os
 
 /// The `CGEventTap`, and the three ways it fails in practice.
@@ -22,7 +22,7 @@ final class EventTap {
     private var runLoopSource: CFRunLoopSource?
     private var healthTimer: Timer?
 
-    private let log = Logger(subsystem: "com.wassimans.AutographeForXcode", category: "tap")
+    private let log = Logger(subsystem: "dev.xcommander.XCommander", category: "tap")
 
     /// Asked for every key press. Returns true to swallow it.
     private let handler: (CGKeyCode, CGEventFlags) -> Bool
