@@ -40,7 +40,7 @@ public struct TOMLEntry: Hashable, Sendable {
 public struct TOMLDocument: Sendable {
     public var entries: [TOMLEntry] = []
     /// Every `[table.header]` seen, so a whole section can be reported at its own line —
-    /// `[layouts.debugging] requires XCommander Pro` points at the header, not at a key.
+    /// `[layouts.debugging] is not implemented` points at the header, not at a key.
     public var tables: [(path: [String], line: Int)] = []
 
     public func value(at path: [String]) -> TOMLValue? {

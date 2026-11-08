@@ -29,10 +29,6 @@ final class ConfigStore {
     /// Supplied by the app, because the project root follows Xcode's frontmost document.
     var projectRoot: () -> URL? = { nil }
 
-    /// Licensing arrives in Chapter 25. Until then every build is a free one, which is the
-    /// honest default: a Pro section in a shared config says so rather than quietly working.
-    var tier: Tier = .free
-
     /// Called after every load that changed the live configuration.
     var onChange: ((ConfigResolution) -> Void)?
 
@@ -52,7 +48,7 @@ final class ConfigStore {
     init(registry: CommandRegistry) {
         self.registry = registry
         self.current = ConfigResolver.resolve([], blueprint: DefaultKeymap.blueprint,
-                                              registry: registry, tier: .free)
+                                              registry: registry)
     }
 
     // MARK: - loading
@@ -74,7 +70,7 @@ final class ConfigStore {
         }
 
         let resolution = ConfigResolver.resolve(sources, blueprint: DefaultKeymap.blueprint,
-                                                registry: registry, tier: tier)
+                                                registry: registry)
         diagnostics = resolution.diagnostics
 
         for problem in resolution.diagnostics.forDisplay {

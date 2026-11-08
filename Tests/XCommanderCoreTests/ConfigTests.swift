@@ -141,7 +141,7 @@ struct ConfigDecoderTests {
         #expect(problems.errors.first?.message.contains("keys") == true)
     }
 
-    @Test("Pro sections are recorded rather than dropped")
+    @Test("unimplemented sections are recorded rather than dropped")
     func gatedSectionsAreCarried() {
         let (document, _) = decode("version = 1\n[layouts.debugging]\ndebug-area = true")
         #expect(document.gated.count == 1)
@@ -157,11 +157,10 @@ struct ConfigResolverTests {
 
     private let registry = DefaultKeymap.build().registry
 
-    private func resolve(_ files: [(String, String)], tier: Tier = .free) -> ConfigResolution {
+    private func resolve(_ files: [(String, String)]) -> ConfigResolution {
         ConfigResolver.resolve(files.map { ConfigSource(name: $0.0, text: $0.1) },
                                blueprint: DefaultKeymap.blueprint,
-                               registry: registry,
-                               tier: tier)
+                               registry: registry)
     }
 
     @Test("no files at all is the shipped keymap")
@@ -270,8 +269,8 @@ struct ConfigResolverTests {
         #expect(rows.contains { $0.key == "m" && $0.title == "build" })
     }
 
-    @Test("a Pro section loads for a free user, announced and ignored")
-    func proSectionOnFree() {
+    @Test("an unimplemented section is announced and ignored, and the rest still loads")
+    func unimplementedSection() {
         let text = """
         version = 1
         [keys]
@@ -279,18 +278,11 @@ struct ConfigResolverTests {
         [layouts.debugging]
         debug-area = true
         """
-        let free = resolve([("config.toml", text)], tier: .free)
-
-        // The keymap still applies: a shared config does not stop working at the tier line.
-        #expect(free.isUsable)
-        #expect(free.diagnostics.contains {
-            $0.severity == .warning && $0.message.contains("requires XCommander Pro")
+        let resolution = resolve([("config.toml", text)])
+        #expect(resolution.isUsable)
+        #expect(resolution.diagnostics.contains {
+            $0.severity == .warning && $0.message.contains("not implemented in this version")
         })
-
-        // And a Pro user gets an honest message too, because layouts are not built yet.
-        let pro = resolve([("config.toml", text)], tier: .pro)
-        #expect(pro.isUsable)
-        #expect(pro.diagnostics.contains { $0.message.contains("not implemented in this version") })
     }
 
     @Test("general settings come back for the app to apply")

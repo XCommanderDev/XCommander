@@ -1,15 +1,9 @@
 import Foundation
 
-/// Which tier a capability belongs to.
-public enum Tier: String, Hashable, Sendable, Codable, CaseIterable {
-    case free, pro
-}
-
-/// One section a configuration file may contain, and what it costs.
+/// One section a configuration file may contain.
 public struct Capability: Hashable, Sendable {
     /// The top-level table name: `keys`, `groups`, `commands`, `layouts`.
     public var section: String
-    public var tier: Tier
     /// Whether *this build* can act on it. A section can be known to the format and not yet
     /// implemented — that is a normal state for a versioned format, and it must produce an
     /// honest message rather than silence.
@@ -29,7 +23,7 @@ public struct Capability: Hashable, Sendable {
 /// and it is always the one that is wrong.
 ///
 /// **Adding a capability is adding a row here**, plus a decoder for its shape and a consumer
-/// for its result. The gating, the diagnostics and the reference all follow from the row.
+/// for its result. The diagnostics and the reference follow from the row.
 public enum ConfigSchema {
 
     /// Bumped when a change would make an old file mean something different. A file states
@@ -38,17 +32,17 @@ public enum ConfigSchema {
     public static let version = 1
 
     public static let capabilities: [Capability] = [
-        Capability(section: "general", tier: .free, isImplemented: true,
+        Capability(section: "general", isImplemented: true,
                    summary: "leader key, panel delay, sequence timeout"),
-        Capability(section: "groups", tier: .free, isImplemented: true,
+        Capability(section: "groups", isImplemented: true,
                    summary: "what the which-key panel calls each prefix"),
-        Capability(section: "keys", tier: .free, isImplemented: true,
+        Capability(section: "keys", isImplemented: true,
                    summary: "bind a key sequence to a command id"),
-        Capability(section: "unbind", tier: .free, isImplemented: true,
+        Capability(section: "unbind", isImplemented: true,
                    summary: "remove a binding the app ships"),
-        Capability(section: "commands", tier: .pro, isImplemented: false,
+        Capability(section: "commands", isImplemented: false,
                    summary: "macros: a named sequence of command ids"),
-        Capability(section: "layouts", tier: .pro, isImplemented: false,
+        Capability(section: "layouts", isImplemented: false,
                    summary: "saved pane arrangements"),
     ]
 

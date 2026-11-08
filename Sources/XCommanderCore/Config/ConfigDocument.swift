@@ -33,7 +33,7 @@ public struct ConfigUnbind: Hashable, Sendable {
 }
 
 /// A section this build will not act on, and why. Carried rather than dropped, because the
-/// user has to be told: a Pro section that vanishes silently teaches people the app is broken.
+/// user has to be told: a section that vanishes silently teaches people the app is broken.
 public struct GatedSection: Hashable, Sendable {
     public var capability: Capability
     /// `layouts.debugging` — the full header, so the message points at what they wrote.
@@ -217,8 +217,8 @@ public enum ConfigDecoder {
         // MARK: everything else
 
         // A table this build does not implement is not an error in the file — it is a fact
-        // about this build, or about this licence, and the difference is the resolver's to
-        // state. An unknown table *is* an error: it is almost always a typo.
+        // about this build, for the resolver to state. An unknown table *is* an error: it is
+        // almost always a typo.
         var seen = Set<String>()
         for table in toml.tables {
             guard let head = table.path.first, !seen.contains(head) || table.path.count > 1
@@ -229,7 +229,7 @@ public enum ConfigDecoder {
                       + "This format has: \(ConfigSchema.sectionNames.joined(separator: ", "))")
                 continue
             }
-            guard capability.tier != .free || !capability.isImplemented else { continue }
+            guard !capability.isImplemented else { continue }
             document.gated.append(GatedSection(capability: capability,
                                                name: table.path.joined(separator: "."),
                                                source: source.name, line: table.line))

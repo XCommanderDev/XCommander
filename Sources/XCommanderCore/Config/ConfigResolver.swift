@@ -50,15 +50,14 @@ public struct ConfigResolution: Sendable {
 ///
 /// The pipeline is three stages and each is a pure function: **parse** (text → entries with
 /// positions), **decode** (entries → one document per file), **resolve** (documents + defaults
-/// + registry + tier → a keymap). Nothing here touches the file system, a clock or a window,
+/// + registry → a keymap). Nothing here touches the file system, a clock or a window,
 /// which is why the whole feature is testable without an app around it — and why a `--check`
 /// command that validates somebody's published config is the same code path as a live reload.
 public enum ConfigResolver {
 
     public static func resolve(_ sources: [ConfigSource],
                                blueprint: KeymapBlueprint,
-                               registry: CommandRegistry,
-                               tier: Tier) -> ConfigResolution {
+                               registry: CommandRegistry) -> ConfigResolution {
 
         var diagnostics: [ConfigDiagnostic] = []
         var documents: [ConfigDocument] = []
@@ -68,22 +67,14 @@ public enum ConfigResolver {
             diagnostics.append(contentsOf: problems)
         }
 
-        // MARK: entitlement
+        // MARK: sections this version cannot act on
         //
-        // Gating happens **here and nowhere else**, and it reads the same table for every
-        // tier. There is no separate free-build code path to drift out of step, and a Pro
-        // user's config still loads for a free user with its Pro sections announced — which
-        // is what keeps a shared config shareable across the tier boundary.
+        // Announced rather than dropped, so a config written for a newer version still loads,
+        // and the user is told which part of it does nothing yet.
         for document in documents {
             for gate in document.gated {
-                let message: String
-                if gate.capability.tier == .pro && tier == .free {
-                    message = "[\(gate.name)] — \(gate.capability.summary) — "
-                        + "requires XCommander Pro. Ignored."
-                } else {
-                    message = "[\(gate.name)] — \(gate.capability.summary) — "
-                        + "is not implemented in this version. Ignored."
-                }
+                let message = "[\(gate.name)] — \(gate.capability.summary) — "
+                    + "is not implemented in this version. Ignored."
                 diagnostics.append(ConfigDiagnostic(.warning, source: gate.source,
                                                     line: gate.line, message))
             }

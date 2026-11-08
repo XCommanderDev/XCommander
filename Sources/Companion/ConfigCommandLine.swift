@@ -39,12 +39,11 @@ enum ConfigCommandLine {
 
         print("## Sections")
         print("")
-        print("| section | tier | status | what it does |")
-        print("|---|---|---|---|")
+        print("| section | status | what it does |")
+        print("|---|---|---|")
         for capability in ConfigSchema.capabilities {
             let status = capability.isImplemented ? "available" : "not yet implemented"
-            print("| `[\(capability.section)]` | \(capability.tier.rawValue) "
-                  + "| \(status) | \(capability.summary) |")
+            print("| `[\(capability.section)]` | \(status) | \(capability.summary) |")
         }
         print("")
 
@@ -89,12 +88,9 @@ enum ConfigCommandLine {
             sources.append(ConfigSource(name: url.lastPathComponent, text: text))
         }
 
-        // Checked as a *free* build on purpose: it is the stricter of the two, so a config
-        // that passes here loads for everybody, with Pro sections announced rather than
-        // silently working for the author and mysteriously not for their readers.
         let registry = DefaultKeymap.build().registry
         let resolution = ConfigResolver.resolve(sources, blueprint: DefaultKeymap.blueprint,
-                                                registry: registry, tier: .free)
+                                                registry: registry)
 
         for problem in resolution.diagnostics.forDisplay {
             print("\(problem.severity.rawValue): \(problem)")
