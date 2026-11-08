@@ -28,22 +28,24 @@ concurrency:
 
 jobs:
   release:
-    runs-on: macos-26
+    # Xcode 27 lives on its own runner image (in preview as of November 2026).
+    runs-on: xcode-27
     environment: release
     env:
       SIGNED: ${{ github.event_name == 'push' || inputs.dry_run == false }}
     steps:
       - uses: actions/checkout@v5
 
-      - name: Use Xcode 27
+      # The image's default Xcode is its newest stable one (newer ones there can be release
+      # candidates). XCommander needs Xcode 27 or later, so stop early if that ever changes.
+      - name: Check Xcode
         run: |
-          XCODE=$(ls -d /Applications/Xcode_27*.app 2>/dev/null | sort -V | tail -1)
-          if [ -z "$XCODE" ]; then
-            echo "::error::No Xcode 27 on this runner. Installed: $(ls -d /Applications/Xcode*.app)"
+          xcodebuild -version
+          MAJOR=$(xcodebuild -version | awk 'NR==1 {split($2, v, "."); print v[1]}')
+          if [ "$MAJOR" -lt 27 ]; then
+            echo "::error::XCommander needs Xcode 27 or later, this runner has $MAJOR."
             exit 1
           fi
-          sudo xcode-select -s "$XCODE"
-          xcodebuild -version
 
       # The version shown in the app comes from the tag (v1.2.0 → 1.2.0). The build number is
       # the workflow's run number, so it only ever goes up.

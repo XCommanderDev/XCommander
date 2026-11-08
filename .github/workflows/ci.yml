@@ -15,21 +15,21 @@ concurrency:
 
 jobs:
   test:
-    runs-on: macos-26
+    # Xcode 27 lives on its own runner image (in preview as of November 2026).
+    runs-on: xcode-27
     steps:
       - uses: actions/checkout@v5
 
-      # XCommander supports Xcode 27 and later. The runner has several Xcodes installed side
-      # by side, so pick the newest Xcode 27 explicitly instead of trusting the default.
-      - name: Use Xcode 27
+      # The image's default Xcode is its newest stable one (newer ones there can be release
+      # candidates). XCommander needs Xcode 27 or later, so stop early if that ever changes.
+      - name: Check Xcode
         run: |
-          XCODE=$(ls -d /Applications/Xcode_27*.app 2>/dev/null | sort -V | tail -1)
-          if [ -z "$XCODE" ]; then
-            echo "::error::No Xcode 27 on this runner. Installed: $(ls -d /Applications/Xcode*.app)"
+          xcodebuild -version
+          MAJOR=$(xcodebuild -version | awk 'NR==1 {split($2, v, "."); print v[1]}')
+          if [ "$MAJOR" -lt 27 ]; then
+            echo "::error::XCommander needs Xcode 27 or later, this runner has $MAJOR."
             exit 1
           fi
-          sudo xcode-select -s "$XCODE"
-          xcodebuild -version
 
       - name: Test
         run: swift test
