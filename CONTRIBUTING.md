@@ -4,8 +4,8 @@ Thanks for your interest. XCommander is a tool I'm building for myself first, an
 
 ## Building
 
-1. Clone the repo and open `XCommander/XCommander.xcodeproj` in a recent Xcode.
-2. Set up signing for your own Apple account. Don't edit the project file or `Config/Signing.xcconfig`. Instead, create `XCommander/Config/Signing.local.xcconfig` (git ignores it):
+1. Clone the repo and open `XCommander.xcodeproj` in Xcode 27 or later.
+2. Set up signing for your own Apple account. Don't edit the project file or `Config/Signing.xcconfig`. Instead, create `Config/Signing.local.xcconfig` (git ignores it):
 
    ```
    DEVELOPMENT_TEAM = YOUR_TEAM_ID
@@ -17,10 +17,14 @@ Thanks for your interest. XCommander is a tool I'm building for myself first, an
 
 Why sign at all: macOS ties the Accessibility permission to the app's signature. Without a stable signing identity, you'd have to grant it again after every build.
 
+The Xcode project is generated from `project.yml` by [XcodeGen](https://github.com/yonaskolb/XcodeGen). If you add, remove or rename files, edit `project.yml` and run `xcodegen` rather than changing the project in Xcode.
+
+New to the codebase? Start with [ARCHITECTURE.md](ARCHITECTURE.md) and the guides in [docs/](docs/README.md).
+
 ## Pull requests
 
 - Keep each pull request focused on one change.
-- Run the tests (`⌘U` in Xcode).
+- Run the tests with `swift test`. Logic belongs in `XCommanderCore`, with tests.
 - Make sure your pull request doesn't touch `Config/Signing.xcconfig` or the bundle IDs.
 
 ## Sign off your commits
@@ -37,7 +41,7 @@ Pull requests with commits that aren't signed off can't be merged.
 
 ## Xcode betas
 
-If you're on an Xcode beta and something stopped working, please open an issue with the Xcode version and build number (Xcode → About Xcode). Once XCommander has its maintenance tool, I'll ask for a capture of the beta's menus too, so the fix can be tested without installing the beta.
+If you're on an Xcode beta and something stopped working, please open an issue with the Xcode version and build number (Xcode → About Xcode) and the output of `swift run xcmdr doctor`. A capture of the beta's menus helps even more: [docs/xcode-upgrades.md](docs/xcode-upgrades.md) explains how to make one.
 
 ## Name and icon
 

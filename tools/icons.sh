@@ -3,7 +3,7 @@
 #
 #   tools/icons.sh
 #
-# The sources of truth are Wassim's files, and nothing here is hand-edited artwork:
+# The sources of truth are the files in Graphics/, and nothing here is hand-edited artwork:
 #
 #   Graphics/XCommanderAppIconDefault.icon   the app icon, an Icon Composer document
 #   Graphics/X-hat-black-on-white2.svg       the hat on its own, for the menu bar
@@ -22,8 +22,7 @@ python3 -c "import PIL" 2>/dev/null || { echo "need Pillow (pip3 install Pillow)
 
 ICON_SRC="Graphics/XCommanderAppIconDefault.icon"
 HAT="Graphics/X-hat-black-on-white2.svg"
-# The document keeps the old name until the app is renamed: the build settings, project.yml
-# and tools/xc.sh all refer to it, and a rename belongs with the rest of the rename.
+# project.yml, Package.swift and tools/xc.sh refer to the document by this name.
 ICON_DST="Sources/Companion/XCommanderAppIcon.icon"
 MARKSET="Sources/Companion/Assets.xcassets/MenuBarMark.imageset"
 WORK="$(mktemp -d)"

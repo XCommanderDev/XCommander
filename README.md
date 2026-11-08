@@ -5,7 +5,7 @@
 Press <kbd>⌥</kbd><kbd>↩</kbd> in Xcode and a which-key panel shows what comes next: a mnemonic tree of commands for menus, panes, navigators and buffers.
 
 > [!IMPORTANT]
-> XCommander is a vision, not a product yet. There is nothing to download and nothing works end to end. I'm building it in the open, one piece at a time.
+> XCommander is a work in progress, not a product yet. It works, I use it every day, and it still has rough edges. There is nothing to download: you build it yourself for now.
 
 ## Why
 
@@ -30,7 +30,9 @@ XCommander doesn't plug into Xcode. Since Xcode 8, in-process plugins are gone, 
 - **Menu bar app** (AppKit): no Dock icon, just a status item that shows whether XCommander is ready, waiting for Xcode, or needs permission.
 - **Event tap** (Core Graphics): watches the keyboard. Only while Xcode is in front, and only after the leader key, does it take over keys.
 - **Accessibility API**: reads Xcode's menu bar and UI live, and triggers commands through it. This is why the app asks for Accessibility permission.
-- **`XCommanderCore`**: a Swift package holding the logic (status, keymap, key sequences) with no UI, so it can be tested with Swift Testing.
+- **`XCommanderCore`**: the logic (keymap, key sequences, fuzzy matching, pane geometry, config) with no UI, so it's covered by Swift Testing without a screen.
+
+[ARCHITECTURE.md](ARCHITECTURE.md) explains how it all fits together, and [docs/](docs/README.md) has a guide for each part, written for iOS developers who are new to AppKit, like I was.
 
 An app that uses an event tap can't be sandboxed, so XCommander won't be on the Mac App Store. It will be distributed directly.
 
@@ -43,25 +45,31 @@ Apple ships a new Xcode every year, with betas in between, and XCommander has to
 - **When a new Xcode removes a command you had bound, its key is hidden** rather than left doing nothing, and XCommander writes a short report saying what changed.
 - **A release and a beta can run side by side.** XCommander talks to the one in front.
 
-The rest, like what happens when Xcode relaunches after an update or when you go back to an older XCommander, is planned too. None of it is built yet.
+All of this is built. [docs/xcode-upgrades.md](docs/xcode-upgrades.md) explains how, and has the checklist I follow when Apple ships a new Xcode.
 
 ## Status
 
-Early days. Today it has:
+What works today:
 
-- [x] Menu bar item with a status
-- [x] Accessibility permission request and polling
-- [ ] Event tap and leader key
-- [ ] Which-key panel
-- [ ] Running Xcode menu commands through Accessibility
-- [ ] Configurable keymap
+- [x] Leader key and which-key panel that follows Xcode's window
+- [x] About 160 commands in a mnemonic tree: build and run, navigation, code, git, debug, navigators, inspectors
+- [x] Command palette over every Xcode menu item, and pickers for files, open editors, symbols, schemes and destinations
+- [x] Project-wide search with ripgrep, with a syntax-coloured preview
+- [x] Pane control Xcode doesn't have: move focus by direction, swap, send, balance, zoom
+- [x] Text transforms on the selection (align, sort, join, change case…), undoable with ⌘Z
+- [x] A config file with live reload
+- [x] Keeps working across Xcode updates, with a report when Xcode changes something you use
+
+Still to do before a first release: daily use and bug fixing, then signing, notarization and updates.
+
+The prototype was built in its own repository under the working name Autographe, and its history was merged into this one in November 2026.
 
 ## Building
 
-Requires a recent macOS and Xcode.
+Requires macOS 14 or later and Xcode 27 or later. Project search needs [ripgrep](https://github.com/BurntSushi/ripgrep) (`brew install ripgrep`).
 
-1. Open `XCommander/XCommander.xcodeproj`.
-2. To sign with your own Apple account, create `XCommander/Config/Signing.local.xcconfig` (git ignores it) with your Team ID and a bundle ID prefix of your own:
+1. Open `XCommander.xcodeproj`.
+2. To sign with your own Apple account, create `Config/Signing.local.xcconfig` (git ignores it) with your Team ID and a bundle ID prefix of your own:
 
    ```
    DEVELOPMENT_TEAM = YOUR_TEAM_ID
@@ -69,8 +77,9 @@ Requires a recent macOS and Xcode.
    ```
 
 3. Run the `XCommander` scheme. On first launch, grant Accessibility permission in System Settings → Privacy & Security → Accessibility.
+4. In Xcode, press <kbd>⌥</kbd><kbd>↩</kbd> and wait a moment for the panel.
 
-[CONTRIBUTING.md](CONTRIBUTING.md) has the details.
+From Terminal, `tools/xc.sh run` builds, signs and launches the app, and `swift test` runs the tests. [docs/permissions-and-signing.md](docs/permissions-and-signing.md) explains both, and [CONTRIBUTING.md](CONTRIBUTING.md) has the rest.
 
 ## Official builds
 
@@ -83,7 +92,7 @@ When XCommander is ready, official builds will be published only at [xcommander.
 
 Issues and ideas are welcome. Since this is a personal tool first, I may say no to features that pull it away from what I need. See [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 
-If you run Xcode betas, you can help a lot: once the maintenance tool exists, a capture of a new beta's menus lets me support it before I've installed it myself.
+If you run Xcode betas, you can help a lot: a capture of a new beta's menus with `xcmdr` lets me support it before I've installed it myself. See [docs/xcode-upgrades.md](docs/xcode-upgrades.md).
 
 ## License
 
