@@ -34,7 +34,7 @@ public enum PreviewMode: String, Hashable, Sendable, CaseIterable {
     public var title: String {
         switch self {
         case .on: "Always"
-        case .auto: "When the window is tall enough"
+        case .auto: "When the window is wide enough"
         case .off: "Never"
         }
     }

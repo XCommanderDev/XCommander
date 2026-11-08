@@ -199,8 +199,8 @@ private struct GeneralPane: View {
                 }
                 Toggle("Enabled while Xcode is frontmost", isOn: $isEnabled)
 
-                // Three states rather than a switch, because the panel grows downward to
-                // make room and a short Xcode window cannot take it. See `PreviewMode`.
+                // Three states rather than a switch, because the panel grows sideways to
+                // make room and a narrow Xcode window cannot take it. See `PreviewMode`.
                 LabeledContent("Preview") {
                     Explained(preview.note) {
                         Picker("Preview", selection: $preview) {
