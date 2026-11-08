@@ -58,9 +58,10 @@ to read, or overwrite, a snapshot written by a newer one.
 
 ## Support policy
 
-XCommander supports **the current Xcode major version and the one before it**, with no upper
-limit: a beta nobody has tested is expected to work on day one, and usually does, because of the
-identifiers. The floor is `XcodeRelease.minimumMajor`.
+XCommander supports **Xcode 27 and later**, and nothing earlier: older versions are never
+tested, so they're never claimed. There's no upper limit: a beta nobody has tested is expected to
+work on day one, and usually does, because of the identifiers. The floor is
+`XcodeRelease.minimumMajor`, and the Xcode 27 capture stays in `Fixtures/` as the baseline.
 
 ## The maintainer's tool: `xcmdr`
 
@@ -136,9 +137,8 @@ shows whether it's true.
 
 **7. On a new major version only**
 
-- [ ] Raise `XcodeRelease.minimumMajor` to the previous major.
-- [ ] Retire fixtures below the new floor, with their tests.
-- [ ] Update the supported versions in the README.
+- [ ] Keep the previous fixtures and their tests. The floor stays at Xcode 27.
+- [ ] Mention the new version in the README.
 
 ## Helping as a contributor
 

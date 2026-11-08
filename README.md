@@ -41,7 +41,7 @@ An app that uses an event tap can't be sandboxed, so XCommander won't be on the 
 Apple ships a new Xcode every year, with betas in between, and XCommander has to keep working when Xcode changes under it. The plan:
 
 - **Commands are found by the action behind a menu item, not by its title or position.** A renamed or moved menu item keeps working, and a beta nobody has tested works on day one.
-- **XCommander supports the current Xcode major and the one before it.** There is no upper limit.
+- **XCommander supports Xcode 27 and later.** Earlier versions aren't tested, so they aren't supported. There is no upper limit.
 - **When a new Xcode removes a command you had bound, its key is hidden** rather than left doing nothing, and XCommander writes a short report saying what changed.
 - **A release and a beta can run side by side.** XCommander talks to the one in front.
 

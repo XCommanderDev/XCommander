@@ -127,11 +127,11 @@ public struct XcodeRelease: Hashable, Sendable, Codable {
     /// below the line. Refusing clearly beats degrading mysteriously: a user on 26 should be
     /// told, on first run, rather than left to discover which keys do nothing.
     ///
-    /// **The policy is the current major and the one before it.** When Xcode 29 ships, the
-    /// floor moves to 28 in the same release that adds 29's snapshot to `Fixtures/` — so the
-    /// floor only ever rises to a release the tests still hold a capture of. There is no
-    /// ceiling, on purpose: resolution never asks which Xcode it is talking to, so a beta
-    /// nobody has seen works on the first day, and the change report says what moved.
+    /// **The policy is Xcode 27 and later.** Earlier versions are never tested, so they are
+    /// never claimed. The floor stays at 27 and the Xcode 27 capture stays in `Fixtures/` as
+    /// the baseline. There is no ceiling, on purpose: resolution never asks which Xcode it is
+    /// talking to, so a beta nobody has seen works on the first day, and the change report
+    /// says what moved.
     public static let minimumMajor = 27
 
     public var isSupported: Bool { major >= Self.minimumMajor }
