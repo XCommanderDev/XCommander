@@ -2,7 +2,8 @@
 #
 # Runs when a release is published, edited, unpublished or deleted, so the feed always lists
 # exactly the published releases. Drafts never appear in it: a release reaches people's Macs
-# only after it has been checked and published by hand.
+# only after it has been checked and published by hand. Pulling a bad release (unpublish or
+# delete it) takes it out of the feed the same way.
 #
 # The app reads https://xcommander.dev/appcast.xml, which redirects here. Keeping our own
 # domain in the app means the feed can move without stranding anyone on an old build.
@@ -14,9 +15,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: appcast
@@ -25,9 +24,6 @@ concurrency:
 jobs:
   appcast:
     runs-on: xcode-27
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}appcast.xml
     steps:
       # The generator comes from main, whichever release triggered the run.
       - uses: actions/checkout@v5
@@ -43,39 +39,21 @@ jobs:
           echo '<!doctype html><meta http-equiv="refresh" content="0; url=https://xcommander.dev">' \
             > site/index.html
 
-      - uses: actions/configure-pages@v5
-      - id: upload
-        uses: actions/upload-pages-artifact@v4
-        with:
-          path: site
-
-      # The Pages API directly, instead of actions/deploy-pages. Pages skips a deployment whose
-      # build version it has already deployed, and deploy-pages always uses the commit for it.
-      # A release edited later, or published on the same commit as the last deployment, would
-      # then never reach the feed. Here every run gets its own version.
-      - id: deploy
-        name: Deploy to GitHub Pages
+      # Pages serves the gh-pages branch. Each run replaces it with a single new commit, so the
+      # branch never grows and every run is published. (Deploying with actions/deploy-pages
+      # instead names each deployment after the commit and skips names it has seen, so a
+      # release edited or pulled later would never leave the feed.)
+      - name: Publish to the gh-pages branch
         env:
           GH_TOKEN: ${{ github.token }}
-          ARTIFACT_ID: ${{ steps.upload.outputs.artifact_id }}
         run: |
-          OIDC=$(curl -fsS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq -r .value)
-          gh api -X POST "repos/$GITHUB_REPOSITORY/pages/deployments" \
-            -F artifact_id="$ARTIFACT_ID" \
-            -f pages_build_version="$GITHUB_SHA-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" \
-            -f oidc_token="$OIDC" > "$RUNNER_TEMP/deployment.json"
-          cat "$RUNNER_TEMP/deployment.json"; echo
-          STATUS_URL=$(jq -r .status_url "$RUNNER_TEMP/deployment.json")
-          for _ in $(seq 1 60); do
-            STATUS=$(gh api "$STATUS_URL" --jq .status)
-            echo "Pages: $STATUS"
-            case "$STATUS" in
-              succeed) break ;;
-              deployment_failed|deployment_content_failed|deployment_cancelled|deployment_lost)
-                echo "::error::GitHub Pages said $STATUS"; exit 1 ;;
-            esac
-            sleep 5
-          done
-          [ "$STATUS" = succeed ] || { echo "::error::Pages didn't finish in 5 minutes"; exit 1; }
-          echo "page_url=$(jq -r .page_url "$RUNNER_TEMP/deployment.json")" >> "$GITHUB_OUTPUT"
+          cd site
+          touch .nojekyll
+          git init -q -b gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -qm "Update the appcast from ${GITHUB_EVENT_NAME} ${GITHUB_REF_NAME}"
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
+          echo "Published. Pages serves it within a minute or two:"
+          echo "https://xcommanderdev.github.io/XCommander/appcast.xml"
