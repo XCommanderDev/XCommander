@@ -55,7 +55,7 @@ There are about 160 commands. To print all of them, with what they do and their 
 <path to XCommander.app>/Contents/MacOS/<executable> --print-reference
 ```
 
-(With `tools/xc.sh`, that's `~/Library/Caches/XCommander/XCommander.app/Contents/MacOS/Companion`.)
+(With `swift run xcdev`, that's `~/Library/Caches/XCommander/XCommander.app/Contents/MacOS/Companion`.)
 
 The commands themselves are defined in `Sources/XCommanderCore/DefaultKeymap.swift`.
 

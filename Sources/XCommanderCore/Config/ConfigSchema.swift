@@ -18,7 +18,7 @@ public struct Capability: Hashable, Sendable {
 /// against?" — no, because nobody compiles anything against this. What third parties need is
 /// a *vocabulary* and a promise about it: the section names below, the command ids in
 /// `CommandRegistry`, and the key syntax in `KeySequence`. All three are data this app can
-/// print, which is why `tools/print-config-reference.sh` generates the reference rather than
+/// print, which is why the app's `--print-reference` mode generates the reference rather than
 /// anyone maintaining one by hand. A hand-written document is a fourth thing to keep in step,
 /// and it is always the one that is wrong.
 ///

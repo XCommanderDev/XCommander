@@ -21,7 +21,7 @@ category per area: `app`, `tap`, `menus`, `executor`, `panes`, `navigator`, `con
 `index`, `preview`, `tracker`, `open`.
 
 ```sh
-tools/xc.sh logs                       # everything, live, including debug messages
+swift run xcdev logs                   # everything, live, including debug messages
 
 log stream --predicate 'subsystem == "dev.xcommander.XCommander" AND category == "executor"' --level debug
 
@@ -74,7 +74,7 @@ exactly what our code sees. If the inspector can't see it, XCommander can't eith
    macOS can show the switch as on while refusing the new build. Remove XCommander from System
    Settings → Privacy & Security → Accessibility, relaunch, and grant it again. See
    [Permissions, signing and the dev loop](permissions-and-signing.md).
-4. Are two copies running (one from Xcode, one from `tools/xc.sh`)? Quit one.
+4. Are two copies running (one from Xcode, one from `swift run xcdev`)? Quit one.
 
 **The panel shows, but a command does nothing (or beeps).**
 The log says why (`executor` category). Usually the menu item is disabled in the current context,

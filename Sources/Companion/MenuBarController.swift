@@ -150,7 +150,7 @@ final class MenuBarController {
     ///
     /// The *whole* app icon can never do this. A template's alpha is its shape, and the
     /// icon's alpha is a filled rounded rectangle, so it renders as a blank white square.
-    /// `tools/icons.sh` renders the hat from `Graphics/X-hat-black-on-white2.svg` and cuts the
+    /// `xcdev icons` renders the hat from `Graphics/X-hat-black-on-white2.svg` and cuts the
     /// light ⌘ and crossbones out of it, so the bar draws them in its own colour.
     private func brandMark(opacity: CGFloat, description: String) -> NSImage? {
         guard let mark = NSImage(named: "MenuBarMark") else { return nil }

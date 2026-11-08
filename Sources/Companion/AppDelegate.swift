@@ -623,7 +623,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// A diagnostic rather than an assertion, because Xcode's menus are context-dependent:
     /// with no source editor focused, whole submenus are absent and a miss means nothing.
     /// Read it with a `.swift` file open. `⌥RET h c` re-runs it; see it with
-    /// `tools/xc.sh logs`.
+    /// `swift run xcdev logs`.
     private func reportUnresolvedBindings() {
         let commands = DefaultKeymap.menuCommands
         let missing = commands.filter { context.menuItem(for: $0.menuRef!) == nil }

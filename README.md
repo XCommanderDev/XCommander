@@ -79,11 +79,11 @@ Requires macOS 14 or later and Xcode 27 or later. Project search needs [ripgrep]
 3. Run the `XCommander` scheme. On first launch, grant Accessibility permission in System Settings → Privacy & Security → Accessibility.
 4. In Xcode, press <kbd>⌥</kbd><kbd>↩</kbd> and wait a moment for the panel.
 
-From Terminal, `tools/xc.sh run` builds, signs and launches the app, and `swift test` runs the tests. [docs/permissions-and-signing.md](docs/permissions-and-signing.md) explains both, and [CONTRIBUTING.md](CONTRIBUTING.md) has the rest.
+From Terminal, `swift run xcdev run` builds, signs and launches the app, and `swift test` runs the tests. [docs/permissions-and-signing.md](docs/permissions-and-signing.md) explains both, and [CONTRIBUTING.md](CONTRIBUTING.md) has the rest.
 
 ## Official builds
 
-When XCommander is ready, official builds will be published only at [xcommander.dev](https://xcommander.dev), signed with my Developer ID and notarized by Apple. Builds from anywhere else are not the official app.
+When XCommander is ready, official builds will be published on this repository's [Releases](https://github.com/XCommanderDev/XCommander/releases) page and linked from [xcommander.dev](https://xcommander.dev). They're built by GitHub Actions from a tagged commit, signed with my Developer ID and notarized by Apple. Builds from anywhere else are not the official app.
 
 ## Follow along
 

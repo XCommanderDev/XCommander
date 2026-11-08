@@ -19,6 +19,8 @@ let package = Package(
         .library(name: "XcodeMenus", targets: ["XcodeMenus"]),
         .executable(name: "Companion", targets: ["Companion"]),
         .executable(name: "xcmdr", targets: ["xcmdr"]),
+        // The developer tool: build, sign and run the app from Terminal, regenerate icons.
+        .executable(name: "xcdev", targets: ["xcdev"]),
     ],
     targets: [
         .target(name: "XCommanderCore"),
@@ -32,11 +34,12 @@ let package = Package(
         // two libraries, and no argument-parsing package — this project hand-rolls its TOML
         // reader for the same reason.
         .executableTarget(name: "xcmdr", dependencies: ["XCommanderCore", "XcodeMenus"]),
+        .executableTarget(name: "xcdev"),
         .executableTarget(
             name: "Companion",
             dependencies: ["XCommanderCore", "CIndexStore", "CSourceKit", "XcodeMenus"],
             // SwiftPM cannot build an asset catalogue or an Icon Composer document, and it
-            // does not own the Info.plist either: `tools/xc.sh` assembles the .app and runs
+            // does not own the Info.plist either: `xcdev` assembles the .app and runs
             // `actool` over these by hand. Excluding them silences the "unhandled files"
             // warning without changing what ships — the bundle still gets its icon, which
             // matters because macOS shows it in the "would like to control this computer"

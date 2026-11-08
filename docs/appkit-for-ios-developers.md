@@ -12,7 +12,7 @@ menu, no window until it needs one.
 
 Two settings make that happen:
 
-- `LSUIElement = true` in `Info.plist` (set in `project.yml`, and in `tools/xc.sh` for the
+- `LSUIElement = true` in `Info.plist` (set in `project.yml`, and in `Sources/xcdev/AppBuilder.swift` for the
   terminal build). This tells macOS at launch: no Dock icon, no app switcher entry.
 - `NSApp.setActivationPolicy(.accessory)` at the top of `applicationDidFinishLaunching`
   (`AppDelegate.swift`). Same idea, from code.
