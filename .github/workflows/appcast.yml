@@ -44,13 +44,37 @@ jobs:
             > site/index.html
 
       - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v4
+      - id: upload
+        uses: actions/upload-pages-artifact@v4
         with:
           path: site
-      # Pages names each deployment after the commit, and skips one whose name it has already
-      # deployed. A release published on the same commit as the last one, or edited later,
-      # would then never reach the feed, so every run gets its own name.
+
+      # The Pages API directly, instead of actions/deploy-pages. Pages skips a deployment whose
+      # build version it has already deployed, and deploy-pages always uses the commit for it.
+      # A release edited later, or published on the same commit as the last deployment, would
+      # then never reach the feed. Here every run gets its own version.
       - id: deploy
-        uses: actions/deploy-pages@v4
+        name: Deploy to GitHub Pages
         env:
-          GITHUB_SHA: ${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_ID: ${{ steps.upload.outputs.artifact_id }}
+        run: |
+          OIDC=$(curl -fsS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq -r .value)
+          gh api -X POST "repos/$GITHUB_REPOSITORY/pages/deployments" \
+            -F artifact_id="$ARTIFACT_ID" \
+            -f pages_build_version="$GITHUB_SHA-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" \
+            -f oidc_token="$OIDC" > "$RUNNER_TEMP/deployment.json"
+          STATUS_URL=$(jq -r .status_url "$RUNNER_TEMP/deployment.json")
+          for _ in $(seq 1 60); do
+            STATUS=$(gh api "$STATUS_URL" --jq .status)
+            echo "Pages: $STATUS"
+            case "$STATUS" in
+              succeed) break ;;
+              deployment_failed|deployment_content_failed|deployment_cancelled|deployment_lost)
+                echo "::error::GitHub Pages said $STATUS"; exit 1 ;;
+            esac
+            sleep 5
+          done
+          [ "$STATUS" = succeed ] || { echo "::error::Pages didn't finish in 5 minutes"; exit 1; }
+          echo "page_url=$(jq -r .page_url "$RUNNER_TEMP/deployment.json")" >> "$GITHUB_OUTPUT"
