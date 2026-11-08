@@ -1,0 +1,7776 @@
+{
+  "capturedAt" : "2026-09-20T11:43:30Z",
+  "context" : "XCommander running under the debugger and paused, debug area and variables view showing\nXCommander.xcodeproj open, a Swift file focused in one editor pane, project navigator showing, debug area open, inspector showing, editor tab bar visible, no debug session running\nsource editor focused, one pane, navigator and debug area hidden, no debug session",
+  "editorScans" : 1,
+  "entries" : [
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "",
+      "path" : [
+        "Debug",
+        "Attach to Process",
+        "Getting Process List…"
+      ],
+      "title" : "Getting Process List…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "attachByPIDOrName:",
+      "path" : [
+        "Debug",
+        "Attach to Process by PID or Name…"
+      ],
+      "title" : "Attach to Process by PID or Name…"
+    },
+    {
+      "cmdChar" : "`",
+      "cmdModifiers" : 0,
+      "identifier" : "toggleBreakpointAtCurrentLine:",
+      "path" : [
+        "Debug",
+        "Breakpoints",
+        "Create Breakpoint at Current Line"
+      ],
+      "title" : "Create Breakpoint at Current Line"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "toggleBreakpointForSelection:",
+      "path" : [
+        "Debug",
+        "Breakpoints",
+        "Create Column Breakpoint"
+      ],
+      "title" : "Create Column Breakpoint"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "createExceptionBreakpoint:",
+      "path" : [
+        "Debug",
+        "Breakpoints",
+        "Create Exception Breakpoint…"
+      ],
+      "title" : "Create Exception Breakpoint…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "createSwiftErrorBreakpoint:",
+      "path" : [
+        "Debug",
+        "Breakpoints",
+        "Create Swift Error Breakpoint"
+      ],
+      "title" : "Create Swift Error Breakpoint"
+    },
+    {
+      "cmdChar" : "`",
+      "cmdModifiers" : 2,
+      "identifier" : "createSymbolicBreakpoint:",
+      "path" : [
+        "Debug",
+        "Breakpoints",
+        "Create Symbolic Breakpoint…"
+      ],
+      "title" : "Create Symbolic Breakpoint…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "createTestFailureBreakpoint:",
+      "path" : [
+        "Debug",
+        "Breakpoints",
+        "Create Test Failure Breakpoint"
+      ],
+      "title" : "Create Test Failure Breakpoint"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "deleteAllBreakpoints:",
+      "path" : [
+        "Debug",
+        "Breakpoints",
+        "Delete All Breakpoints"
+      ],
+      "title" : "Delete All Breakpoints"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "deleteColumnBreakpointsAtCurrentLine:",
+      "path" : [
+        "Debug",
+        "Breakpoints",
+        "Delete Column Breakpoints at Current Line"
+      ],
+      "title" : "Delete Column Breakpoints at Current Line"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "enableDisableBreakpointAtCurrentLine:",
+      "path" : [
+        "Debug",
+        "Breakpoints",
+        "Enable Breakpoints at Current Line"
+      ],
+      "title" : "Enable Breakpoints at Current Line"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "",
+      "path" : [
+        "Debug",
+        "Capture GPU Workload"
+      ],
+      "title" : "Capture GPU Workload"
+    },
+    {
+      "cmdChar" : "K",
+      "cmdModifiers" : 0,
+      "identifier" : "clearConsole:",
+      "path" : [
+        "Debug",
+        "Console",
+        "Clear Console"
+      ],
+      "title" : "Clear Console"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "copyGroupWithAllMetadata:",
+      "path" : [
+        "Debug",
+        "Console",
+        "Copy Row with All Metadata"
+      ],
+      "title" : "Copy Row with All Metadata"
+    },
+    {
+      "cmdChar" : "C",
+      "cmdModifiers" : 11,
+      "identifier" : "copyGroupWithVisibleMetadata:",
+      "path" : [
+        "Debug",
+        "Console",
+        "Copy Row with Visible Metadata"
+      ],
+      "title" : "Copy Row with Visible Metadata"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "copyGroupWithoutMetadata:",
+      "path" : [
+        "Debug",
+        "Console",
+        "Copy Row without Metadata"
+      ],
+      "title" : "Copy Row without Metadata"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "hideSimilarItemsCategory:",
+      "path" : [
+        "Debug",
+        "Console",
+        "Hide Similar Items",
+        "Category '-'"
+      ],
+      "title" : "Category '-'"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "hideSimilarItemsLibrary:",
+      "path" : [
+        "Debug",
+        "Console",
+        "Hide Similar Items",
+        "Library '-'"
+      ],
+      "title" : "Library '-'"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "hideSimilarItemsPID:",
+      "path" : [
+        "Debug",
+        "Console",
+        "Hide Similar Items",
+        "PID '-'"
+      ],
+      "title" : "PID '-'"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "hideSimilarItemsProcess:",
+      "path" : [
+        "Debug",
+        "Console",
+        "Hide Similar Items",
+        "Process '-'"
+      ],
+      "title" : "Process '-'"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "hideSimilarItemsSubsystem:",
+      "path" : [
+        "Debug",
+        "Console",
+        "Hide Similar Items",
+        "Subsystem '-'"
+      ],
+      "title" : "Subsystem '-'"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "hideSimilarItemsTID:",
+      "path" : [
+        "Debug",
+        "Console",
+        "Hide Similar Items",
+        "TID '-'"
+      ],
+      "title" : "TID '-'"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "hideSimilarItemsType:",
+      "path" : [
+        "Debug",
+        "Console",
+        "Hide Similar Items",
+        "Type '-'"
+      ],
+      "title" : "Type '-'"
+    },
+    {
+      "cmdChar" : "J",
+      "cmdModifiers" : 3,
+      "identifier" : "jumpToSource:",
+      "path" : [
+        "Debug",
+        "Console",
+        "Jump To Source"
+      ],
+      "title" : "Jump To Source"
+    },
+    {
+      "cmdChar" : "K",
+      "cmdModifiers" : 2,
+      "identifier" : "reloadConsole:",
+      "path" : [
+        "Debug",
+        "Console",
+        "Reload Console"
+      ],
+      "title" : "Reload Console"
+    },
+    {
+      "cmdChar" : "A",
+      "cmdModifiers" : 3,
+      "identifier" : "selectLastOutput:",
+      "path" : [
+        "Debug",
+        "Console",
+        "Select Last Output"
+      ],
+      "title" : "Select Last Output"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "showSimilarItemsCategory:",
+      "path" : [
+        "Debug",
+        "Console",
+        "Show Similar Items",
+        "Category '-'"
+      ],
+      "title" : "Category '-'"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "showSimilarItemsLibrary:",
+      "path" : [
+        "Debug",
+        "Console",
+        "Show Similar Items",
+        "Library '-'"
+      ],
+      "title" : "Library '-'"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "showSimilarItemsPID:",
+      "path" : [
+        "Debug",
+        "Console",
+        "Show Similar Items",
+        "PID '-'"
+      ],
+      "title" : "PID '-'"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "showSimilarItemsProcess:",
+      "path" : [
+        "Debug",
+        "Console",
+        "Show Similar Items",
+        "Process '-'"
+      ],
+      "title" : "Process '-'"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "showSimilarItemsSubsystem:",
+      "path" : [
+        "Debug",
+        "Console",
+        "Show Similar Items",
+        "Subsystem '-'"
+      ],
+      "title" : "Subsystem '-'"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "showSimilarItemsTID:",
+      "path" : [
+        "Debug",
+        "Console",
+        "Show Similar Items",
+        "TID '-'"
+      ],
+      "title" : "TID '-'"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "showSimilarItemsType:",
+      "path" : [
+        "Debug",
+        "Console",
+        "Show Similar Items",
+        "Type '-'"
+      ],
+      "title" : "Type '-'"
+    },
+    {
+      "cmdChar" : "Y",
+      "cmdModifiers" : 4,
+      "identifier" : "pauseOrContinue:",
+      "path" : [
+        "Debug",
+        "Continue"
+      ],
+      "title" : "Continue"
+    },
+    {
+      "cmdChar" : "C",
+      "cmdModifiers" : 4,
+      "identifier" : "continueToCurrentLine:",
+      "path" : [
+        "Debug",
+        "Continue To Current Line"
+      ],
+      "title" : "Continue To Current Line"
+    },
+    {
+      "cmdChar" : "Y",
+      "cmdModifiers" : 0,
+      "identifier" : "toggleBreakpoints:",
+      "path" : [
+        "Debug",
+        "Deactivate Breakpoints"
+      ],
+      "title" : "Deactivate Breakpoints"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "debugCrashLog:",
+      "path" : [
+        "Debug",
+        "Debug Crash Log…"
+      ],
+      "title" : "Debug Crash Log…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "debugExecutable:",
+      "path" : [
+        "Debug",
+        "Debug Executable…"
+      ],
+      "title" : "Debug Executable…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "setShowDisassemblyWhenDebugging:",
+      "path" : [
+        "Debug",
+        "Debug Workflow",
+        "Always Show Disassembly"
+      ],
+      "title" : "Always Show Disassembly"
+    },
+    {
+      "cmdChar" : "C",
+      "cmdModifiers" : 12,
+      "identifier" : "sendDebuggerInterrupt:",
+      "path" : [
+        "Debug",
+        "Debug Workflow",
+        "Interrupt Debugger Operation"
+      ],
+      "title" : "Interrupt Debugger Operation"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "toggleNavigateToSourceFileOnPause:",
+      "path" : [
+        "Debug",
+        "Debug Workflow",
+        "Navigate to Source File when Process Pauses"
+      ],
+      "title" : "Navigate to Source File when Process Pauses"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "showLibraryInfoPopUp:",
+      "path" : [
+        "Debug",
+        "Debug Workflow",
+        "Show Library Info…"
+      ],
+      "title" : "Show Library Info…"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "toggleSyncDebugPointerAndInsertionPoint:",
+      "path" : [
+        "Debug",
+        "Debug Workflow",
+        "Synchronize Insertion Point to Program Counter"
+      ],
+      "title" : "Synchronize Insertion Point to Program Counter"
+    },
+    {
+      "cmdChar" : "M",
+      "cmdModifiers" : 7,
+      "identifier" : "viewMemory:",
+      "path" : [
+        "Debug",
+        "Debug Workflow",
+        "View Memory"
+      ],
+      "title" : "View Memory"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "detach:",
+      "path" : [
+        "Debug",
+        "Detach from XCommander"
+      ],
+      "title" : "Detach from XCommander"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "showGameManager",
+      "path" : [
+        "Debug",
+        "GameKit",
+        "Manage Game Progress..."
+      ],
+      "title" : "Manage Game Progress..."
+    },
+    {
+      "cmdChar" : "",
+      "cmdModifiers" : 8,
+      "cmdVirtualKey" : 98,
+      "identifier" : "stepInto:",
+      "path" : [
+        "Debug",
+        "Step Into"
+      ],
+      "title" : "Step Into"
+    },
+    {
+      "cmdChar" : "",
+      "cmdModifiers" : 12,
+      "cmdVirtualKey" : 98,
+      "identifier" : "stepIntoInstruction:",
+      "path" : [
+        "Debug",
+        "Step Into Instruction"
+      ],
+      "title" : "Step Into Instruction"
+    },
+    {
+      "cmdChar" : "",
+      "cmdModifiers" : 13,
+      "cmdVirtualKey" : 98,
+      "identifier" : "stepIntoThread:",
+      "path" : [
+        "Debug",
+        "Step Into Thread"
+      ],
+      "title" : "Step Into Thread"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "stepIntoAndFollowPC:",
+      "path" : [
+        "Debug",
+        "Step Into and Follow Program Counter"
+      ],
+      "title" : "Step Into and Follow Program Counter"
+    },
+    {
+      "cmdChar" : "",
+      "cmdModifiers" : 8,
+      "cmdVirtualKey" : 100,
+      "identifier" : "stepOut:",
+      "path" : [
+        "Debug",
+        "Step Out"
+      ],
+      "title" : "Step Out"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "stepOutAndFollowPC:",
+      "path" : [
+        "Debug",
+        "Step Out and Follow Program Counter"
+      ],
+      "title" : "Step Out and Follow Program Counter"
+    },
+    {
+      "cmdChar" : "",
+      "cmdModifiers" : 8,
+      "cmdVirtualKey" : 97,
+      "identifier" : "stepOver:",
+      "path" : [
+        "Debug",
+        "Step Over"
+      ],
+      "title" : "Step Over"
+    },
+    {
+      "cmdChar" : "",
+      "cmdModifiers" : 12,
+      "cmdVirtualKey" : 97,
+      "identifier" : "stepOverInstruction:",
+      "path" : [
+        "Debug",
+        "Step Over Instruction"
+      ],
+      "title" : "Step Over Instruction"
+    },
+    {
+      "cmdChar" : "",
+      "cmdModifiers" : 13,
+      "cmdVirtualKey" : 97,
+      "identifier" : "stepOverThread:",
+      "path" : [
+        "Debug",
+        "Step Over Thread"
+      ],
+      "title" : "Step Over Thread"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "stepOverAndFollowPC:",
+      "path" : [
+        "Debug",
+        "Step Over and Follow Program Counter"
+      ],
+      "title" : "Step Over and Follow Program Counter"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "approveATBPressed",
+      "path" : [
+        "Debug",
+        "StoreKit",
+        "Approve Transaction"
+      ],
+      "title" : "Approve Transaction"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "declineATBPressed",
+      "path" : [
+        "Debug",
+        "StoreKit",
+        "Decline Transaction"
+      ],
+      "title" : "Decline Transaction"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "deleteTransactionPressed",
+      "path" : [
+        "Debug",
+        "StoreKit",
+        "Delete Transaction"
+      ],
+      "title" : "Delete Transaction"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "editSubscriptionPressed",
+      "path" : [
+        "Debug",
+        "StoreKit",
+        "Edit Subscription"
+      ],
+      "title" : "Edit Subscription"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "showTransactionManager",
+      "path" : [
+        "Debug",
+        "StoreKit",
+        "Manage Transactions..."
+      ],
+      "title" : "Manage Transactions..."
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "refundTransactionPressed",
+      "path" : [
+        "Debug",
+        "StoreKit",
+        "Refund Purchase"
+      ],
+      "title" : "Refund Purchase"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "requestPriceIncreaseConsentPressed",
+      "path" : [
+        "Debug",
+        "StoreKit",
+        "Request Price Increase Consent"
+      ],
+      "title" : "Request Price Increase Consent"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "resolveTransactionIssuePressed",
+      "path" : [
+        "Debug",
+        "StoreKit",
+        "Resolve Issue"
+      ],
+      "title" : "Resolve Issue"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "systemAppearanceDark:",
+      "path" : [
+        "Debug",
+        "View Debugging",
+        "Appearance",
+        "Dark"
+      ],
+      "title" : "Dark"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "systemAppearanceIncreasedContrastDark:",
+      "path" : [
+        "Debug",
+        "View Debugging",
+        "Appearance",
+        "High Contrast Dark"
+      ],
+      "title" : "High Contrast Dark"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "systemAppearanceIncreasedContrastLight:",
+      "path" : [
+        "Debug",
+        "View Debugging",
+        "Appearance",
+        "High Contrast Light"
+      ],
+      "title" : "High Contrast Light"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "systemAppearanceLight:",
+      "path" : [
+        "Debug",
+        "View Debugging",
+        "Appearance",
+        "Light"
+      ],
+      "title" : "Light"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "systemAppearanceAuto:",
+      "path" : [
+        "Debug",
+        "View Debugging",
+        "Appearance",
+        "System Appearance"
+      ],
+      "title" : "System Appearance"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "captureViewHierarchy:",
+      "path" : [
+        "Debug",
+        "View Debugging",
+        "Capture View Hierarchy"
+      ],
+      "title" : "Capture View Hierarchy"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "configureEnvironmentOverrides:",
+      "path" : [
+        "Debug",
+        "View Debugging",
+        "Configure Environment Overrides…"
+      ],
+      "title" : "Configure Environment Overrides…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "disableAllEnvironmentOverrides:",
+      "path" : [
+        "Debug",
+        "View Debugging",
+        "Disable All Environment Overrides"
+      ],
+      "title" : "Disable All Environment Overrides"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "colorBlendedLayers:",
+      "path" : [
+        "Debug",
+        "View Debugging",
+        "Rendering",
+        "Color Blended Layers"
+      ],
+      "title" : "Color Blended Layers"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "colorOpenGLFastPathBlue:",
+      "path" : [
+        "Debug",
+        "View Debugging",
+        "Rendering",
+        "Color Compositing Fast-Path Blue"
+      ],
+      "title" : "Color Compositing Fast-Path Blue"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "colorCopiedImages:",
+      "path" : [
+        "Debug",
+        "View Debugging",
+        "Rendering",
+        "Color Copied Images"
+      ],
+      "title" : "Color Copied Images"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "colorCached:",
+      "path" : [
+        "Debug",
+        "View Debugging",
+        "Rendering",
+        "Color Hits Green and Misses Red"
+      ],
+      "title" : "Color Hits Green and Misses Red"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "colorImmediately:",
+      "path" : [
+        "Debug",
+        "View Debugging",
+        "Rendering",
+        "Color Immediately"
+      ],
+      "title" : "Color Immediately"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "colorFormats:",
+      "path" : [
+        "Debug",
+        "View Debugging",
+        "Rendering",
+        "Color Layer Formats"
+      ],
+      "title" : "Color Layer Formats"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "colorMisalignedImages:",
+      "path" : [
+        "Debug",
+        "View Debugging",
+        "Rendering",
+        "Color Misaligned Images"
+      ],
+      "title" : "Color Misaligned Images"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "colorOffscreenRenderedYellow:",
+      "path" : [
+        "Debug",
+        "View Debugging",
+        "Rendering",
+        "Color Offscreen-Rendered Yellow"
+      ],
+      "title" : "Color Offscreen-Rendered Yellow"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "flashUpdatedRegions:",
+      "path" : [
+        "Debug",
+        "View Debugging",
+        "Rendering",
+        "Flash Updated Regions"
+      ],
+      "title" : "Flash Updated Regions"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "showAlignmentRectangles:",
+      "path" : [
+        "Debug",
+        "View Debugging",
+        "Show Alignment Rectangles"
+      ],
+      "title" : "Show Alignment Rectangles"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "showResponsiveScrollingStatus:",
+      "path" : [
+        "Debug",
+        "View Debugging",
+        "Show Responsive Scrolling Status"
+      ],
+      "title" : "Show Responsive Scrolling Status"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "showDrawing:",
+      "path" : [
+        "Debug",
+        "View Debugging",
+        "Show View Drawing"
+      ],
+      "title" : "Show View Drawing"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "showFrames:",
+      "path" : [
+        "Debug",
+        "View Debugging",
+        "Show View Frames"
+      ],
+      "title" : "Show View Frames"
+    },
+    {
+      "cmdChar" : "Ù",
+      "cmdModifiers" : 5,
+      "identifier" : "addSelectedFileLocationsToTray:",
+      "path" : [
+        "Edit",
+        "Add File Bookmark"
+      ],
+      "title" : "Add File Bookmark"
+    },
+    {
+      "cmdChar" : "Ù",
+      "cmdModifiers" : 7,
+      "identifier" : "addSelectedFileLocationsToTrayWithDialog:",
+      "path" : [
+        "Edit",
+        "Add File Bookmark…"
+      ],
+      "title" : "Add File Bookmark…"
+    },
+    {
+      "cmdChar" : "Ù",
+      "cmdModifiers" : 4,
+      "identifier" : "addSelectedInnerDocumentLocationsToTray:",
+      "path" : [
+        "Edit",
+        "Add Line Bookmark"
+      ],
+      "title" : "Add Line Bookmark"
+    },
+    {
+      "cmdChar" : "Ù",
+      "cmdModifiers" : 6,
+      "identifier" : "addSelectedInnerDocumentLocationsToTrayWithDialog:",
+      "path" : [
+        "Edit",
+        "Add Line Bookmark…"
+      ],
+      "title" : "Add Line Bookmark…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_handleInsertFromContactsCommand:",
+      "path" : [
+        "Edit",
+        "AutoFill",
+        "Contact…"
+      ],
+      "title" : "Contact…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_handleInsertFromCreditCardsCommand:",
+      "path" : [
+        "Edit",
+        "AutoFill",
+        "Credit Card…"
+      ],
+      "title" : "Credit Card…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_handleInsertFromPasswordsCommand:",
+      "path" : [
+        "Edit",
+        "AutoFill",
+        "Passwords…"
+      ],
+      "title" : "Passwords…"
+    },
+    {
+      "cmdModifiers" : 2,
+      "identifier" : "preflightConversionToFolder:",
+      "path" : [
+        "Edit",
+        "Convert",
+        "Preflight Conversion to Folder"
+      ],
+      "title" : "Preflight Conversion to Folder"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "convertToFolder:",
+      "path" : [
+        "Edit",
+        "Convert",
+        "To Folder"
+      ],
+      "title" : "To Folder"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "convertToGroup:",
+      "path" : [
+        "Edit",
+        "Convert",
+        "To Group"
+      ],
+      "title" : "To Group"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "showXCStringsMigrationAssistant:",
+      "path" : [
+        "Edit",
+        "Convert",
+        "To String Catalogs…"
+      ],
+      "title" : "To String Catalogs…"
+    },
+    {
+      "cmdChar" : "C",
+      "cmdModifiers" : 0,
+      "identifier" : "copy:",
+      "path" : [
+        "Edit",
+        "Copy",
+        "Copy"
+      ],
+      "title" : "Copy"
+    },
+    {
+      "cmdChar" : "C",
+      "cmdModifiers" : 6,
+      "identifier" : "copyFileAndLine:",
+      "path" : [
+        "Edit",
+        "Copy",
+        "Copy File and Line"
+      ],
+      "title" : "Copy File and Line"
+    },
+    {
+      "cmdChar" : "C",
+      "cmdModifiers" : 7,
+      "identifier" : "copyQualifiedSymbolName:",
+      "path" : [
+        "Edit",
+        "Copy",
+        "Copy Qualified Symbol Name"
+      ],
+      "title" : "Copy Qualified Symbol Name"
+    },
+    {
+      "cmdChar" : "C",
+      "cmdModifiers" : 5,
+      "identifier" : "copySymbolName:",
+      "path" : [
+        "Edit",
+        "Copy",
+        "Copy Symbol Name"
+      ],
+      "title" : "Copy Symbol Name"
+    },
+    {
+      "cmdChar" : "X",
+      "cmdModifiers" : 0,
+      "identifier" : "cut:",
+      "path" : [
+        "Edit",
+        "Cut"
+      ],
+      "title" : "Cut"
+    },
+    {
+      "cmdChar" : "\b",
+      "cmdModifiers" : 0,
+      "cmdVirtualKey" : 51,
+      "identifier" : "delete:",
+      "path" : [
+        "Edit",
+        "Delete"
+      ],
+      "title" : "Delete"
+    },
+    {
+      "cmdChar" : "D",
+      "cmdModifiers" : 0,
+      "identifier" : "duplicate:",
+      "path" : [
+        "Edit",
+        "Duplicate"
+      ],
+      "title" : "Duplicate"
+    },
+    {
+      "cmdChar" : "E",
+      "cmdModifiers" : 24,
+      "identifier" : "orderFrontCharacterPalette:",
+      "path" : [
+        "Edit",
+        "Emoji & Symbols"
+      ],
+      "title" : "Emoji & Symbols"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "lowerBaseline:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Font",
+        "Baseline",
+        "Lower"
+      ],
+      "title" : "Lower"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "raiseBaseline:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Font",
+        "Baseline",
+        "Raise"
+      ],
+      "title" : "Raise"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "subscript:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Font",
+        "Baseline",
+        "Subscript"
+      ],
+      "title" : "Subscript"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "superscript:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Font",
+        "Baseline",
+        "Superscript"
+      ],
+      "title" : "Superscript"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "unscript:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Font",
+        "Baseline",
+        "Use Default"
+      ],
+      "title" : "Use Default"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "modifyFont:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Font",
+        "Bigger"
+      ],
+      "title" : "Bigger"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "addFontTrait:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Font",
+        "Bold"
+      ],
+      "title" : "Bold"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "copyFont:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Font",
+        "Copy Style"
+      ],
+      "title" : "Copy Style"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "addFontTrait:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Font",
+        "Italics"
+      ],
+      "title" : "Italics"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "loosenKerning:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Font",
+        "Kern",
+        "Loosen"
+      ],
+      "title" : "Loosen"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "tightenKerning:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Font",
+        "Kern",
+        "Tighten"
+      ],
+      "title" : "Tighten"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "useStandardKerning:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Font",
+        "Kern",
+        "Use Default"
+      ],
+      "title" : "Use Default"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "turnOffKerning:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Font",
+        "Kern",
+        "Use None"
+      ],
+      "title" : "Use None"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "useAllLigatures:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Font",
+        "Ligatures",
+        "Use All"
+      ],
+      "title" : "Use All"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "useStandardLigatures:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Font",
+        "Ligatures",
+        "Use Default"
+      ],
+      "title" : "Use Default"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "turnOffLigatures:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Font",
+        "Ligatures",
+        "Use None"
+      ],
+      "title" : "Use None"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "outline:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Font",
+        "Outline"
+      ],
+      "title" : "Outline"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "pasteFont:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Font",
+        "Paste Style"
+      ],
+      "title" : "Paste Style"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "orderFrontStylesPanel:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Font",
+        "Show Styles…"
+      ],
+      "title" : "Show Styles…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "modifyFont:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Font",
+        "Smaller"
+      ],
+      "title" : "Smaller"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "underline:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Font",
+        "Underline"
+      ],
+      "title" : "Underline"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "orderFrontColorPanel:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Show Colors"
+      ],
+      "title" : "Show Colors"
+    },
+    {
+      "cmdChar" : "T",
+      "cmdModifiers" : 5,
+      "identifier" : "orderFrontFontPanel:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Show Fonts"
+      ],
+      "title" : "Show Fonts"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "startSpeaking:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Speech",
+        "Start Speaking"
+      ],
+      "title" : "Start Speaking"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "stopSpeaking:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Speech",
+        "Stop Speaking"
+      ],
+      "title" : "Stop Speaking"
+    },
+    {
+      "cmdChar" : ")",
+      "cmdModifiers" : 0,
+      "identifier" : "checkSpelling:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Spelling and Grammar",
+        "Check Document Now"
+      ],
+      "title" : "Check Document Now"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "toggleGrammarChecking:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Spelling and Grammar",
+        "Check Grammar With Spelling"
+      ],
+      "title" : "Check Grammar With Spelling"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "toggleContinuousSpellChecking:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Spelling and Grammar",
+        "Check Spelling While Typing"
+      ],
+      "title" : "Check Spelling While Typing"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "toggleAutomaticSpellingCorrection:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Spelling and Grammar",
+        "Correct Spelling Automatically"
+      ],
+      "title" : "Correct Spelling Automatically"
+    },
+    {
+      "cmdChar" : "°",
+      "cmdModifiers" : 0,
+      "identifier" : "showGuessPanel:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Spelling and Grammar",
+        "Show Spelling and Grammar"
+      ],
+      "title" : "Show Spelling and Grammar"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "toggleAutomaticDataDetection:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Substitutions",
+        "Data Detectors"
+      ],
+      "title" : "Data Detectors"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "orderFrontSubstitutionsPanel:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Substitutions",
+        "Show Substitutions"
+      ],
+      "title" : "Show Substitutions"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "toggleSmartInsertDelete:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Substitutions",
+        "Smart Copy/Paste"
+      ],
+      "title" : "Smart Copy/Paste"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "toggleAutomaticDashSubstitution:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Substitutions",
+        "Smart Dashes"
+      ],
+      "title" : "Smart Dashes"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "toggleAutomaticLinkDetection:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Substitutions",
+        "Smart Links"
+      ],
+      "title" : "Smart Links"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "toggleAutomaticQuoteSubstitution:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Substitutions",
+        "Smart Quotes"
+      ],
+      "title" : "Smart Quotes"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "toggleAutomaticTextReplacement:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Substitutions",
+        "Text Replacement"
+      ],
+      "title" : "Text Replacement"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "alignLeft:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Text",
+        "Align Left"
+      ],
+      "title" : "Align Left"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "alignRight:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Text",
+        "Align Right"
+      ],
+      "title" : "Align Right"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "alignCenter:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Text",
+        "Center"
+      ],
+      "title" : "Center"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "copyRuler:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Text",
+        "Copy Ruler"
+      ],
+      "title" : "Copy Ruler"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "alignJustified:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Text",
+        "Justify"
+      ],
+      "title" : "Justify"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "pasteRuler:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Text",
+        "Paste Ruler"
+      ],
+      "title" : "Paste Ruler"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "toggleRuler:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Text",
+        "Show Ruler"
+      ],
+      "title" : "Show Ruler"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "makeTextWritingDirectionNatural:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Text",
+        "Writing Direction",
+        "   Default"
+      ],
+      "title" : "   Default"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "makeTextWritingDirectionLeftToRight:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Text",
+        "Writing Direction",
+        "   Left to Right"
+      ],
+      "title" : "   Left to Right"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "makeTextWritingDirectionRightToLeft:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Text",
+        "Writing Direction",
+        "   Right to Left"
+      ],
+      "title" : "   Right to Left"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "nullParagraph:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Text",
+        "Writing Direction",
+        "Paragraph"
+      ],
+      "title" : "Paragraph"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "nullSelection:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Text",
+        "Writing Direction",
+        "Selection"
+      ],
+      "title" : "Selection"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "capitalizeWord:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Transformations",
+        "Capitalize"
+      ],
+      "title" : "Capitalize"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "lowercaseWord:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Transformations",
+        "Make Lower Case"
+      ],
+      "title" : "Make Lower Case"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "uppercaseWord:",
+      "path" : [
+        "Edit",
+        "Format",
+        "Transformations",
+        "Make Upper Case"
+      ],
+      "title" : "Make Upper Case"
+    },
+    {
+      "cmdChar" : "V",
+      "cmdModifiers" : 2,
+      "identifier" : "moveItemHere:",
+      "path" : [
+        "Edit",
+        "Paste",
+        "Move Item Here"
+      ],
+      "title" : "Move Item Here"
+    },
+    {
+      "cmdChar" : "V",
+      "cmdModifiers" : 0,
+      "identifier" : "paste:",
+      "path" : [
+        "Edit",
+        "Paste",
+        "Paste"
+      ],
+      "title" : "Paste"
+    },
+    {
+      "cmdChar" : "V",
+      "cmdModifiers" : 3,
+      "identifier" : "pasteAndPreserveFormatting:",
+      "path" : [
+        "Edit",
+        "Paste",
+        "Paste and Preserve Formatting"
+      ],
+      "title" : "Paste and Preserve Formatting"
+    },
+    {
+      "cmdChar" : "Z",
+      "cmdModifiers" : 1,
+      "identifier" : "redo:",
+      "path" : [
+        "Edit",
+        "Redo"
+      ],
+      "title" : "Redo"
+    },
+    {
+      "cmdChar" : "A",
+      "cmdModifiers" : 0,
+      "identifier" : "selectAll:",
+      "path" : [
+        "Edit",
+        "Select All"
+      ],
+      "title" : "Select All"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "sortFilesByName:",
+      "path" : [
+        "Edit",
+        "Sort",
+        "By Name"
+      ],
+      "title" : "By Name"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "sortFilesByType:",
+      "path" : [
+        "Edit",
+        "Sort",
+        "By Type"
+      ],
+      "title" : "By Type"
+    },
+    {
+      "cmdChar" : "🎤",
+      "cmdModifiers" : 8,
+      "cmdVirtualKey" : 128,
+      "identifier" : "startDictation:",
+      "path" : [
+        "Edit",
+        "Start Dictation…"
+      ],
+      "title" : "Start Dictation…"
+    },
+    {
+      "cmdChar" : "Z",
+      "cmdModifiers" : 0,
+      "identifier" : "undo:",
+      "path" : [
+        "Edit",
+        "Undo"
+      ],
+      "title" : "Undo"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "showWritingTools:",
+      "path" : [
+        "Edit",
+        "Writing Tools",
+        "Compose…"
+      ],
+      "title" : "Compose…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "showWritingTools:",
+      "path" : [
+        "Edit",
+        "Writing Tools",
+        "Create Key Points"
+      ],
+      "title" : "Create Key Points"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "showWritingTools:",
+      "path" : [
+        "Edit",
+        "Writing Tools",
+        "Make Concise"
+      ],
+      "title" : "Make Concise"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "showWritingTools:",
+      "path" : [
+        "Edit",
+        "Writing Tools",
+        "Make Friendly"
+      ],
+      "title" : "Make Friendly"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "showWritingTools:",
+      "path" : [
+        "Edit",
+        "Writing Tools",
+        "Make List"
+      ],
+      "title" : "Make List"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "showWritingTools:",
+      "path" : [
+        "Edit",
+        "Writing Tools",
+        "Make Professional"
+      ],
+      "title" : "Make Professional"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "showWritingTools:",
+      "path" : [
+        "Edit",
+        "Writing Tools",
+        "Make Table"
+      ],
+      "title" : "Make Table"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "showWritingTools:",
+      "path" : [
+        "Edit",
+        "Writing Tools",
+        "Proofread"
+      ],
+      "title" : "Proofread"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "showWritingTools:",
+      "path" : [
+        "Edit",
+        "Writing Tools",
+        "Rewrite"
+      ],
+      "title" : "Rewrite"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "showWritingTools:",
+      "path" : [
+        "Edit",
+        "Writing Tools",
+        "Show Writing Tools"
+      ],
+      "title" : "Show Writing Tools"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "showWritingTools:",
+      "path" : [
+        "Edit",
+        "Writing Tools",
+        "Summarize"
+      ],
+      "title" : "Summarize"
+    },
+    {
+      "cmdChar" : "\r",
+      "cmdModifiers" : 6,
+      "cmdVirtualKey" : 36,
+      "identifier" : "Show Assistant",
+      "path" : [
+        "Editor",
+        "Assistant"
+      ],
+      "title" : "Assistant"
+    },
+    {
+      "cmdChar" : "A",
+      "cmdModifiers" : 5,
+      "identifier" : "Show Authors",
+      "path" : [
+        "Editor",
+        "Authors"
+      ],
+      "title" : "Authors"
+    },
+    {
+      "cmdChar" : "\r",
+      "cmdModifiers" : 2,
+      "cmdVirtualKey" : 36,
+      "identifier" : "Hide Canvas",
+      "path" : [
+        "Editor",
+        "Canvas"
+      ],
+      "title" : "Canvas"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "editThemes:",
+      "path" : [
+        "Editor",
+        "Choose Theme..."
+      ],
+      "title" : "Choose Theme..."
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "Show Code Coverage",
+      "path" : [
+        "Editor",
+        "Code Coverage"
+      ],
+      "title" : "Code Coverage"
+    },
+    {
+      "cmdChar" : "",
+      "cmdModifiers" : 2,
+      "cmdVirtualKey" : 123,
+      "identifier" : "fold:",
+      "path" : [
+        "Editor",
+        "Code Folding",
+        "Fold"
+      ],
+      "title" : "Fold"
+    },
+    {
+      "cmdChar" : "",
+      "cmdModifiers" : 5,
+      "cmdVirtualKey" : 123,
+      "identifier" : "foldAllComments:",
+      "path" : [
+        "Editor",
+        "Code Folding",
+        "Fold Comment Blocks"
+      ],
+      "title" : "Fold Comment Blocks"
+    },
+    {
+      "cmdChar" : "",
+      "cmdModifiers" : 3,
+      "cmdVirtualKey" : 123,
+      "identifier" : "foldAllMethods:",
+      "path" : [
+        "Editor",
+        "Code Folding",
+        "Fold Methods & Functions"
+      ],
+      "title" : "Fold Methods & Functions"
+    },
+    {
+      "cmdChar" : "",
+      "cmdModifiers" : 2,
+      "cmdVirtualKey" : 124,
+      "identifier" : "unfold:",
+      "path" : [
+        "Editor",
+        "Code Folding",
+        "Unfold"
+      ],
+      "title" : "Unfold"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "unfoldAll:",
+      "path" : [
+        "Editor",
+        "Code Folding",
+        "Unfold All"
+      ],
+      "title" : "Unfold All"
+    },
+    {
+      "cmdChar" : "",
+      "cmdModifiers" : 5,
+      "cmdVirtualKey" : 124,
+      "identifier" : "unfoldAllComments:",
+      "path" : [
+        "Editor",
+        "Code Folding",
+        "Unfold Comment Blocks"
+      ],
+      "title" : "Unfold Comment Blocks"
+    },
+    {
+      "cmdChar" : "",
+      "cmdModifiers" : 3,
+      "cmdVirtualKey" : 124,
+      "identifier" : "unfoldAllMethods:",
+      "path" : [
+        "Editor",
+        "Code Folding",
+        "Unfold Methods & Functions"
+      ],
+      "title" : "Unfold Methods & Functions"
+    },
+    {
+      "cmdChar" : "\r",
+      "cmdModifiers" : 3,
+      "cmdVirtualKey" : 36,
+      "identifier" : "Show Code Review",
+      "path" : [
+        "Editor",
+        "Code Review"
+      ],
+      "title" : "Code Review"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "createCodeSnippetFromSelection:",
+      "path" : [
+        "Editor",
+        "Create Code Snippet…"
+      ],
+      "title" : "Create Code Snippet…"
+    },
+    {
+      "cmdChar" : "E",
+      "cmdModifiers" : 4,
+      "identifier" : "toggleTokenizedEditing:",
+      "path" : [
+        "Editor",
+        "Edit All in Scope"
+      ],
+      "title" : "Edit All in Scope"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "showHideMacroExpansion:",
+      "path" : [
+        "Editor",
+        "Expand Macro"
+      ],
+      "title" : "Expand Macro"
+    },
+    {
+      "cmdChar" : "F",
+      "cmdModifiers" : 6,
+      "identifier" : "fixAllIssues:",
+      "path" : [
+        "Editor",
+        "Fix All Issues"
+      ],
+      "title" : "Fix All Issues"
+    },
+    {
+      "cmdChar" : "-",
+      "cmdModifiers" : 0,
+      "identifier" : "decreaseFontSize:",
+      "path" : [
+        "Editor",
+        "Font Size",
+        "Decrease"
+      ],
+      "title" : "Decrease"
+    },
+    {
+      "cmdChar" : "+",
+      "cmdModifiers" : 0,
+      "identifier" : "increaseFontSize:",
+      "path" : [
+        "Editor",
+        "Font Size",
+        "Increase"
+      ],
+      "title" : "Increase"
+    },
+    {
+      "cmdChar" : "À",
+      "cmdModifiers" : 4,
+      "identifier" : "resetFontSize:",
+      "path" : [
+        "Editor",
+        "Font Size",
+        "Reset"
+      ],
+      "title" : "Reset"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "hideAllMacroExpansions:",
+      "path" : [
+        "Editor",
+        "Hide All Macro Expansions"
+      ],
+      "title" : "Hide All Macro Expansions"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "toggleInlineEnabled:",
+      "path" : [
+        "Editor",
+        "Inline Comparison"
+      ],
+      "title" : "Inline Comparison"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "Show Invisibles",
+      "path" : [
+        "Editor",
+        "Invisibles"
+      ],
+      "title" : "Invisibles"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_setSubEditorPositionToAutomatic:",
+      "path" : [
+        "Editor",
+        "Layout",
+        "Automatic"
+      ],
+      "title" : "Automatic"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_setSubEditorPositionToBelow:",
+      "path" : [
+        "Editor",
+        "Layout",
+        "Canvas on Bottom"
+      ],
+      "title" : "Canvas on Bottom"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_setSubEditorPositionToOnRight:",
+      "path" : [
+        "Editor",
+        "Layout",
+        "Canvas on Right"
+      ],
+      "title" : "Canvas on Right"
+    },
+    {
+      "cmdChar" : "M",
+      "cmdModifiers" : 5,
+      "identifier" : "Show Minimap",
+      "path" : [
+        "Editor",
+        "Minimap"
+      ],
+      "title" : "Minimap"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "addMissingAbstractClassOverrides:",
+      "path" : [
+        "Editor",
+        "Refactor",
+        "Add Missing Abstract Class Overrides"
+      ],
+      "title" : "Add Missing Abstract Class Overrides"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "addMissingProtocolRequirements:",
+      "path" : [
+        "Editor",
+        "Refactor",
+        "Add Missing Protocol Requirements"
+      ],
+      "title" : "Add Missing Protocol Requirements"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "addMissingSwitchCases:",
+      "path" : [
+        "Editor",
+        "Refactor",
+        "Add Missing Switch Cases"
+      ],
+      "title" : "Add Missing Switch Cases"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "convertRegExToDSL:",
+      "path" : [
+        "Editor",
+        "Refactor",
+        "Convert to Regex Builder"
+      ],
+      "title" : "Convert to Regex Builder"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "convertToSwitch:",
+      "path" : [
+        "Editor",
+        "Refactor",
+        "Convert to Switch"
+      ],
+      "title" : "Convert to Switch"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "expandDefault:",
+      "path" : [
+        "Editor",
+        "Refactor",
+        "Expand Default"
+      ],
+      "title" : "Expand Default"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "extractRepeatedExpression:",
+      "path" : [
+        "Editor",
+        "Refactor",
+        "Extract All Occurrences"
+      ],
+      "title" : "Extract All Occurrences"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "extractSelectionToFile:",
+      "path" : [
+        "Editor",
+        "Refactor",
+        "Extract Selection to File"
+      ],
+      "title" : "Extract Selection to File"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "extractFunction:",
+      "path" : [
+        "Editor",
+        "Refactor",
+        "Extract to Function"
+      ],
+      "title" : "Extract to Function"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "extractMethod:",
+      "path" : [
+        "Editor",
+        "Refactor",
+        "Extract to Method"
+      ],
+      "title" : "Extract to Method"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "extractExpression:",
+      "path" : [
+        "Editor",
+        "Refactor",
+        "Extract to Variable"
+      ],
+      "title" : "Extract to Variable"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "generateMemberwiseInitializer:",
+      "path" : [
+        "Editor",
+        "Refactor",
+        "Generate Memberwise Initializer"
+      ],
+      "title" : "Generate Memberwise Initializer"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "generateMissingFunctionDefinitions:",
+      "path" : [
+        "Editor",
+        "Refactor",
+        "Generate Missing Function Definitions"
+      ],
+      "title" : "Generate Missing Function Definitions"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "renameRefactor:",
+      "path" : [
+        "Editor",
+        "Refactor",
+        "Rename…"
+      ],
+      "title" : "Rename…"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "wrapInNSLocalizedString:",
+      "path" : [
+        "Editor",
+        "Refactor",
+        "Wrap in NSLocalizedString"
+      ],
+      "title" : "Wrap in NSLocalizedString"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "Hide Relative Line Numbers",
+      "path" : [
+        "Editor",
+        "Relative Line Numbers"
+      ],
+      "title" : "Relative Line Numbers"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "Show Scope Guides",
+      "path" : [
+        "Editor",
+        "Scope Guides"
+      ],
+      "title" : "Scope Guides"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "balance:",
+      "path" : [
+        "Editor",
+        "Selection",
+        "Balance Delimiters"
+      ],
+      "title" : "Balance Delimiters"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "selectAllSymbols:",
+      "path" : [
+        "Editor",
+        "Selection",
+        "Select All Symbols"
+      ],
+      "title" : "Select All Symbols"
+    },
+    {
+      "cmdChar" : "",
+      "cmdModifiers" : 13,
+      "cmdVirtualKey" : 125,
+      "identifier" : "selectColumnDown:",
+      "path" : [
+        "Editor",
+        "Selection",
+        "Select Column Down"
+      ],
+      "title" : "Select Column Down"
+    },
+    {
+      "cmdChar" : "",
+      "cmdModifiers" : 13,
+      "cmdVirtualKey" : 126,
+      "identifier" : "selectColumnUp:",
+      "path" : [
+        "Editor",
+        "Selection",
+        "Select Column Up"
+      ],
+      "title" : "Select Column Up"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "splitSelectionByLine:",
+      "path" : [
+        "Editor",
+        "Selection",
+        "Split Selection By Lines"
+      ],
+      "title" : "Split Selection By Lines"
+    },
+    {
+      "cmdChar" : "L",
+      "cmdModifiers" : 4,
+      "identifier" : "toggleAllIssuesShown:",
+      "path" : [
+        "Editor",
+        "Show All Issues"
+      ],
+      "title" : "Show All Issues"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "jumpToCallers:",
+      "path" : [
+        "Editor",
+        "Show Callers…"
+      ],
+      "title" : "Show Callers…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "runClosure:",
+      "path" : [
+        "Editor",
+        "Show Coding Tools",
+        "Document"
+      ],
+      "title" : "Document"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "runClosure:",
+      "path" : [
+        "Editor",
+        "Show Coding Tools",
+        "Explain"
+      ],
+      "title" : "Explain"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "runClosure:",
+      "path" : [
+        "Editor",
+        "Show Coding Tools",
+        "Generate a Playground"
+      ],
+      "title" : "Generate a Playground"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "runClosure:",
+      "path" : [
+        "Editor",
+        "Show Coding Tools",
+        "Generate a Preview"
+      ],
+      "title" : "Generate a Preview"
+    },
+    {
+      "cmdChar" : "À",
+      "cmdModifiers" : 2,
+      "identifier" : "showCodingTools:",
+      "path" : [
+        "Editor",
+        "Show Coding Tools",
+        "Show Coding Tools…"
+      ],
+      "title" : "Show Coding Tools…"
+    },
+    {
+      "cmdChar" : " ",
+      "cmdModifiers" : 12,
+      "cmdVirtualKey" : 49,
+      "identifier" : "complete:",
+      "path" : [
+        "Editor",
+        "Show Completions"
+      ],
+      "title" : "Show Completions"
+    },
+    {
+      "cmdChar" : "\r",
+      "cmdModifiers" : 0,
+      "cmdVirtualKey" : 36,
+      "identifier" : "_showEditorOnly:",
+      "path" : [
+        "Editor",
+        "Show Editor Only"
+      ],
+      "title" : "Show Editor Only"
+    },
+    {
+      "cmdChar" : "L",
+      "cmdModifiers" : 6,
+      "identifier" : "toggleIssueShown:",
+      "path" : [
+        "Editor",
+        "Show Issues"
+      ],
+      "title" : "Show Issues"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "blameSelectedLine:",
+      "path" : [
+        "Editor",
+        "Show Last Change for Line"
+      ],
+      "title" : "Show Last Change for Line"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "toggleRenderedEditor:",
+      "path" : [
+        "Editor",
+        "Show Markdown"
+      ],
+      "title" : "Show Markdown"
+    },
+    {
+      "cmdChar" : " ",
+      "cmdModifiers" : 14,
+      "cmdVirtualKey" : 49,
+      "identifier" : "predict:",
+      "path" : [
+        "Editor",
+        "Show Predictive Completion"
+      ],
+      "title" : "Show Predictive Completion"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "toggleTwoUpEnabled:",
+      "path" : [
+        "Editor",
+        "Side By Side Comparison"
+      ],
+      "title" : "Side By Side Comparison"
+    },
+    {
+      "cmdChar" : ":",
+      "cmdModifiers" : 2,
+      "identifier" : "addDocumentation:",
+      "path" : [
+        "Editor",
+        "Structure",
+        "Add Documentation"
+      ],
+      "title" : "Add Documentation"
+    },
+    {
+      "cmdChar" : ":",
+      "cmdModifiers" : 0,
+      "identifier" : "toggleComments:",
+      "path" : [
+        "Editor",
+        "Structure",
+        "Comment Selection"
+      ],
+      "title" : "Comment Selection"
+    },
+    {
+      "cmdChar" : "I",
+      "cmdModifiers" : 13,
+      "identifier" : "formatFile:",
+      "path" : [
+        "Editor",
+        "Structure",
+        "Format File"
+      ],
+      "title" : "Format File"
+    },
+    {
+      "cmdChar" : "I",
+      "cmdModifiers" : 15,
+      "identifier" : "formatSelection:",
+      "path" : [
+        "Editor",
+        "Structure",
+        "Format Selection"
+      ],
+      "title" : "Format Selection"
+    },
+    {
+      "cmdChar" : "M",
+      "cmdModifiers" : 12,
+      "identifier" : "formatToMultipleLines:",
+      "path" : [
+        "Editor",
+        "Structure",
+        "Format to Multiple Lines"
+      ],
+      "title" : "Format to Multiple Lines"
+    },
+    {
+      "cmdChar" : "$",
+      "cmdModifiers" : 2,
+      "identifier" : "moveCurrentLineDown:",
+      "path" : [
+        "Editor",
+        "Structure",
+        "Move Line Down"
+      ],
+      "title" : "Move Line Down"
+    },
+    {
+      "cmdChar" : "^",
+      "cmdModifiers" : 2,
+      "identifier" : "moveCurrentLineUp:",
+      "path" : [
+        "Editor",
+        "Structure",
+        "Move Line Up"
+      ],
+      "title" : "Move Line Up"
+    },
+    {
+      "cmdChar" : "I",
+      "cmdModifiers" : 12,
+      "identifier" : "indentSelection:",
+      "path" : [
+        "Editor",
+        "Structure",
+        "Re-Indent"
+      ],
+      "title" : "Re-Indent"
+    },
+    {
+      "cmdChar" : "I",
+      "cmdModifiers" : 14,
+      "identifier" : "reformatToWidth:",
+      "path" : [
+        "Editor",
+        "Structure",
+        "Reformat To Width"
+      ],
+      "title" : "Reformat To Width"
+    },
+    {
+      "cmdChar" : "^",
+      "cmdModifiers" : 0,
+      "identifier" : "shiftLeft:",
+      "path" : [
+        "Editor",
+        "Structure",
+        "Shift Left"
+      ],
+      "title" : "Shift Left"
+    },
+    {
+      "cmdChar" : "$",
+      "cmdModifiers" : 0,
+      "identifier" : "shiftRight:",
+      "path" : [
+        "Editor",
+        "Structure",
+        "Shift Right"
+      ],
+      "title" : "Shift Right"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "ARM-Assembly"
+      ],
+      "title" : "ARM-Assembly"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "AppleScript"
+      ],
+      "title" : "AppleScript"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Bourne Shell Script"
+      ],
+      "title" : "Bourne Shell Script"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Build Phase File List"
+      ],
+      "title" : "Build Phase File List"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "C"
+      ],
+      "title" : "C"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "C Shell"
+      ],
+      "title" : "C Shell"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "C++"
+      ],
+      "title" : "C++"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "CSS"
+      ],
+      "title" : "CSS"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Compiled Module"
+      ],
+      "title" : "Compiled Module"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Core Data Model"
+      ],
+      "title" : "Core Data Model"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "CoreML Model"
+      ],
+      "title" : "CoreML Model"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Crash Report"
+      ],
+      "title" : "Crash Report"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "DTrace"
+      ],
+      "title" : "DTrace"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "useSourceCodeLanguageFromFileDataTypeAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Default for File Type"
+      ],
+      "title" : "Default for File Type"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Documentation Markup"
+      ],
+      "title" : "Documentation Markup"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Fortran"
+      ],
+      "title" : "Fortran"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Fortran 90"
+      ],
+      "title" : "Fortran 90"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "GLSL"
+      ],
+      "title" : "GLSL"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Git Diff"
+      ],
+      "title" : "Git Diff"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "HLSL"
+      ],
+      "title" : "HLSL"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "HTML"
+      ],
+      "title" : "HTML"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Intel-Assembly"
+      ],
+      "title" : "Intel-Assembly"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Intent Specification"
+      ],
+      "title" : "Intent Specification"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Interface Builder"
+      ],
+      "title" : "Interface Builder"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "JSON"
+      ],
+      "title" : "JSON"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Java"
+      ],
+      "title" : "Java"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "JavaScript"
+      ],
+      "title" : "JavaScript"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "LLVM IR"
+      ],
+      "title" : "LLVM IR"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Lex/Flex"
+      ],
+      "title" : "Lex/Flex"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Localization Strings File"
+      ],
+      "title" : "Localization Strings File"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Makefile"
+      ],
+      "title" : "Makefile"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Manual Page"
+      ],
+      "title" : "Manual Page"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Markdown"
+      ],
+      "title" : "Markdown"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Metal"
+      ],
+      "title" : "Metal"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Metal IR"
+      ],
+      "title" : "Metal IR"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Module Map"
+      ],
+      "title" : "Module Map"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "None"
+      ],
+      "title" : "None"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Objective-C"
+      ],
+      "title" : "Objective-C"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Objective-C++"
+      ],
+      "title" : "Objective-C++"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "OpenCL"
+      ],
+      "title" : "OpenCL"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "PHP"
+      ],
+      "title" : "PHP"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Perl"
+      ],
+      "title" : "Perl"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Pkl"
+      ],
+      "title" : "Pkl"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Protocol Buffer"
+      ],
+      "title" : "Protocol Buffer"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Python"
+      ],
+      "title" : "Python"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Ruby"
+      ],
+      "title" : "Ruby"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "SQL"
+      ],
+      "title" : "SQL"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Swift"
+      ],
+      "title" : "Swift"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "TOML/INI"
+      ],
+      "title" : "TOML/INI"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Text Plist"
+      ],
+      "title" : "Text Plist"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Text-Based Dynamic Library Definition"
+      ],
+      "title" : "Text-Based Dynamic Library Definition"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Unified Diff"
+      ],
+      "title" : "Unified Diff"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "XML"
+      ],
+      "title" : "XML"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Xcode Configuration File"
+      ],
+      "title" : "Xcode Configuration File"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Xcode Project Data"
+      ],
+      "title" : "Xcode Project Data"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "YAML"
+      ],
+      "title" : "YAML"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "changeSourceCodeLanguageAction:",
+      "path" : [
+        "Editor",
+        "Syntax Coloring",
+        "Yacc/Bison"
+      ],
+      "title" : "Yacc/Bison"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "Hide Vim Mode",
+      "path" : [
+        "Editor",
+        "Vim Mode"
+      ],
+      "title" : "Vim Mode"
+    },
+    {
+      "cmdChar" : "L",
+      "cmdModifiers" : 5,
+      "identifier" : "Hide Wrap Lines",
+      "path" : [
+        "Editor",
+        "Wrap Lines"
+      ],
+      "title" : "Wrap Lines"
+    },
+    {
+      "cmdChar" : "A",
+      "cmdModifiers" : 2,
+      "identifier" : "addFiles:",
+      "path" : [
+        "File",
+        "Add Files to “XCommander”…"
+      ],
+      "title" : "Add Files to “XCommander”…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "addPackages:",
+      "path" : [
+        "File",
+        "Add Package Dependencies…"
+      ],
+      "title" : "Add Package Dependencies…"
+    },
+    {
+      "cmdChar" : "W",
+      "cmdModifiers" : 5,
+      "identifier" : "_closeActiveEditor:",
+      "path" : [
+        "File",
+        "Close Editor Pane"
+      ],
+      "title" : "Close Editor Pane"
+    },
+    {
+      "cmdChar" : "W",
+      "cmdModifiers" : 7,
+      "identifier" : "closeOtherEditors:",
+      "path" : [
+        "File",
+        "Close Other Editor Panes"
+      ],
+      "title" : "Close Other Editor Panes"
+    },
+    {
+      "cmdChar" : "W",
+      "cmdModifiers" : 2,
+      "identifier" : "_closeOtherEditorTabs:",
+      "path" : [
+        "File",
+        "Close Other Tabs"
+      ],
+      "title" : "Close Other Tabs"
+    },
+    {
+      "cmdChar" : "W",
+      "cmdModifiers" : 3,
+      "identifier" : "closeOtherWindowTabs:",
+      "path" : [
+        "File",
+        "Close Other Window Tabs"
+      ],
+      "title" : "Close Other Window Tabs"
+    },
+    {
+      "cmdChar" : "W",
+      "cmdModifiers" : 6,
+      "identifier" : "performCloseWorkspace:",
+      "path" : [
+        "File",
+        "Close Project"
+      ],
+      "title" : "Close Project"
+    },
+    {
+      "cmdChar" : "W",
+      "cmdModifiers" : 0,
+      "identifier" : "Close Tab",
+      "path" : [
+        "File",
+        "Close Tab"
+      ],
+      "title" : "Close Tab"
+    },
+    {
+      "cmdChar" : "W",
+      "cmdModifiers" : 1,
+      "identifier" : "dvt_closeWindowAsWindowTab:",
+      "path" : [
+        "File",
+        "Close Window"
+      ],
+      "title" : "Close Window"
+    },
+    {
+      "cmdChar" : "W",
+      "cmdModifiers" : 4,
+      "identifier" : "topLevelEditorContext_closeDocument:",
+      "path" : [
+        "File",
+        "Close “0 mach_msg2_trap”"
+      ],
+      "title" : "Close “0 mach_msg2_trap”"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "duplicateActiveEditorTab:",
+      "path" : [
+        "File",
+        "Duplicate Editor Tab"
+      ],
+      "title" : "Duplicate Editor Tab"
+    },
+    {
+      "cmdChar" : "S",
+      "cmdModifiers" : 1,
+      "identifier" : "ide_duplicateDocument:",
+      "path" : [
+        "File",
+        "Duplicate…"
+      ],
+      "title" : "Duplicate…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "exportDocument:",
+      "path" : [
+        "File",
+        "Export…"
+      ],
+      "title" : "Export…"
+    },
+    {
+      "cmdChar" : "H",
+      "cmdModifiers" : 4,
+      "identifier" : "newCodingAssistant:",
+      "path" : [
+        "File",
+        "New",
+        "Conversation"
+      ],
+      "title" : "Conversation"
+    },
+    {
+      "cmdChar" : "H",
+      "cmdModifiers" : 7,
+      "identifier" : "newCodingAssistantWithShiftPlusAlternate:",
+      "path" : [
+        "File",
+        "New",
+        "Conversation in Editor Pane"
+      ],
+      "title" : "Conversation in Editor Pane"
+    },
+    {
+      "cmdChar" : "H",
+      "cmdModifiers" : 6,
+      "identifier" : "newCodingAssistantWithAlternate:",
+      "path" : [
+        "File",
+        "New",
+        "Conversation in New Tab"
+      ],
+      "title" : "Conversation in New Tab"
+    },
+    {
+      "cmdChar" : "T",
+      "cmdModifiers" : 6,
+      "identifier" : "newEditorAreaSplitBelow:",
+      "path" : [
+        "File",
+        "New",
+        "Editor Pane Below"
+      ],
+      "title" : "Editor Pane Below"
+    },
+    {
+      "cmdChar" : "T",
+      "cmdModifiers" : 4,
+      "identifier" : "newEditorAreaSplitOnRight:",
+      "path" : [
+        "File",
+        "New",
+        "Editor Pane On Right"
+      ],
+      "title" : "Editor Pane On Right"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "newEmptyFile:",
+      "path" : [
+        "File",
+        "New",
+        "Empty File"
+      ],
+      "title" : "Empty File"
+    },
+    {
+      "cmdChar" : "N",
+      "cmdModifiers" : 0,
+      "identifier" : "newFileFromTemplate:",
+      "path" : [
+        "File",
+        "New",
+        "File from Template…"
+      ],
+      "title" : "File from Template…"
+    },
+    {
+      "cmdChar" : "N",
+      "cmdModifiers" : 2,
+      "identifier" : "newFolder:",
+      "path" : [
+        "File",
+        "New",
+        "Folder"
+      ],
+      "title" : "Folder"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "newFolderFromSelection:",
+      "path" : [
+        "File",
+        "New",
+        "Folder from Selection"
+      ],
+      "title" : "Folder from Selection"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "newGroupWithFolder:",
+      "path" : [
+        "File",
+        "New",
+        "Group"
+      ],
+      "title" : "Group"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "newGroupFromSelectionWithFolder:",
+      "path" : [
+        "File",
+        "New",
+        "Group from Selection"
+      ],
+      "title" : "Group from Selection"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "newGroupFromSelectionWithoutFolder:",
+      "path" : [
+        "File",
+        "New",
+        "Group from Selection without Folder"
+      ],
+      "title" : "Group from Selection without Folder"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "newGroupWithoutFolder:",
+      "path" : [
+        "File",
+        "New",
+        "Group without Folder"
+      ],
+      "title" : "Group without Folder"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "newFileFromPasteboard:",
+      "path" : [
+        "File",
+        "New",
+        "New File from Clipboard"
+      ],
+      "title" : "New File from Clipboard"
+    },
+    {
+      "cmdChar" : "N",
+      "cmdModifiers" : 3,
+      "identifier" : "createLastProjectKindQuickly:",
+      "path" : [
+        "File",
+        "New",
+        "Package…"
+      ],
+      "title" : "Package…"
+    },
+    {
+      "cmdChar" : "N",
+      "cmdModifiers" : 1,
+      "identifier" : "createProjectQuickly:",
+      "path" : [
+        "File",
+        "New",
+        "Project…"
+      ],
+      "title" : "Project…"
+    },
+    {
+      "cmdChar" : "T",
+      "cmdModifiers" : 0,
+      "identifier" : "newTab:",
+      "path" : [
+        "File",
+        "New",
+        "Tab"
+      ],
+      "title" : "Tab"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "newTarget:",
+      "path" : [
+        "File",
+        "New",
+        "Target…"
+      ],
+      "title" : "Target…"
+    },
+    {
+      "cmdChar" : "T",
+      "cmdModifiers" : 1,
+      "identifier" : "newWindow:",
+      "path" : [
+        "File",
+        "New",
+        "Window"
+      ],
+      "title" : "Window"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "newWindowForTab:",
+      "path" : [
+        "File",
+        "New",
+        "Window Tab"
+      ],
+      "title" : "Window Tab"
+    },
+    {
+      "cmdChar" : "N",
+      "cmdModifiers" : 4,
+      "identifier" : "newWorkspace:",
+      "path" : [
+        "File",
+        "New",
+        "Workspace…"
+      ],
+      "title" : "Workspace…"
+    },
+    {
+      "cmdChar" : "O",
+      "cmdModifiers" : 1,
+      "identifier" : "openQuickly:",
+      "path" : [
+        "File",
+        "Open Quickly…"
+      ],
+      "title" : "Open Quickly…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_openRecentDocument:",
+      "path" : [
+        "File",
+        "Open Recent",
+        "Autographe.xcodeproj"
+      ],
+      "title" : "Autographe.xcodeproj"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_openRecentDocument:",
+      "path" : [
+        "File",
+        "Open Recent",
+        "AutographeCore"
+      ],
+      "title" : "AutographeCore"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "clearRecentDocuments:",
+      "path" : [
+        "File",
+        "Open Recent",
+        "Clear Menu"
+      ],
+      "title" : "Clear Menu"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_openRecentDocument:",
+      "path" : [
+        "File",
+        "Open Recent",
+        "SPEEM.xcodeproj"
+      ],
+      "title" : "SPEEM.xcodeproj"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_openRecentDocument:",
+      "path" : [
+        "File",
+        "Open Recent",
+        "XCommander.xcodeproj"
+      ],
+      "title" : "XCommander.xcodeproj"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_openRecentDocument:",
+      "path" : [
+        "File",
+        "Open Recent",
+        "XCommanderCore"
+      ],
+      "title" : "XCommanderCore"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "openTerminalAtLocation:",
+      "path" : [
+        "File",
+        "Open Terminal at Location"
+      ],
+      "title" : "Open Terminal at Location"
+    },
+    {
+      "cmdChar" : "O",
+      "cmdModifiers" : 2,
+      "identifier" : "openInEditorTabs:",
+      "path" : [
+        "File",
+        "Open in New Tab"
+      ],
+      "title" : "Open in New Tab"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "openInNewWindow:",
+      "path" : [
+        "File",
+        "Open in New Window"
+      ],
+      "title" : "Open in New Window"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "openWithExternalEditor:",
+      "path" : [
+        "File",
+        "Open with External Editor"
+      ],
+      "title" : "Open with External Editor"
+    },
+    {
+      "cmdChar" : "O",
+      "cmdModifiers" : 0,
+      "identifier" : "openDocument:",
+      "path" : [
+        "File",
+        "Open…"
+      ],
+      "title" : "Open…"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "resetPackageDependencyGraph:",
+      "path" : [
+        "File",
+        "Packages",
+        "Reset Package Caches"
+      ],
+      "title" : "Reset Package Caches"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "resolvePackageVersions:",
+      "path" : [
+        "File",
+        "Packages",
+        "Resolve Package Versions"
+      ],
+      "title" : "Resolve Package Versions"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "updateToLatestPackageVersions:",
+      "path" : [
+        "File",
+        "Packages",
+        "Update to Latest Package Versions"
+      ],
+      "title" : "Update to Latest Package Versions"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "runPageLayout:",
+      "path" : [
+        "File",
+        "Page Setup…"
+      ],
+      "title" : "Page Setup…"
+    },
+    {
+      "cmdChar" : "P",
+      "cmdModifiers" : 0,
+      "identifier" : "printDocument:",
+      "path" : [
+        "File",
+        "Print…"
+      ],
+      "title" : "Print…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "editWorkspaceUserSettings:",
+      "path" : [
+        "File",
+        "Project Settings…"
+      ],
+      "title" : "Project Settings…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "ide_revertDocumentToSaved:",
+      "path" : [
+        "File",
+        "Revert to Saved…"
+      ],
+      "title" : "Revert to Saved…"
+    },
+    {
+      "cmdChar" : "S",
+      "cmdModifiers" : 0,
+      "identifier" : "ide_saveDocument:",
+      "path" : [
+        "File",
+        "Save"
+      ],
+      "title" : "Save"
+    },
+    {
+      "cmdChar" : "S",
+      "cmdModifiers" : 2,
+      "identifier" : "saveAllEditorDocuments:",
+      "path" : [
+        "File",
+        "Save All"
+      ],
+      "title" : "Save All"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "saveAsWorkspace:",
+      "path" : [
+        "File",
+        "Save As Workspace…"
+      ],
+      "title" : "Save As Workspace…"
+    },
+    {
+      "cmdChar" : "S",
+      "cmdModifiers" : 3,
+      "identifier" : "ide_saveDocumentAs:",
+      "path" : [
+        "File",
+        "Save As…"
+      ],
+      "title" : "Save As…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "showInFinder:",
+      "path" : [
+        "File",
+        "Show in Finder"
+      ],
+      "title" : "Show in Finder"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "ide_unlockDocument:",
+      "path" : [
+        "File",
+        "Unlock…"
+      ],
+      "title" : "Unlock…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "findAncestorTypes:",
+      "path" : [
+        "Find",
+        "Find Ancestor Types"
+      ],
+      "title" : "Find Ancestor Types"
+    },
+    {
+      "cmdChar" : "H",
+      "cmdModifiers" : 5,
+      "identifier" : "showCallHierarchy:",
+      "path" : [
+        "Find",
+        "Find Call Hierarchy"
+      ],
+      "title" : "Find Call Hierarchy"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "findConformingTypes:",
+      "path" : [
+        "Find",
+        "Find Conforming Types"
+      ],
+      "title" : "Find Conforming Types"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "findDescendentTypes:",
+      "path" : [
+        "Find",
+        "Find Descendent Types"
+      ],
+      "title" : "Find Descendent Types"
+    },
+    {
+      "cmdChar" : "G",
+      "cmdModifiers" : 0,
+      "identifier" : "findNext:",
+      "path" : [
+        "Find",
+        "Find Next"
+      ],
+      "title" : "Find Next"
+    },
+    {
+      "cmdChar" : "G",
+      "cmdModifiers" : 4,
+      "identifier" : "navigateToNextFindResult:",
+      "path" : [
+        "Find",
+        "Find Next in Project"
+      ],
+      "title" : "Find Next in Project"
+    },
+    {
+      "cmdChar" : "G",
+      "cmdModifiers" : 1,
+      "identifier" : "findPrevious:",
+      "path" : [
+        "Find",
+        "Find Previous"
+      ],
+      "title" : "Find Previous"
+    },
+    {
+      "cmdChar" : "G",
+      "cmdModifiers" : 5,
+      "identifier" : "navigateToPreviousFindResult:",
+      "path" : [
+        "Find",
+        "Find Previous in Project"
+      ],
+      "title" : "Find Previous in Project"
+    },
+    {
+      "cmdChar" : "F",
+      "cmdModifiers" : 5,
+      "identifier" : "findSelectedSymbolInWorkspace:",
+      "path" : [
+        "Find",
+        "Find Selected Symbol in Project"
+      ],
+      "title" : "Find Selected Symbol in Project"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "findSelectedTextInWorkspace:",
+      "path" : [
+        "Find",
+        "Find Selected Text in Project"
+      ],
+      "title" : "Find Selected Text in Project"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "findSelectedKeywordsInWorkspace:",
+      "path" : [
+        "Find",
+        "Find Selected Words in Project"
+      ],
+      "title" : "Find Selected Words in Project"
+    },
+    {
+      "cmdChar" : "F",
+      "cmdModifiers" : 3,
+      "identifier" : "findAndReplaceInWorkspace:",
+      "path" : [
+        "Find",
+        "Find and Replace in Project…"
+      ],
+      "title" : "Find and Replace in Project…"
+    },
+    {
+      "cmdChar" : "F",
+      "cmdModifiers" : 2,
+      "identifier" : "findAndReplace:",
+      "path" : [
+        "Find",
+        "Find and Replace…"
+      ],
+      "title" : "Find and Replace…"
+    },
+    {
+      "cmdChar" : "G",
+      "cmdModifiers" : 2,
+      "identifier" : "findAndSelectNext:",
+      "path" : [
+        "Find",
+        "Find and Select Next"
+      ],
+      "title" : "Find and Select Next"
+    },
+    {
+      "cmdChar" : "G",
+      "cmdModifiers" : 3,
+      "identifier" : "findAndSelectPrevious:",
+      "path" : [
+        "Find",
+        "Find and Select Previous"
+      ],
+      "title" : "Find and Select Previous"
+    },
+    {
+      "cmdChar" : "F",
+      "cmdModifiers" : 1,
+      "identifier" : "findInWorkspace:",
+      "path" : [
+        "Find",
+        "Find in Project"
+      ],
+      "title" : "Find in Project"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "searchInSelectedItems:",
+      "path" : [
+        "Find",
+        "Find in Selected File…"
+      ],
+      "title" : "Find in Selected File…"
+    },
+    {
+      "cmdChar" : "F",
+      "cmdModifiers" : 0,
+      "identifier" : "find:",
+      "path" : [
+        "Find",
+        "Find…"
+      ],
+      "title" : "Find…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "hideFindBar:",
+      "path" : [
+        "Find",
+        "Hide Find Bar"
+      ],
+      "title" : "Hide Find Bar"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "replace:",
+      "path" : [
+        "Find",
+        "Replace"
+      ],
+      "title" : "Replace"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "replaceAll:",
+      "path" : [
+        "Find",
+        "Replace All"
+      ],
+      "title" : "Replace All"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "replaceAndFindNext:",
+      "path" : [
+        "Find",
+        "Replace and Find Next"
+      ],
+      "title" : "Replace and Find Next"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "replaceAndFindPrevious:",
+      "path" : [
+        "Find",
+        "Replace and Find Previous"
+      ],
+      "title" : "Replace and Find Previous"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "selectAllFindMatches:",
+      "path" : [
+        "Find",
+        "Select All Find Matches"
+      ],
+      "title" : "Select All Find Matches"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "selectFindMatchesInSelection:",
+      "path" : [
+        "Find",
+        "Select Find Matches in Selection"
+      ],
+      "title" : "Select Find Matches in Selection"
+    },
+    {
+      "cmdChar" : "E",
+      "cmdModifiers" : 2,
+      "identifier" : "selectNextOccurrence:",
+      "path" : [
+        "Find",
+        "Select Next Occurrence"
+      ],
+      "title" : "Select Next Occurrence"
+    },
+    {
+      "cmdChar" : "E",
+      "cmdModifiers" : 3,
+      "identifier" : "selectPreviousOccurrence:",
+      "path" : [
+        "Find",
+        "Select Previous Occurrence"
+      ],
+      "title" : "Select Previous Occurrence"
+    },
+    {
+      "cmdChar" : "E",
+      "cmdModifiers" : 0,
+      "identifier" : "useSelectionForFind:",
+      "path" : [
+        "Find",
+        "Use Selection for Find"
+      ],
+      "title" : "Use Selection for Find"
+    },
+    {
+      "cmdChar" : "E",
+      "cmdModifiers" : 1,
+      "identifier" : "useSelectionForReplace:",
+      "path" : [
+        "Find",
+        "Use Selection for Replace"
+      ],
+      "title" : "Use Selection for Replace"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "showAppStoreConnectHelp:",
+      "path" : [
+        "Help",
+        "App Store Connect Help"
+      ],
+      "title" : "App Store Connect Help"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "showDeveloperAccountHelp:",
+      "path" : [
+        "Help",
+        "Developer Account Help"
+      ],
+      "title" : "Developer Account Help"
+    },
+    {
+      "cmdChar" : "À",
+      "cmdModifiers" : 1,
+      "identifier" : "windowMenu_showDocumentation:",
+      "path" : [
+        "Help",
+        "Developer Documentation"
+      ],
+      "title" : "Developer Documentation"
+    },
+    {
+      "cmdChar" : "?",
+      "cmdModifiers" : 2,
+      "identifier" : "toggleKeyboardHints:",
+      "path" : [
+        "Help",
+        "Hide Keyboard Hints"
+      ],
+      "title" : "Hide Keyboard Hints"
+    },
+    {
+      "cmdChar" : "H",
+      "cmdModifiers" : 1,
+      "identifier" : "showHumanInterfaceGuidelines:",
+      "path" : [
+        "Help",
+        "Human Interface Guidelines"
+      ],
+      "title" : "Human Interface Guidelines"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "reportIssueToApple:",
+      "path" : [
+        "Help",
+        "Provide Feedback…"
+      ],
+      "title" : "Provide Feedback…"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "showXcodeReleaseNotes:",
+      "path" : [
+        "Help",
+        "Release Notes"
+      ],
+      "title" : "Release Notes"
+    },
+    {
+      "cmdChar" : ":",
+      "cmdModifiers" : 6,
+      "identifier" : "searchDocumentationForSelectedText:",
+      "path" : [
+        "Help",
+        "Search Documentation for Selected Text"
+      ],
+      "title" : "Search Documentation for Selected Text"
+    },
+    {
+      "cmdChar" : "?",
+      "cmdModifiers" : 4,
+      "identifier" : "showQuickHelp:",
+      "path" : [
+        "Help",
+        "Show Quick Help for Selected Item"
+      ],
+      "title" : "Show Quick Help for Selected Item"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "showSwiftProgrammingLanguageBook:",
+      "path" : [
+        "Help",
+        "Swift Programming Language Book"
+      ],
+      "title" : "Swift Programming Language Book"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "showWhatsNewInXcode:",
+      "path" : [
+        "Help",
+        "What’s New in Xcode"
+      ],
+      "title" : "What’s New in Xcode"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "showHelp:",
+      "path" : [
+        "Help",
+        "Xcode Help"
+      ],
+      "title" : "Xcode Help"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "addCommand:",
+      "path" : [
+        "Integrate",
+        "Add Selected Files"
+      ],
+      "title" : "Add Selected Files"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "cherryPickCommand:",
+      "path" : [
+        "Integrate",
+        "Cherry-Pick…"
+      ],
+      "title" : "Cherry-Pick…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "scmDownload:",
+      "path" : [
+        "Integrate",
+        "Clone…"
+      ],
+      "title" : "Clone…"
+    },
+    {
+      "cmdChar" : "C",
+      "cmdModifiers" : 2,
+      "identifier" : "commitCommand:",
+      "path" : [
+        "Integrate",
+        "Commit…"
+      ],
+      "title" : "Commit…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "createPullRequestCommand:",
+      "path" : [
+        "Integrate",
+        "Create Pull Request…"
+      ],
+      "title" : "Create Pull Request…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "createWorkflow:",
+      "path" : [
+        "Integrate",
+        "Create Workflow…"
+      ],
+      "title" : "Create Workflow…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "revertWorkingCopiesCommand:",
+      "path" : [
+        "Integrate",
+        "Discard All Changes…"
+      ],
+      "title" : "Discard All Changes…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "fetchChangesCommand:",
+      "path" : [
+        "Integrate",
+        "Fetch Changes"
+      ],
+      "title" : "Fetch Changes"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "manageWorkflows:",
+      "path" : [
+        "Integrate",
+        "Manage Workflows…"
+      ],
+      "title" : "Manage Workflows…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "resolvedCommand:",
+      "path" : [
+        "Integrate",
+        "Mark Selected Files as Resolved"
+      ],
+      "title" : "Mark Selected Files as Resolved"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "revertSelectedFilesCommand:",
+      "path" : [
+        "Integrate",
+        "Move Selected Files to Trash…"
+      ],
+      "title" : "Move Selected Files to Trash…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "createWorkingCopyCommand:",
+      "path" : [
+        "Integrate",
+        "New Git Repository…"
+      ],
+      "title" : "New Git Repository…"
+    },
+    {
+      "cmdChar" : "X",
+      "cmdModifiers" : 2,
+      "identifier" : "updateCommand:",
+      "path" : [
+        "Integrate",
+        "Pull…"
+      ],
+      "title" : "Pull…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "pushCommand:",
+      "path" : [
+        "Integrate",
+        "Push…"
+      ],
+      "title" : "Push…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "refreshFileStatusCommand:",
+      "path" : [
+        "Integrate",
+        "Refresh File Status"
+      ],
+      "title" : "Refresh File Status"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "",
+      "path" : [
+        "Integrate",
+        "Source Control"
+      ],
+      "title" : "Source Control"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "stageWorkingCopiesCommand:",
+      "path" : [
+        "Integrate",
+        "Stage All Changes"
+      ],
+      "title" : "Stage All Changes"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "stageSelectedFilesCommand:",
+      "path" : [
+        "Integrate",
+        "Stage Changes in Selected Files"
+      ],
+      "title" : "Stage Changes in Selected Files"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "stashCommand:",
+      "path" : [
+        "Integrate",
+        "Stash Changes…"
+      ],
+      "title" : "Stash Changes…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "unstageWorkingCopiesCommand:",
+      "path" : [
+        "Integrate",
+        "Unstage All Changes"
+      ],
+      "title" : "Unstage All Changes"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "unstageSelectedFilesCommand:",
+      "path" : [
+        "Integrate",
+        "Unstage Changes in Selected Files"
+      ],
+      "title" : "Unstage Changes in Selected Files"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "",
+      "path" : [
+        "Integrate",
+        "Xcode Cloud"
+      ],
+      "title" : "Xcode Cloud"
+    },
+    {
+      "cmdChar" : "J",
+      "cmdModifiers" : 4,
+      "identifier" : "editorContext_jumpToDefinition:",
+      "path" : [
+        "Navigate",
+        "Jump to Definition"
+      ],
+      "title" : "Jump to Definition"
+    },
+    {
+      "cmdChar" : "J",
+      "cmdModifiers" : 7,
+      "identifier" : "editorContext_jumpToDefinitionWithShiftPlusAlternate:",
+      "path" : [
+        "Navigate",
+        "Jump to Definition in Next Editor Pane"
+      ],
+      "title" : "Jump to Definition in Next Editor Pane"
+    },
+    {
+      "cmdChar" : "J",
+      "cmdModifiers" : 6,
+      "identifier" : "editorContext_jumpToDefinitionWithAlternate:",
+      "path" : [
+        "Navigate",
+        "Jump to Definition using Tab"
+      ],
+      "title" : "Jump to Definition using Tab"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "topLevelEditorContext_jumpToLastDestination:",
+      "path" : [
+        "Navigate",
+        "Jump to Last Destination"
+      ],
+      "title" : "Jump to Last Destination"
+    },
+    {
+      "cmdChar" : "L",
+      "cmdModifiers" : 0,
+      "identifier" : "jumpToLine:",
+      "path" : [
+        "Navigate",
+        "Jump to Line in “0 mach_msg2_trap”…"
+      ],
+      "title" : "Jump to Line in “0 mach_msg2_trap”…"
+    },
+    {
+      "cmdChar" : "K",
+      "cmdModifiers" : 4,
+      "identifier" : "jumpToNextActiveConversation:",
+      "path" : [
+        "Navigate",
+        "Jump to Next Active Conversation"
+      ],
+      "title" : "Jump to Next Active Conversation"
+    },
+    {
+      "cmdChar" : ")",
+      "cmdModifiers" : 12,
+      "identifier" : "topLevelEditorContext_jumpToNextBookmark:",
+      "path" : [
+        "Navigate",
+        "Jump to Next Bookmark"
+      ],
+      "title" : "Jump to Next Bookmark"
+    },
+    {
+      "cmdChar" : ")",
+      "cmdModifiers" : 14,
+      "identifier" : "topLevelEditorContext_jumpToNextBookmarkInWorkspace:",
+      "path" : [
+        "Navigate",
+        "Jump to Next Bookmark In Workspace"
+      ],
+      "title" : "Jump to Next Bookmark In Workspace"
+    },
+    {
+      "cmdChar" : "`",
+      "cmdModifiers" : 12,
+      "identifier" : "jumpToNextChange:",
+      "path" : [
+        "Navigate",
+        "Jump to Next Change"
+      ],
+      "title" : "Jump to Next Change"
+    },
+    {
+      "cmdChar" : "",
+      "cmdModifiers" : 4,
+      "cmdVirtualKey" : 126,
+      "identifier" : "jumpToNextCounterpart:",
+      "path" : [
+        "Navigate",
+        "Jump to Next Counterpart"
+      ],
+      "title" : "Jump to Next Counterpart"
+    },
+    {
+      "cmdChar" : "",
+      "cmdModifiers" : 7,
+      "cmdVirtualKey" : 126,
+      "identifier" : "jumpToNextCounterpartWithShiftPlusAlternate:",
+      "path" : [
+        "Navigate",
+        "Jump to Next Counterpart in Next Editor Pane"
+      ],
+      "title" : "Jump to Next Counterpart in Next Editor Pane"
+    },
+    {
+      "cmdChar" : "",
+      "cmdModifiers" : 6,
+      "cmdVirtualKey" : 126,
+      "identifier" : "jumpToNextCounterpartWithAlternate:",
+      "path" : [
+        "Navigate",
+        "Jump to Next Counterpart using Tab"
+      ],
+      "title" : "Jump to Next Counterpart using Tab"
+    },
+    {
+      "cmdChar" : "Ù",
+      "cmdModifiers" : 0,
+      "identifier" : "topLevelEditorContext_jumpToNextIssue:",
+      "path" : [
+        "Navigate",
+        "Jump to Next Issue"
+      ],
+      "title" : "Jump to Next Issue"
+    },
+    {
+      "cmdChar" : "`",
+      "cmdModifiers" : 14,
+      "identifier" : "jumpToNextAnyChange:",
+      "path" : [
+        "Navigate",
+        "Jump to Next Local or Upstream Change"
+      ],
+      "title" : "Jump to Next Local or Upstream Change"
+    },
+    {
+      "cmdChar" : ":",
+      "cmdModifiers" : 12,
+      "identifier" : "selectNextPlaceholder:",
+      "path" : [
+        "Navigate",
+        "Jump to Next Placeholder"
+      ],
+      "title" : "Jump to Next Placeholder"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "jumpBetweenSourceFileAndGeneratedFile:",
+      "path" : [
+        "Navigate",
+        "Jump to Original Source/Generated Interface"
+      ],
+      "title" : "Jump to Original Source/Generated Interface"
+    },
+    {
+      "cmdChar" : "°",
+      "cmdModifiers" : 12,
+      "identifier" : "topLevelEditorContext_jumpToPreviousBookmark:",
+      "path" : [
+        "Navigate",
+        "Jump to Previous Bookmark"
+      ],
+      "title" : "Jump to Previous Bookmark"
+    },
+    {
+      "cmdChar" : "°",
+      "cmdModifiers" : 14,
+      "identifier" : "topLevelEditorContext_jumpToPreviousBookmarkInWorkspace:",
+      "path" : [
+        "Navigate",
+        "Jump to Previous Bookmark In Workspace"
+      ],
+      "title" : "Jump to Previous Bookmark In Workspace"
+    },
+    {
+      "cmdChar" : "£",
+      "cmdModifiers" : 12,
+      "identifier" : "jumpToPreviousChange:",
+      "path" : [
+        "Navigate",
+        "Jump to Previous Change"
+      ],
+      "title" : "Jump to Previous Change"
+    },
+    {
+      "cmdChar" : "",
+      "cmdModifiers" : 4,
+      "cmdVirtualKey" : 125,
+      "identifier" : "jumpToPreviousCounterpart:",
+      "path" : [
+        "Navigate",
+        "Jump to Previous Counterpart"
+      ],
+      "title" : "Jump to Previous Counterpart"
+    },
+    {
+      "cmdChar" : "",
+      "cmdModifiers" : 7,
+      "cmdVirtualKey" : 125,
+      "identifier" : "jumpToPreviousCounterpartWithShiftPlusAlternate:",
+      "path" : [
+        "Navigate",
+        "Jump to Previous Counterpart in Next Editor Pane"
+      ],
+      "title" : "Jump to Previous Counterpart in Next Editor Pane"
+    },
+    {
+      "cmdChar" : "",
+      "cmdModifiers" : 6,
+      "cmdVirtualKey" : 125,
+      "identifier" : "jumpToPreviousCounterpartWithAlternate:",
+      "path" : [
+        "Navigate",
+        "Jump to Previous Counterpart using Tab"
+      ],
+      "title" : "Jump to Previous Counterpart using Tab"
+    },
+    {
+      "cmdChar" : "%",
+      "cmdModifiers" : 0,
+      "identifier" : "topLevelEditorContext_jumpToPreviousIssue:",
+      "path" : [
+        "Navigate",
+        "Jump to Previous Issue"
+      ],
+      "title" : "Jump to Previous Issue"
+    },
+    {
+      "cmdChar" : "£",
+      "cmdModifiers" : 14,
+      "identifier" : "jumpToPreviousAnyChange:",
+      "path" : [
+        "Navigate",
+        "Jump to Previous Local or Upstream Change"
+      ],
+      "title" : "Jump to Previous Local or Upstream Change"
+    },
+    {
+      "cmdChar" : "?",
+      "cmdModifiers" : 12,
+      "identifier" : "selectPreviousPlaceholder:",
+      "path" : [
+        "Navigate",
+        "Jump to Previous Placeholder"
+      ],
+      "title" : "Jump to Previous Placeholder"
+    },
+    {
+      "cmdChar" : "P",
+      "cmdModifiers" : 4,
+      "identifier" : "topLevelEditorContext_jumpToInstructionPointer:",
+      "path" : [
+        "Navigate",
+        "Jump to Program Counter"
+      ],
+      "title" : "Jump to Program Counter"
+    },
+    {
+      "cmdChar" : "L",
+      "cmdModifiers" : 2,
+      "identifier" : "jumpToSelection:",
+      "path" : [
+        "Navigate",
+        "Jump to Selection"
+      ],
+      "title" : "Jump to Selection"
+    },
+    {
+      "cmdChar" : "J",
+      "cmdModifiers" : 0,
+      "identifier" : "moveFocusToEditor:",
+      "path" : [
+        "Navigate",
+        "Move Focus to Editor Pane…"
+      ],
+      "title" : "Move Focus to Editor Pane…"
+    },
+    {
+      "cmdChar" : "<",
+      "cmdModifiers" : 2,
+      "identifier" : "moveKeyboardFocusToNextArea:",
+      "path" : [
+        "Navigate",
+        "Move Focus to Next Area"
+      ],
+      "title" : "Move Focus to Next Area"
+    },
+    {
+      "cmdChar" : "<",
+      "cmdModifiers" : 12,
+      "identifier" : "moveKeyboardFocusToNextEditor:",
+      "path" : [
+        "Navigate",
+        "Move Focus to Next Editor Pane"
+      ],
+      "title" : "Move Focus to Next Editor Pane"
+    },
+    {
+      "cmdChar" : "<",
+      "cmdModifiers" : 3,
+      "identifier" : "moveKeyboardFocusToPreviousArea:",
+      "path" : [
+        "Navigate",
+        "Move Focus to Previous Area"
+      ],
+      "title" : "Move Focus to Previous Area"
+    },
+    {
+      "cmdChar" : "<",
+      "cmdModifiers" : 13,
+      "identifier" : "moveKeyboardFocusToPreviousEditor:",
+      "path" : [
+        "Navigate",
+        "Move Focus to Previous Editor Pane"
+      ],
+      "title" : "Move Focus to Previous Editor Pane"
+    },
+    {
+      "cmdChar" : ".",
+      "cmdModifiers" : 2,
+      "identifier" : "openInAdjacentEditorWithShiftPlusAlternate:",
+      "path" : [
+        "Navigate",
+        "Open in Next Editor Pane"
+      ],
+      "title" : "Open in Next Editor Pane"
+    },
+    {
+      "cmdChar" : ",",
+      "cmdModifiers" : 2,
+      "identifier" : "openInAdjacentEditorWithAlternate:",
+      "path" : [
+        "Navigate",
+        "Open using Tab"
+      ],
+      "title" : "Open using Tab"
+    },
+    {
+      "cmdChar" : "M",
+      "cmdModifiers" : 1,
+      "identifier" : "revealInChangesNavigator:",
+      "path" : [
+        "Navigate",
+        "Reveal in Changes Navigator"
+      ],
+      "title" : "Reveal in Changes Navigator"
+    },
+    {
+      "cmdChar" : "D",
+      "cmdModifiers" : 1,
+      "identifier" : "revealInDebugNavigator:",
+      "path" : [
+        "Navigate",
+        "Reveal in Debug Navigator"
+      ],
+      "title" : "Reveal in Debug Navigator"
+    },
+    {
+      "cmdChar" : "J",
+      "cmdModifiers" : 1,
+      "identifier" : "revealInProjectNavigator:",
+      "path" : [
+        "Navigate",
+        "Reveal in Project Navigator"
+      ],
+      "title" : "Reveal in Project Navigator"
+    },
+    {
+      "cmdChar" : "",
+      "cmdModifiers" : 4,
+      "cmdVirtualKey" : 124,
+      "identifier" : "topLevelEditorContext_goForwardInHistoryByCommand:",
+      "path" : [
+        "Navigate",
+        "Show Next Location in History"
+      ],
+      "title" : "Show Next Location in History"
+    },
+    {
+      "cmdChar" : "",
+      "cmdModifiers" : 7,
+      "cmdVirtualKey" : 124,
+      "identifier" : "topLevelEditorContext_goForwardInHistoryByCommandWithShiftPlusAlternate:",
+      "path" : [
+        "Navigate",
+        "Show Next Location in History in Next Editor Pane"
+      ],
+      "title" : "Show Next Location in History in Next Editor Pane"
+    },
+    {
+      "cmdChar" : "",
+      "cmdModifiers" : 6,
+      "cmdVirtualKey" : 124,
+      "identifier" : "topLevelEditorContext_goForwardInHistoryByCommandWithAlternate:",
+      "path" : [
+        "Navigate",
+        "Show Next Location in History using Tab"
+      ],
+      "title" : "Show Next Location in History using Tab"
+    },
+    {
+      "cmdChar" : "*",
+      "cmdModifiers" : 0,
+      "identifier" : "_showNextEditorTab:",
+      "path" : [
+        "Navigate",
+        "Show Next Tab"
+      ],
+      "title" : "Show Next Tab"
+    },
+    {
+      "cmdChar" : "",
+      "cmdModifiers" : 4,
+      "cmdVirtualKey" : 123,
+      "identifier" : "topLevelEditorContext_goBackInHistoryByCommand:",
+      "path" : [
+        "Navigate",
+        "Show Previous Location in History"
+      ],
+      "title" : "Show Previous Location in History"
+    },
+    {
+      "cmdChar" : "",
+      "cmdModifiers" : 7,
+      "cmdVirtualKey" : 123,
+      "identifier" : "topLevelEditorContext_goBackInHistoryByCommandWithShiftPlusAlternate:",
+      "path" : [
+        "Navigate",
+        "Show Previous Location in History in Next Editor Pane"
+      ],
+      "title" : "Show Previous Location in History in Next Editor Pane"
+    },
+    {
+      "cmdChar" : "",
+      "cmdModifiers" : 6,
+      "cmdVirtualKey" : 123,
+      "identifier" : "topLevelEditorContext_goBackInHistoryByCommandWithAlternate:",
+      "path" : [
+        "Navigate",
+        "Show Previous Location in History using Tab"
+      ],
+      "title" : "Show Previous Location in History using Tab"
+    },
+    {
+      "cmdChar" : "¨",
+      "cmdModifiers" : 0,
+      "identifier" : "_showPreviousEditorTab:",
+      "path" : [
+        "Navigate",
+        "Show Previous Tab"
+      ],
+      "title" : "Show Previous Tab"
+    },
+    {
+      "cmdChar" : "B",
+      "cmdModifiers" : 1,
+      "identifier" : "analyzeActiveRunContext:",
+      "path" : [
+        "Product",
+        "Analyze"
+      ],
+      "title" : "Analyze"
+    },
+    {
+      "cmdChar" : "B",
+      "cmdModifiers" : 3,
+      "identifier" : "editAndAnalyzeActiveRunContext:",
+      "path" : [
+        "Product",
+        "Analyze…"
+      ],
+      "title" : "Analyze…"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "showAppShortcutPreview:",
+      "path" : [
+        "Product",
+        "App Shortcuts Preview"
+      ],
+      "title" : "App Shortcuts Preview"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "buildAndArchiveActiveRunContext:",
+      "path" : [
+        "Product",
+        "Archive"
+      ],
+      "title" : "Archive"
+    },
+    {
+      "cmdModifiers" : 2,
+      "identifier" : "editBuildAndArchiveActiveRunContext:",
+      "path" : [
+        "Product",
+        "Archive…"
+      ],
+      "title" : "Archive…"
+    },
+    {
+      "cmdChar" : "B",
+      "cmdModifiers" : 0,
+      "identifier" : "buildActiveRunContext:",
+      "path" : [
+        "Product",
+        "Build"
+      ],
+      "title" : "Build"
+    },
+    {
+      "cmdChar" : "D",
+      "cmdModifiers" : 5,
+      "identifier" : "buildDocumentationForActiveRunContext:",
+      "path" : [
+        "Product",
+        "Build Documentation"
+      ],
+      "title" : "Build Documentation"
+    },
+    {
+      "cmdChar" : "I",
+      "cmdModifiers" : 1,
+      "identifier" : "buildForProfileActiveScheme:",
+      "path" : [
+        "Product",
+        "Build For",
+        "Profiling"
+      ],
+      "title" : "Profiling"
+    },
+    {
+      "cmdChar" : "R",
+      "cmdModifiers" : 1,
+      "identifier" : "buildForRunActiveRunContext:",
+      "path" : [
+        "Product",
+        "Build For",
+        "Running"
+      ],
+      "title" : "Running"
+    },
+    {
+      "cmdChar" : "U",
+      "cmdModifiers" : 1,
+      "identifier" : "buildForTestActiveRunContext:",
+      "path" : [
+        "Product",
+        "Build For",
+        "Testing"
+      ],
+      "title" : "Testing"
+    },
+    {
+      "cmdChar" : "K",
+      "cmdModifiers" : 3,
+      "identifier" : "cleanActiveRunContextImmediately:",
+      "path" : [
+        "Product",
+        "Clean Build Folder Immediately"
+      ],
+      "title" : "Clean Build Folder Immediately"
+    },
+    {
+      "cmdChar" : "K",
+      "cmdModifiers" : 1,
+      "identifier" : "cleanActiveRunContext:",
+      "path" : [
+        "Product",
+        "Clean Build Folder…"
+      ],
+      "title" : "Clean Build Folder…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "clearAllIssues:",
+      "path" : [
+        "Product",
+        "Clear All Issues"
+      ],
+      "title" : "Clear All Issues"
+    },
+    {
+      "cmdChar" : "K",
+      "cmdModifiers" : 6,
+      "identifier" : "clearTestResults:",
+      "path" : [
+        "Product",
+        "Clear Test Results"
+      ],
+      "title" : "Clear Test Results"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "copyBuildFolderPath:",
+      "path" : [
+        "Product",
+        "Copy Build Folder Path"
+      ],
+      "title" : "Copy Build Folder Path"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "deleteDerivedData:",
+      "path" : [
+        "Product",
+        "Delete Derived Data…"
+      ],
+      "title" : "Delete Derived Data…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Any Mac (arm64, x86_64)"
+      ],
+      "title" : "Any Mac (arm64, x86_64)"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "",
+      "path" : [
+        "Product",
+        "Destination",
+        "Build"
+      ],
+      "title" : "Build"
+    },
+    {
+      "cmdChar" : "À",
+      "cmdModifiers" : 13,
+      "identifier" : "chooseDestination:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Choose Destination"
+      ],
+      "title" : "Choose Destination"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "",
+      "path" : [
+        "Product",
+        "Destination",
+        "Devices"
+      ],
+      "title" : "Devices"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "SPEEM iPad Air 13 (M3) (mismatched platform) 26.0"
+      ],
+      "title" : "SPEEM iPad Air 13 (M3) (mismatched platform) 26.0"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "Tamim AR (26.2) (mismatched platform) 26.2"
+      ],
+      "title" : "Tamim AR (26.2) (mismatched platform) 26.2"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "Tamim EN (26.2) (mismatched platform) 26.2"
+      ],
+      "title" : "Tamim EN (26.2) (mismatched platform) 26.2"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "Tamim iPad AR (26.2) (mismatched platform) 26.2"
+      ],
+      "title" : "Tamim iPad AR (26.2) (mismatched platform) 26.2"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "Tamim iPad EN (26.2) (mismatched platform) 26.2"
+      ],
+      "title" : "Tamim iPad EN (26.2) (mismatched platform) 26.2"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "Wassim AR (26.2) (mismatched platform) 26.2"
+      ],
+      "title" : "Wassim AR (26.2) (mismatched platform) 26.2"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "Wassim EN (26.2) (mismatched platform) 26.2"
+      ],
+      "title" : "Wassim EN (26.2) (mismatched platform) 26.2"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "Wassim iPad AR (26.2) (mismatched platform) 26.2"
+      ],
+      "title" : "Wassim iPad AR (26.2) (mismatched platform) 26.2"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "Wassim iPad EN (26.2) (mismatched platform) 26.2"
+      ],
+      "title" : "Wassim iPad EN (26.2) (mismatched platform) 26.2"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "Wassim’s iPhone (mismatched platform) 27.0"
+      ],
+      "title" : "Wassim’s iPhone (mismatched platform) 27.0"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad (A16) (18.4) (mismatched platform) 18.4"
+      ],
+      "title" : "iPad (A16) (18.4) (mismatched platform) 18.4"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad (A16) (18.5) (mismatched platform) 18.5"
+      ],
+      "title" : "iPad (A16) (18.5) (mismatched platform) 18.5"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad (A16) (26.0) (mismatched platform) 26.0"
+      ],
+      "title" : "iPad (A16) (26.0) (mismatched platform) 26.0"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad (A16) (26.1) (mismatched platform) 26.1"
+      ],
+      "title" : "iPad (A16) (26.1) (mismatched platform) 26.1"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad (A16) (26.2) (mismatched platform) 26.2"
+      ],
+      "title" : "iPad (A16) (26.2) (mismatched platform) 26.2"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad (A16) (26.4.1) (mismatched platform) 26.4.1"
+      ],
+      "title" : "iPad (A16) (26.4.1) (mismatched platform) 26.4.1"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad (A16) (26.5) (mismatched platform) 26.5"
+      ],
+      "title" : "iPad (A16) (26.5) (mismatched platform) 26.5"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad (A16) (27.0) (mismatched platform) 27.0"
+      ],
+      "title" : "iPad (A16) (27.0) (mismatched platform) 27.0"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Air 11-inch (M3) (18.4) (mismatched platform) 18.4"
+      ],
+      "title" : "iPad Air 11-inch (M3) (18.4) (mismatched platform) 18.4"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Air 11-inch (M3) (18.5) (mismatched platform) 18.5"
+      ],
+      "title" : "iPad Air 11-inch (M3) (18.5) (mismatched platform) 18.5"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Air 11-inch (M3) (26.0) (mismatched platform) 26.0"
+      ],
+      "title" : "iPad Air 11-inch (M3) (26.0) (mismatched platform) 26.0"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Air 11-inch (M3) (26.1) (mismatched platform) 26.1"
+      ],
+      "title" : "iPad Air 11-inch (M3) (26.1) (mismatched platform) 26.1"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Air 11-inch (M3) (26.2) (mismatched platform) 26.2"
+      ],
+      "title" : "iPad Air 11-inch (M3) (26.2) (mismatched platform) 26.2"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Air 11-inch (M4) (26.4.1) (mismatched platform) 26.4.1"
+      ],
+      "title" : "iPad Air 11-inch (M4) (26.4.1) (mismatched platform) 26.4.1"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Air 11-inch (M4) (26.5) (mismatched platform) 26.5"
+      ],
+      "title" : "iPad Air 11-inch (M4) (26.5) (mismatched platform) 26.5"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Air 11-inch (M4) (27.0) (mismatched platform) 27.0"
+      ],
+      "title" : "iPad Air 11-inch (M4) (27.0) (mismatched platform) 27.0"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Air 13-inch (M3) (18.4) (mismatched platform) 18.4"
+      ],
+      "title" : "iPad Air 13-inch (M3) (18.4) (mismatched platform) 18.4"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Air 13-inch (M3) (18.5) (mismatched platform) 18.5"
+      ],
+      "title" : "iPad Air 13-inch (M3) (18.5) (mismatched platform) 18.5"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Air 13-inch (M3) (26.0) (mismatched platform) 26.0"
+      ],
+      "title" : "iPad Air 13-inch (M3) (26.0) (mismatched platform) 26.0"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Air 13-inch (M3) (26.1) (mismatched platform) 26.1"
+      ],
+      "title" : "iPad Air 13-inch (M3) (26.1) (mismatched platform) 26.1"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Air 13-inch (M3) (26.2) (mismatched platform) 26.2"
+      ],
+      "title" : "iPad Air 13-inch (M3) (26.2) (mismatched platform) 26.2"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Air 13-inch (M4) (26.4.1) (mismatched platform) 26.4.1"
+      ],
+      "title" : "iPad Air 13-inch (M4) (26.4.1) (mismatched platform) 26.4.1"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Air 13-inch (M4) (26.5) (mismatched platform) 26.5"
+      ],
+      "title" : "iPad Air 13-inch (M4) (26.5) (mismatched platform) 26.5"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Air 13-inch (M4) (27.0) (mismatched platform) 27.0"
+      ],
+      "title" : "iPad Air 13-inch (M4) (27.0) (mismatched platform) 27.0"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Pro 11-inch (M4) (18.4) (mismatched platform) 18.4"
+      ],
+      "title" : "iPad Pro 11-inch (M4) (18.4) (mismatched platform) 18.4"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Pro 11-inch (M4) (18.5) (mismatched platform) 18.5"
+      ],
+      "title" : "iPad Pro 11-inch (M4) (18.5) (mismatched platform) 18.5"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Pro 11-inch (M4) (26.0) (mismatched platform) 26.0"
+      ],
+      "title" : "iPad Pro 11-inch (M4) (26.0) (mismatched platform) 26.0"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Pro 11-inch (M5) (26.0) (mismatched platform) 26.0"
+      ],
+      "title" : "iPad Pro 11-inch (M5) (26.0) (mismatched platform) 26.0"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Pro 11-inch (M5) (26.1) (mismatched platform) 26.1"
+      ],
+      "title" : "iPad Pro 11-inch (M5) (26.1) (mismatched platform) 26.1"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Pro 11-inch (M5) (26.2) (mismatched platform) 26.2"
+      ],
+      "title" : "iPad Pro 11-inch (M5) (26.2) (mismatched platform) 26.2"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Pro 11-inch (M5) (26.4.1) (mismatched platform) 26.4.1"
+      ],
+      "title" : "iPad Pro 11-inch (M5) (26.4.1) (mismatched platform) 26.4.1"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Pro 11-inch (M5) (26.5) (mismatched platform) 26.5"
+      ],
+      "title" : "iPad Pro 11-inch (M5) (26.5) (mismatched platform) 26.5"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Pro 11-inch (M5) (27.0) (mismatched platform) 27.0"
+      ],
+      "title" : "iPad Pro 11-inch (M5) (27.0) (mismatched platform) 27.0"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Pro 13-inch (M4) (18.4) (mismatched platform) 18.4"
+      ],
+      "title" : "iPad Pro 13-inch (M4) (18.4) (mismatched platform) 18.4"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Pro 13-inch (M4) (18.5) (mismatched platform) 18.5"
+      ],
+      "title" : "iPad Pro 13-inch (M4) (18.5) (mismatched platform) 18.5"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Pro 13-inch (M4) (26.0) (mismatched platform) 26.0"
+      ],
+      "title" : "iPad Pro 13-inch (M4) (26.0) (mismatched platform) 26.0"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Pro 13-inch (M5) (26.0) (mismatched platform) 26.0"
+      ],
+      "title" : "iPad Pro 13-inch (M5) (26.0) (mismatched platform) 26.0"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Pro 13-inch (M5) (26.1) (mismatched platform) 26.1"
+      ],
+      "title" : "iPad Pro 13-inch (M5) (26.1) (mismatched platform) 26.1"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Pro 13-inch (M5) (26.2) (mismatched platform) 26.2"
+      ],
+      "title" : "iPad Pro 13-inch (M5) (26.2) (mismatched platform) 26.2"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Pro 13-inch (M5) (26.4.1) (mismatched platform) 26.4.1"
+      ],
+      "title" : "iPad Pro 13-inch (M5) (26.4.1) (mismatched platform) 26.4.1"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Pro 13-inch (M5) (26.5) (mismatched platform) 26.5"
+      ],
+      "title" : "iPad Pro 13-inch (M5) (26.5) (mismatched platform) 26.5"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad Pro 13-inch (M5) (27.0) (mismatched platform) 27.0"
+      ],
+      "title" : "iPad Pro 13-inch (M5) (27.0) (mismatched platform) 27.0"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad mini (A17 Pro) (18.4) (mismatched platform) 18.4"
+      ],
+      "title" : "iPad mini (A17 Pro) (18.4) (mismatched platform) 18.4"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad mini (A17 Pro) (18.5) (mismatched platform) 18.5"
+      ],
+      "title" : "iPad mini (A17 Pro) (18.5) (mismatched platform) 18.5"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad mini (A17 Pro) (26.0) (mismatched platform) 26.0"
+      ],
+      "title" : "iPad mini (A17 Pro) (26.0) (mismatched platform) 26.0"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad mini (A17 Pro) (26.1) (mismatched platform) 26.1"
+      ],
+      "title" : "iPad mini (A17 Pro) (26.1) (mismatched platform) 26.1"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad mini (A17 Pro) (26.2) (mismatched platform) 26.2"
+      ],
+      "title" : "iPad mini (A17 Pro) (26.2) (mismatched platform) 26.2"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad mini (A17 Pro) (26.4.1) (mismatched platform) 26.4.1"
+      ],
+      "title" : "iPad mini (A17 Pro) (26.4.1) (mismatched platform) 26.4.1"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad mini (A17 Pro) (26.5) (mismatched platform) 26.5"
+      ],
+      "title" : "iPad mini (A17 Pro) (26.5) (mismatched platform) 26.5"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPad mini (A17 Pro) (27.0) (mismatched platform) 27.0"
+      ],
+      "title" : "iPad mini (A17 Pro) (27.0) (mismatched platform) 27.0"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 16 (18.4) (mismatched platform) 18.4"
+      ],
+      "title" : "iPhone 16 (18.4) (mismatched platform) 18.4"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 16 (18.5) (mismatched platform) 18.5"
+      ],
+      "title" : "iPhone 16 (18.5) (mismatched platform) 18.5"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 16 Plus (18.4) (mismatched platform) 18.4"
+      ],
+      "title" : "iPhone 16 Plus (18.4) (mismatched platform) 18.4"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 16 Plus (18.5) (mismatched platform) 18.5"
+      ],
+      "title" : "iPhone 16 Plus (18.5) (mismatched platform) 18.5"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 16 Pro (18.4) (mismatched platform) 18.4"
+      ],
+      "title" : "iPhone 16 Pro (18.4) (mismatched platform) 18.4"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 16 Pro (18.5) (mismatched platform) 18.5"
+      ],
+      "title" : "iPhone 16 Pro (18.5) (mismatched platform) 18.5"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 16 Pro Max (18.4) (mismatched platform) 18.4"
+      ],
+      "title" : "iPhone 16 Pro Max (18.4) (mismatched platform) 18.4"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 16 Pro Max (18.5) (mismatched platform) 18.5"
+      ],
+      "title" : "iPhone 16 Pro Max (18.5) (mismatched platform) 18.5"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 16e (18.4) (mismatched platform) 18.4"
+      ],
+      "title" : "iPhone 16e (18.4) (mismatched platform) 18.4"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 16e (18.5) (mismatched platform) 18.5"
+      ],
+      "title" : "iPhone 16e (18.5) (mismatched platform) 18.5"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 16e (26.0) (mismatched platform) 26.0"
+      ],
+      "title" : "iPhone 16e (26.0) (mismatched platform) 26.0"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 16e (26.1) (mismatched platform) 26.1"
+      ],
+      "title" : "iPhone 16e (26.1) (mismatched platform) 26.1"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 16e (26.2) (mismatched platform) 26.2"
+      ],
+      "title" : "iPhone 16e (26.2) (mismatched platform) 26.2"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 17 (26.0) (mismatched platform) 26.0"
+      ],
+      "title" : "iPhone 17 (26.0) (mismatched platform) 26.0"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 17 (26.1) (mismatched platform) 26.1"
+      ],
+      "title" : "iPhone 17 (26.1) (mismatched platform) 26.1"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 17 (26.2) (mismatched platform) 26.2"
+      ],
+      "title" : "iPhone 17 (26.2) (mismatched platform) 26.2"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 17 (26.4.1) (mismatched platform) 26.4.1"
+      ],
+      "title" : "iPhone 17 (26.4.1) (mismatched platform) 26.4.1"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 17 (26.5) (mismatched platform) 26.5"
+      ],
+      "title" : "iPhone 17 (26.5) (mismatched platform) 26.5"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 17 (27.0) (mismatched platform) 27.0"
+      ],
+      "title" : "iPhone 17 (27.0) (mismatched platform) 27.0"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 17 Pro (26.0) (mismatched platform) 26.0"
+      ],
+      "title" : "iPhone 17 Pro (26.0) (mismatched platform) 26.0"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 17 Pro (26.1) (mismatched platform) 26.1"
+      ],
+      "title" : "iPhone 17 Pro (26.1) (mismatched platform) 26.1"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 17 Pro (26.2) (mismatched platform) 26.2"
+      ],
+      "title" : "iPhone 17 Pro (26.2) (mismatched platform) 26.2"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 17 Pro (26.4.1) (mismatched platform) 26.4.1"
+      ],
+      "title" : "iPhone 17 Pro (26.4.1) (mismatched platform) 26.4.1"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 17 Pro (26.5) (mismatched platform) 26.5"
+      ],
+      "title" : "iPhone 17 Pro (26.5) (mismatched platform) 26.5"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 17 Pro Max (26.0) (mismatched platform) 26.0"
+      ],
+      "title" : "iPhone 17 Pro Max (26.0) (mismatched platform) 26.0"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 17 Pro Max (26.1) (mismatched platform) 26.1"
+      ],
+      "title" : "iPhone 17 Pro Max (26.1) (mismatched platform) 26.1"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 17 Pro Max (26.2) (mismatched platform) 26.2"
+      ],
+      "title" : "iPhone 17 Pro Max (26.2) (mismatched platform) 26.2"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 17 Pro Max (26.4.1) (mismatched platform) 26.4.1"
+      ],
+      "title" : "iPhone 17 Pro Max (26.4.1) (mismatched platform) 26.4.1"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 17 Pro Max (26.5) (mismatched platform) 26.5"
+      ],
+      "title" : "iPhone 17 Pro Max (26.5) (mismatched platform) 26.5"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 17e (26.4.1) (mismatched platform) 26.4.1"
+      ],
+      "title" : "iPhone 17e (26.4.1) (mismatched platform) 26.4.1"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 17e (26.5) (mismatched platform) 26.5"
+      ],
+      "title" : "iPhone 17e (26.5) (mismatched platform) 26.5"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 17e (27.0) (mismatched platform) 27.0"
+      ],
+      "title" : "iPhone 17e (27.0) (mismatched platform) 27.0"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 18 Pro (mismatched platform) 27.0"
+      ],
+      "title" : "iPhone 18 Pro (mismatched platform) 27.0"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone 18 Pro Max (mismatched platform) 27.0"
+      ],
+      "title" : "iPhone 18 Pro Max (mismatched platform) 27.0"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone Air (26.0) (mismatched platform) 26.0"
+      ],
+      "title" : "iPhone Air (26.0) (mismatched platform) 26.0"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone Air (26.1) (mismatched platform) 26.1"
+      ],
+      "title" : "iPhone Air (26.1) (mismatched platform) 26.1"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone Air (26.2) (mismatched platform) 26.2"
+      ],
+      "title" : "iPhone Air (26.2) (mismatched platform) 26.2"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone Air (26.4.1) (mismatched platform) 26.4.1"
+      ],
+      "title" : "iPhone Air (26.4.1) (mismatched platform) 26.4.1"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone Air (26.5) (mismatched platform) 26.5"
+      ],
+      "title" : "iPhone Air (26.5) (mismatched platform) 26.5"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Incompatible",
+        "iPhone Air (27.0) (mismatched platform) 27.0"
+      ],
+      "title" : "iPhone Air (27.0) (mismatched platform) 27.0"
+    },
+    {
+      "cmdChar" : "É",
+      "cmdModifiers" : 1,
+      "identifier" : "manageDevices:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Manage Devices…"
+      ],
+      "title" : "Manage Devices…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationMenuItem:",
+      "path" : [
+        "Product",
+        "Destination",
+        "My Mac 26.6.2"
+      ],
+      "title" : "My Mac 26.6.2"
+    },
+    {
+      "cmdChar" : "$",
+      "cmdModifiers" : 6,
+      "identifier" : "selectNextDestination:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Select Next Destination"
+      ],
+      "title" : "Select Next Destination"
+    },
+    {
+      "cmdChar" : "^",
+      "cmdModifiers" : 6,
+      "identifier" : "selectPreviousDestination:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Select Previous Destination"
+      ],
+      "title" : "Select Previous Destination"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_userSelectedRunDestinationArchitectureVisibilityOption:",
+      "path" : [
+        "Product",
+        "Destination",
+        "Show All Run Destinations"
+      ],
+      "title" : "Show All Run Destinations"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "localizationExport:",
+      "path" : [
+        "Product",
+        "Export Localizations…"
+      ],
+      "title" : "Export Localizations…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "localizationImport:",
+      "path" : [
+        "Product",
+        "Import Localizations…"
+      ],
+      "title" : "Import Localizations…"
+    },
+    {
+      "cmdChar" : "B",
+      "cmdModifiers" : 5,
+      "identifier" : "analyzeFile:",
+      "path" : [
+        "Product",
+        "Perform Action",
+        "Analyze “0 mach_msg2_trap”"
+      ],
+      "title" : "Analyze “0 mach_msg2_trap”"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "showAssemblyCodeForFile:",
+      "path" : [
+        "Product",
+        "Perform Action",
+        "Assemble “0 mach_msg2_trap”"
+      ],
+      "title" : "Assemble “0 mach_msg2_trap”"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "buildAndExportTestProducts:",
+      "path" : [
+        "Product",
+        "Perform Action",
+        "Build and Export Test Products"
+      ],
+      "title" : "Build and Export Test Products"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "buildActiveRunContextWithTimingSummary:",
+      "path" : [
+        "Product",
+        "Perform Action",
+        "Build with Timing Summary"
+      ],
+      "title" : "Build with Timing Summary"
+    },
+    {
+      "cmdChar" : "B",
+      "cmdModifiers" : 4,
+      "identifier" : "compileFile:",
+      "path" : [
+        "Product",
+        "Perform Action",
+        "Compile “0 mach_msg2_trap”"
+      ],
+      "title" : "Compile “0 mach_msg2_trap”"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "buildAndRunToGenerateOptimizationProfileActiveRunContext:",
+      "path" : [
+        "Product",
+        "Perform Action",
+        "Generate Optimization Profile…"
+      ],
+      "title" : "Generate Optimization Profile…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "preprocessFile:",
+      "path" : [
+        "Product",
+        "Perform Action",
+        "Preprocess “0 mach_msg2_trap”"
+      ],
+      "title" : "Preprocess “0 mach_msg2_trap”"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "profileSelectedItems:",
+      "path" : [
+        "Product",
+        "Perform Action",
+        "Profile"
+      ],
+      "title" : "Profile"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "profileAgain:",
+      "path" : [
+        "Product",
+        "Perform Action",
+        "Profile Again"
+      ],
+      "title" : "Profile Again"
+    },
+    {
+      "cmdChar" : "I",
+      "cmdModifiers" : 4,
+      "identifier" : "profileActiveSchemeWithoutBuilding:",
+      "path" : [
+        "Product",
+        "Perform Action",
+        "Profile Without Building"
+      ],
+      "title" : "Profile Without Building"
+    },
+    {
+      "cmdChar" : "R",
+      "cmdModifiers" : 4,
+      "identifier" : "runActiveRunContextWithoutBuilding:",
+      "path" : [
+        "Product",
+        "Perform Action",
+        "Run Without Building"
+      ],
+      "title" : "Run Without Building"
+    },
+    {
+      "cmdChar" : "U",
+      "cmdModifiers" : 6,
+      "identifier" : "testSelectedItems:",
+      "path" : [
+        "Product",
+        "Perform Action",
+        "Test"
+      ],
+      "title" : "Test"
+    },
+    {
+      "cmdChar" : "G",
+      "cmdModifiers" : 6,
+      "identifier" : "testAgain:",
+      "path" : [
+        "Product",
+        "Perform Action",
+        "Test Again"
+      ],
+      "title" : "Test Again"
+    },
+    {
+      "cmdChar" : "U",
+      "cmdModifiers" : 4,
+      "identifier" : "testActiveRunContextWithoutBuilding:",
+      "path" : [
+        "Product",
+        "Perform Action",
+        "Test Without Building"
+      ],
+      "title" : "Test Without Building"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "testAgainWithoutBuilding:",
+      "path" : [
+        "Product",
+        "Perform Action",
+        "Test Without Building Again"
+      ],
+      "title" : "Test Without Building Again"
+    },
+    {
+      "cmdChar" : "I",
+      "cmdModifiers" : 0,
+      "identifier" : "profileActiveScheme:",
+      "path" : [
+        "Product",
+        "Profile"
+      ],
+      "title" : "Profile"
+    },
+    {
+      "cmdChar" : "I",
+      "cmdModifiers" : 2,
+      "identifier" : "editAndProfileActiveScheme:",
+      "path" : [
+        "Product",
+        "Profile…"
+      ],
+      "title" : "Profile…"
+    },
+    {
+      "cmdChar" : "R",
+      "cmdModifiers" : 0,
+      "identifier" : "runActiveRunContext:",
+      "path" : [
+        "Product",
+        "Run"
+      ],
+      "title" : "Run"
+    },
+    {
+      "cmdChar" : "R",
+      "cmdModifiers" : 2,
+      "identifier" : "editAndRunActiveRunContext:",
+      "path" : [
+        "Product",
+        "Run…"
+      ],
+      "title" : "Run…"
+    },
+    {
+      "cmdChar" : "À",
+      "cmdModifiers" : 12,
+      "identifier" : "chooseScheme:",
+      "path" : [
+        "Product",
+        "Scheme",
+        "Choose Scheme"
+      ],
+      "title" : "Choose Scheme"
+    },
+    {
+      "cmdChar" : ".",
+      "cmdModifiers" : 0,
+      "identifier" : "editActiveRunContext:",
+      "path" : [
+        "Product",
+        "Scheme",
+        "Edit Scheme…"
+      ],
+      "title" : "Edit Scheme…"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "manageRunContexts:",
+      "path" : [
+        "Product",
+        "Scheme",
+        "Manage Schemes…"
+      ],
+      "title" : "Manage Schemes…"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "newRunContext:",
+      "path" : [
+        "Product",
+        "Scheme",
+        "New Scheme…"
+      ],
+      "title" : "New Scheme…"
+    },
+    {
+      "cmdChar" : "$",
+      "cmdModifiers" : 4,
+      "identifier" : "selectNextRunContext:",
+      "path" : [
+        "Product",
+        "Scheme",
+        "Select Next Scheme"
+      ],
+      "title" : "Select Next Scheme"
+    },
+    {
+      "cmdChar" : "^",
+      "cmdModifiers" : 4,
+      "identifier" : "selectPreviousRunContext:",
+      "path" : [
+        "Product",
+        "Scheme",
+        "Select Previous Scheme"
+      ],
+      "title" : "Select Previous Scheme"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_selectScheme:",
+      "path" : [
+        "Product",
+        "Scheme",
+        "XCommander"
+      ],
+      "title" : "XCommander"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_selectScheme:",
+      "path" : [
+        "Product",
+        "Scheme",
+        "XCommanderCore"
+      ],
+      "title" : "XCommanderCore"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "revealBuildFolder:",
+      "path" : [
+        "Product",
+        "Show Build Folder in Finder"
+      ],
+      "title" : "Show Build Folder in Finder"
+    },
+    {
+      "cmdChar" : ";",
+      "cmdModifiers" : 0,
+      "identifier" : "cancelCurrentExecution:",
+      "path" : [
+        "Product",
+        "Stop"
+      ],
+      "title" : "Stop"
+    },
+    {
+      "cmdChar" : "U",
+      "cmdModifiers" : 0,
+      "identifier" : "testActiveRunContext:",
+      "path" : [
+        "Product",
+        "Test"
+      ],
+      "title" : "Test"
+    },
+    {
+      "cmdChar" : "/",
+      "cmdModifiers" : 0,
+      "identifier" : "editTestPlan:",
+      "path" : [
+        "Product",
+        "Test Plan",
+        "Edit Test Plan"
+      ],
+      "title" : "Edit Test Plan"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "manageTestPlans:",
+      "path" : [
+        "Product",
+        "Test Plan",
+        "Manage Test Plans…"
+      ],
+      "title" : "Manage Test Plans…"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "createNewTestPlan:",
+      "path" : [
+        "Product",
+        "Test Plan",
+        "New Test Plan…"
+      ],
+      "title" : "New Test Plan…"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "selectNextTestPlan:",
+      "path" : [
+        "Product",
+        "Test Plan",
+        "Select Next Test Plan"
+      ],
+      "title" : "Select Next Test Plan"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "selectPreviousTestPlan:",
+      "path" : [
+        "Product",
+        "Test Plan",
+        "Select Previous Test Plan"
+      ],
+      "title" : "Select Previous Test Plan"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "selectTestPlan:",
+      "path" : [
+        "Product",
+        "Test Plan",
+        "XCommander (Autocreated)"
+      ],
+      "title" : "XCommander (Autocreated)"
+    },
+    {
+      "cmdChar" : "U",
+      "cmdModifiers" : 2,
+      "identifier" : "editAndTestActiveRunContext:",
+      "path" : [
+        "Product",
+        "Test…"
+      ],
+      "title" : "Test…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "toggleEditorOrientation:",
+      "path" : [
+        "View",
+        "Change Editor Orientation"
+      ],
+      "title" : "Change Editor Orientation"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "editTheme:",
+      "path" : [
+        "View",
+        "Choose Theme…"
+      ],
+      "title" : "Choose Theme…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "runToolbarCustomizationPalette:",
+      "path" : [
+        "View",
+        "Customize Toolbar…"
+      ],
+      "title" : "Customize Toolbar…"
+    },
+    {
+      "cmdChar" : "C",
+      "cmdModifiers" : 1,
+      "identifier" : "activateConsole:",
+      "path" : [
+        "View",
+        "Debug Area",
+        "Activate Console"
+      ],
+      "title" : "Activate Console"
+    },
+    {
+      "cmdChar" : "Y",
+      "cmdModifiers" : 1,
+      "identifier" : "toggleDebuggerVisibility:",
+      "path" : [
+        "View",
+        "Debug Area",
+        "Hide Debug Area"
+      ],
+      "title" : "Hide Debug Area"
+    },
+    {
+      "cmdChar" : "\r",
+      "cmdModifiers" : 5,
+      "cmdVirtualKey" : 36,
+      "identifier" : "_toggleMaximizeEditor:",
+      "path" : [
+        "View",
+        "Editor",
+        "Focus Editor Pane"
+      ],
+      "title" : "Focus Editor Pane"
+    },
+    {
+      "cmdChar" : "§",
+      "cmdModifiers" : 12,
+      "identifier" : "topLevelEditorContext_showDocumentItemsMenu:",
+      "path" : [
+        "View",
+        "Editor",
+        "Show Document Items"
+      ],
+      "title" : "Show Document Items"
+    },
+    {
+      "cmdChar" : "(",
+      "cmdModifiers" : 12,
+      "identifier" : "topLevelEditorContext_showGroupFilesMenu:",
+      "path" : [
+        "View",
+        "Editor",
+        "Show Group Files"
+      ],
+      "title" : "Show Group Files"
+    },
+    {
+      "cmdChar" : "\"",
+      "cmdModifiers" : 4,
+      "identifier" : "topLevelEditorContext_showNextFilesHistoryMenu:",
+      "path" : [
+        "View",
+        "Editor",
+        "Show Next Files History"
+      ],
+      "title" : "Show Next Files History"
+    },
+    {
+      "cmdChar" : "\"",
+      "cmdModifiers" : 12,
+      "identifier" : "topLevelEditorContext_showNextHistoryMenu:",
+      "path" : [
+        "View",
+        "Editor",
+        "Show Next History"
+      ],
+      "title" : "Show Next History"
+    },
+    {
+      "cmdChar" : "É",
+      "cmdModifiers" : 4,
+      "identifier" : "topLevelEditorContext_showPreviousFilesHistoryMenu:",
+      "path" : [
+        "View",
+        "Editor",
+        "Show Previous Files History"
+      ],
+      "title" : "Show Previous Files History"
+    },
+    {
+      "cmdChar" : "É",
+      "cmdModifiers" : 12,
+      "identifier" : "topLevelEditorContext_showPreviousHistoryMenu:",
+      "path" : [
+        "View",
+        "Editor",
+        "Show Previous History"
+      ],
+      "title" : "Show Previous History"
+    },
+    {
+      "cmdChar" : "&",
+      "cmdModifiers" : 12,
+      "identifier" : "topLevelEditorContext_showRelatedItemsMenu:",
+      "path" : [
+        "View",
+        "Editor",
+        "Show Related Items"
+      ],
+      "title" : "Show Related Items"
+    },
+    {
+      "cmdChar" : "'",
+      "cmdModifiers" : 12,
+      "identifier" : "topLevelEditorContext_showTopLevelItemsMenu:",
+      "path" : [
+        "View",
+        "Editor",
+        "Show Top Level Items"
+      ],
+      "title" : "Show Top Level Items"
+    },
+    {
+      "cmdChar" : "F",
+      "cmdModifiers" : 4,
+      "identifier" : "toggleFullScreen:",
+      "path" : [
+        "View",
+        "Enter Full Screen"
+      ],
+      "title" : "Enter Full Screen"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "toggleShowEditorTabBar:",
+      "path" : [
+        "View",
+        "Hide Editor Tab Bar"
+      ],
+      "title" : "Hide Editor Tab Bar"
+    },
+    {
+      "cmdChar" : "T",
+      "cmdModifiers" : 2,
+      "identifier" : "toggleToolbarShown:",
+      "path" : [
+        "View",
+        "Hide Toolbar"
+      ],
+      "title" : "Hide Toolbar"
+    },
+    {
+      "cmdChar" : "&",
+      "cmdModifiers" : 2,
+      "identifier" : "showInspectorWithChoiceFromSender:",
+      "path" : [
+        "View",
+        "Inspectors",
+        "File"
+      ],
+      "title" : "File"
+    },
+    {
+      "cmdChar" : "É",
+      "cmdModifiers" : 2,
+      "identifier" : "showInspectorWithChoiceFromSender:",
+      "path" : [
+        "View",
+        "Inspectors",
+        "History"
+      ],
+      "title" : "History"
+    },
+    {
+      "cmdChar" : "\"",
+      "cmdModifiers" : 2,
+      "identifier" : "showInspectorWithChoiceFromSender:",
+      "path" : [
+        "View",
+        "Inspectors",
+        "Quick Help"
+      ],
+      "title" : "Quick Help"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "toggleInspectorArea:",
+      "path" : [
+        "View",
+        "Inspectors",
+        "Show Inspector"
+      ],
+      "title" : "Show Inspector"
+    },
+    {
+      "cmdChar" : "\"",
+      "cmdModifiers" : 0,
+      "identifier" : "toggleBookmarksNavigator:",
+      "path" : [
+        "View",
+        "Navigators",
+        "Bookmarks"
+      ],
+      "title" : "Bookmarks"
+    },
+    {
+      "cmdChar" : "!",
+      "cmdModifiers" : 0,
+      "identifier" : "toggleBreakpointsNavigator:",
+      "path" : [
+        "View",
+        "Navigators",
+        "Breakpoints"
+      ],
+      "title" : "Breakpoints"
+    },
+    {
+      "cmdChar" : "È",
+      "cmdModifiers" : 0,
+      "identifier" : "toggleDebuggerNavigator:",
+      "path" : [
+        "View",
+        "Navigators",
+        "Debug"
+      ],
+      "title" : "Debug"
+    },
+    {
+      "cmdChar" : "J",
+      "cmdModifiers" : 2,
+      "identifier" : "filterInNavigator:",
+      "path" : [
+        "View",
+        "Navigators",
+        "Filter in Navigator"
+      ],
+      "title" : "Filter in Navigator"
+    },
+    {
+      "cmdChar" : "'",
+      "cmdModifiers" : 0,
+      "identifier" : "toggleFindNavigator:",
+      "path" : [
+        "View",
+        "Navigators",
+        "Find"
+      ],
+      "title" : "Find"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "toggleNavigator:",
+      "path" : [
+        "View",
+        "Navigators",
+        "Hide Navigator"
+      ],
+      "title" : "Hide Navigator"
+    },
+    {
+      "cmdChar" : "(",
+      "cmdModifiers" : 0,
+      "identifier" : "toggleIssuesNavigator:",
+      "path" : [
+        "View",
+        "Navigators",
+        "Issues"
+      ],
+      "title" : "Issues"
+    },
+    {
+      "cmdChar" : "&",
+      "cmdModifiers" : 0,
+      "identifier" : "toggleStructureNavigator:",
+      "path" : [
+        "View",
+        "Navigators",
+        "Project"
+      ],
+      "title" : "Project"
+    },
+    {
+      "cmdChar" : "Ç",
+      "cmdModifiers" : 0,
+      "identifier" : "toggleLogsNavigator:",
+      "path" : [
+        "View",
+        "Navigators",
+        "Reports"
+      ],
+      "title" : "Reports"
+    },
+    {
+      "cmdChar" : "À",
+      "cmdModifiers" : 0,
+      "identifier" : "toggleCodingAssistantNavigator:",
+      "path" : [
+        "View",
+        "Navigators",
+        "Show Coding Assistant"
+      ],
+      "title" : "Show Coding Assistant"
+    },
+    {
+      "cmdChar" : "É",
+      "cmdModifiers" : 0,
+      "identifier" : "toggleWorkingCopiesNavigator:",
+      "path" : [
+        "View",
+        "Navigators",
+        "Source Control"
+      ],
+      "title" : "Source Control"
+    },
+    {
+      "cmdChar" : "§",
+      "cmdModifiers" : 0,
+      "identifier" : "toggleTestNavigator:",
+      "path" : [
+        "View",
+        "Navigators",
+        "Tests"
+      ],
+      "title" : "Tests"
+    },
+    {
+      "cmdChar" : "L",
+      "cmdModifiers" : 3,
+      "identifier" : "openLibrary:",
+      "path" : [
+        "View",
+        "Open Library"
+      ],
+      "title" : "Open Library"
+    },
+    {
+      "cmdChar" : "P",
+      "cmdModifiers" : 1,
+      "identifier" : "togglePinSelectedEditorTab:",
+      "path" : [
+        "View",
+        "Pin Editor Tab"
+      ],
+      "title" : "Pin Editor Tab"
+    },
+    {
+      "cmdChar" : "R",
+      "cmdModifiers" : 12,
+      "identifier" : "productsWindow_reload:",
+      "path" : [
+        "View",
+        "Reload Organizer"
+      ],
+      "title" : "Reload Organizer"
+    },
+    {
+      "cmdChar" : "Z",
+      "cmdModifiers" : 3,
+      "identifier" : "resetAssistantEditorSelection:",
+      "path" : [
+        "View",
+        "Reset Assistant Selection"
+      ],
+      "title" : "Reset Assistant Selection"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "resetEditorSizes:",
+      "path" : [
+        "View",
+        "Reset Editor Sizes"
+      ],
+      "title" : "Reset Editor Sizes"
+    },
+    {
+      "cmdChar" : "`",
+      "cmdModifiers" : 1,
+      "identifier" : "toggleTabOverview:",
+      "path" : [
+        "View",
+        "Show All Window Tabs"
+      ],
+      "title" : "Show All Window Tabs"
+    },
+    {
+      "cmdChar" : "L",
+      "cmdModifiers" : 1,
+      "identifier" : "showLibrary:",
+      "path" : [
+        "View",
+        "Show Library"
+      ],
+      "title" : "Show Library"
+    },
+    {
+      "cmdChar" : "A",
+      "cmdModifiers" : 1,
+      "identifier" : "showQuickActions:",
+      "path" : [
+        "View",
+        "Show Quick Actions…"
+      ],
+      "title" : "Show Quick Actions…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "toggleTabBar:",
+      "path" : [
+        "View",
+        "Show Window Tab Bar"
+      ],
+      "title" : "Show Window Tab Bar"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "alternateArrangeInFront:",
+      "path" : [
+        "Window",
+        "Arrange in Front"
+      ],
+      "title" : "Arrange in Front"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "arrangeInFront:",
+      "path" : [
+        "Window",
+        "Bring All to Front"
+      ],
+      "title" : "Bring All to Front"
+    },
+    {
+      "cmdChar" : "C",
+      "cmdModifiers" : 28,
+      "identifier" : "_zoomCenter:",
+      "path" : [
+        "Window",
+        "Center"
+      ],
+      "title" : "Center"
+    },
+    {
+      "cmdChar" : "À",
+      "cmdModifiers" : 1,
+      "identifier" : "windowMenu_showDocumentation:",
+      "path" : [
+        "Window",
+        "Developer Documentation"
+      ],
+      "title" : "Developer Documentation"
+    },
+    {
+      "cmdChar" : "Ç",
+      "cmdModifiers" : 1,
+      "identifier" : "showDownloadsWindow:",
+      "path" : [
+        "Window",
+        "Downloads"
+      ],
+      "title" : "Downloads"
+    },
+    {
+      "cmdChar" : "F",
+      "cmdModifiers" : 28,
+      "identifier" : "_zoomFill:",
+      "path" : [
+        "Window",
+        "Fill"
+      ],
+      "title" : "Fill"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_tileLeft:",
+      "path" : [
+        "Window",
+        "Full Screen Tile",
+        "Left of Screen"
+      ],
+      "title" : "Left of Screen"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_tileRight:",
+      "path" : [
+        "Window",
+        "Full Screen Tile",
+        "Right of Screen"
+      ],
+      "title" : "Right of Screen"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "mergeAllWindows:",
+      "path" : [
+        "Window",
+        "Merge All Windows"
+      ],
+      "title" : "Merge All Windows"
+    },
+    {
+      "cmdChar" : "M",
+      "cmdModifiers" : 0,
+      "identifier" : "performMiniaturize:",
+      "path" : [
+        "Window",
+        "Minimize"
+      ],
+      "title" : "Minimize"
+    },
+    {
+      "cmdChar" : "M",
+      "cmdModifiers" : 2,
+      "identifier" : "miniaturizeAll:",
+      "path" : [
+        "Window",
+        "Minimize All"
+      ],
+      "title" : "Minimize All"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "",
+      "path" : [
+        "Window",
+        "Move & Resize",
+        "Arrange"
+      ],
+      "title" : "Arrange"
+    },
+    {
+      "cmdModifiers" : 28,
+      "cmdVirtualKey" : 125,
+      "identifier" : "_zoomBottom:",
+      "path" : [
+        "Window",
+        "Move & Resize",
+        "Bottom"
+      ],
+      "title" : "Bottom"
+    },
+    {
+      "cmdModifiers" : 31,
+      "cmdVirtualKey" : 125,
+      "identifier" : "_zoomBottomThreeUp:",
+      "path" : [
+        "Window",
+        "Move & Resize",
+        "Bottom & Quarters"
+      ],
+      "title" : "Bottom & Quarters"
+    },
+    {
+      "cmdModifiers" : 29,
+      "cmdVirtualKey" : 125,
+      "identifier" : "_zoomBottomAndTop:",
+      "path" : [
+        "Window",
+        "Move & Resize",
+        "Bottom & Top"
+      ],
+      "title" : "Bottom & Top"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_zoomBottomLeft:",
+      "path" : [
+        "Window",
+        "Move & Resize",
+        "Bottom Left"
+      ],
+      "title" : "Bottom Left"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_zoomBottomRight:",
+      "path" : [
+        "Window",
+        "Move & Resize",
+        "Bottom Right"
+      ],
+      "title" : "Bottom Right"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "",
+      "path" : [
+        "Window",
+        "Move & Resize",
+        "Halves"
+      ],
+      "title" : "Halves"
+    },
+    {
+      "cmdModifiers" : 28,
+      "cmdVirtualKey" : 123,
+      "identifier" : "_zoomLeft:",
+      "path" : [
+        "Window",
+        "Move & Resize",
+        "Left"
+      ],
+      "title" : "Left"
+    },
+    {
+      "cmdModifiers" : 31,
+      "cmdVirtualKey" : 123,
+      "identifier" : "_zoomLeftThreeUp:",
+      "path" : [
+        "Window",
+        "Move & Resize",
+        "Left & Quarters"
+      ],
+      "title" : "Left & Quarters"
+    },
+    {
+      "cmdModifiers" : 29,
+      "cmdVirtualKey" : 123,
+      "identifier" : "_zoomLeftAndRight:",
+      "path" : [
+        "Window",
+        "Move & Resize",
+        "Left & Right"
+      ],
+      "title" : "Left & Right"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_zoomQuarters:",
+      "path" : [
+        "Window",
+        "Move & Resize",
+        "Quarters"
+      ],
+      "title" : "Quarters"
+    },
+    {
+      "cmdChar" : "R",
+      "cmdModifiers" : 28,
+      "identifier" : "_zoomUntile:",
+      "path" : [
+        "Window",
+        "Move & Resize",
+        "Return to Previous Size"
+      ],
+      "title" : "Return to Previous Size"
+    },
+    {
+      "cmdModifiers" : 28,
+      "cmdVirtualKey" : 124,
+      "identifier" : "_zoomRight:",
+      "path" : [
+        "Window",
+        "Move & Resize",
+        "Right"
+      ],
+      "title" : "Right"
+    },
+    {
+      "cmdModifiers" : 29,
+      "cmdVirtualKey" : 124,
+      "identifier" : "_zoomRightAndLeft:",
+      "path" : [
+        "Window",
+        "Move & Resize",
+        "Right & Left"
+      ],
+      "title" : "Right & Left"
+    },
+    {
+      "cmdModifiers" : 31,
+      "cmdVirtualKey" : 124,
+      "identifier" : "_zoomRightThreeUp:",
+      "path" : [
+        "Window",
+        "Move & Resize",
+        "Right & Quarters"
+      ],
+      "title" : "Right & Quarters"
+    },
+    {
+      "cmdModifiers" : 28,
+      "cmdVirtualKey" : 126,
+      "identifier" : "_zoomTop:",
+      "path" : [
+        "Window",
+        "Move & Resize",
+        "Top"
+      ],
+      "title" : "Top"
+    },
+    {
+      "cmdModifiers" : 29,
+      "cmdVirtualKey" : 126,
+      "identifier" : "_zoomTopAndBottom:",
+      "path" : [
+        "Window",
+        "Move & Resize",
+        "Top & Bottom"
+      ],
+      "title" : "Top & Bottom"
+    },
+    {
+      "cmdModifiers" : 31,
+      "cmdVirtualKey" : 126,
+      "identifier" : "_zoomTopThreeUp:",
+      "path" : [
+        "Window",
+        "Move & Resize",
+        "Top & Quarters"
+      ],
+      "title" : "Top & Quarters"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_zoomTopLeft:",
+      "path" : [
+        "Window",
+        "Move & Resize",
+        "Top Left"
+      ],
+      "title" : "Top Left"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_zoomTopRight:",
+      "path" : [
+        "Window",
+        "Move & Resize",
+        "Top Right"
+      ],
+      "title" : "Top Right"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "moveTabToNewWindow:",
+      "path" : [
+        "Window",
+        "Move Tab to New Window"
+      ],
+      "title" : "Move Tab to New Window"
+    },
+    {
+      "cmdChar" : "O",
+      "cmdModifiers" : 3,
+      "identifier" : "windowMenu_showProducts:",
+      "path" : [
+        "Window",
+        "Organizer"
+      ],
+      "title" : "Organizer"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_removeWindowFromStageManagerSet:",
+      "path" : [
+        "Window",
+        "Remove Window from Set"
+      ],
+      "title" : "Remove Window from Set"
+    },
+    {
+      "cmdChar" : "T",
+      "cmdModifiers" : 3,
+      "identifier" : "renameCurrentTab:",
+      "path" : [
+        "Window",
+        "Rename Window Tab…"
+      ],
+      "title" : "Rename Window Tab…"
+    },
+    {
+      "cmdChar" : "\t",
+      "cmdModifiers" : 12,
+      "cmdVirtualKey" : 48,
+      "identifier" : "selectNextTab:",
+      "path" : [
+        "Window",
+        "Show Next Window Tab"
+      ],
+      "title" : "Show Next Window Tab"
+    },
+    {
+      "cmdChar" : "\t",
+      "cmdModifiers" : 13,
+      "cmdVirtualKey" : 48,
+      "identifier" : "selectPreviousTab:",
+      "path" : [
+        "Window",
+        "Show Previous Window Tab"
+      ],
+      "title" : "Show Previous Window Tab"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "toggleSimulatorWindowVisibility:",
+      "path" : [
+        "Window",
+        "Touch Bar",
+        "Show Touch Bar"
+      ],
+      "title" : "Show Touch Bar"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "selectSimulatorConfigurationGen1:",
+      "path" : [
+        "Window",
+        "Touch Bar",
+        "Touch Bar (1st generation)"
+      ],
+      "title" : "Touch Bar (1st generation)"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "selectSimulatorConfigurationGen2:",
+      "path" : [
+        "Window",
+        "Touch Bar",
+        "Touch Bar (2nd generation)"
+      ],
+      "title" : "Touch Bar (2nd generation)"
+    },
+    {
+      "cmdChar" : "&",
+      "cmdModifiers" : 1,
+      "identifier" : "showWelcomeToXcode:",
+      "path" : [
+        "Window",
+        "Welcome to Xcode"
+      ],
+      "title" : "Welcome to Xcode"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_activateWorkspaceWindowController:",
+      "path" : [
+        "Window",
+        "XCommander — 0 mach_msg2_trap"
+      ],
+      "title" : "XCommander — 0 mach_msg2_trap"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "performZoom:",
+      "path" : [
+        "Window",
+        "Zoom"
+      ],
+      "title" : "Zoom"
+    },
+    {
+      "cmdModifiers" : 2,
+      "identifier" : "zoomAll:",
+      "path" : [
+        "Window",
+        "Zoom All"
+      ],
+      "title" : "Zoom All"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "orderFrontAboutPanel:",
+      "path" : [
+        "Xcode",
+        "About Xcode"
+      ],
+      "title" : "About Xcode"
+    },
+    {
+      "cmdModifiers" : 8,
+      "identifier" : "editAlerts:",
+      "path" : [
+        "Xcode",
+        "Behaviors",
+        "Edit Behaviors…"
+      ],
+      "title" : "Edit Behaviors…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "",
+      "path" : [
+        "Xcode",
+        "Behaviors",
+        "No Custom Behaviors"
+      ],
+      "title" : "No Custom Behaviors"
+    },
+    {
+      "cmdChar" : "H",
+      "cmdModifiers" : 2,
+      "identifier" : "hideOtherApplications:",
+      "path" : [
+        "Xcode",
+        "Hide Others"
+      ],
+      "title" : "Hide Others"
+    },
+    {
+      "cmdChar" : "H",
+      "cmdModifiers" : 0,
+      "identifier" : "hide:",
+      "path" : [
+        "Xcode",
+        "Hide Xcode"
+      ],
+      "title" : "Hide Xcode"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_startHelperApp:",
+      "path" : [
+        "Xcode",
+        "Open Developer Tool",
+        "Accessibility Inspector"
+      ],
+      "title" : "Accessibility Inspector"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_startHelperApp:",
+      "path" : [
+        "Xcode",
+        "Open Developer Tool",
+        "Create ML"
+      ],
+      "title" : "Create ML"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_startHelperApp:",
+      "path" : [
+        "Xcode",
+        "Open Developer Tool",
+        "Device Hub"
+      ],
+      "title" : "Device Hub"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_startHelperApp:",
+      "path" : [
+        "Xcode",
+        "Open Developer Tool",
+        "FileMerge"
+      ],
+      "title" : "FileMerge"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_startHelperApp:",
+      "path" : [
+        "Xcode",
+        "Open Developer Tool",
+        "Icon Composer"
+      ],
+      "title" : "Icon Composer"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_startHelperApp:",
+      "path" : [
+        "Xcode",
+        "Open Developer Tool",
+        "Instruments"
+      ],
+      "title" : "Instruments"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_openURL:",
+      "path" : [
+        "Xcode",
+        "Open Developer Tool",
+        "More Developer Tools…"
+      ],
+      "title" : "More Developer Tools…"
+    },
+    {
+      "cmdChar" : "Q",
+      "cmdModifiers" : 0,
+      "identifier" : "terminate:",
+      "path" : [
+        "Xcode",
+        "Quit Xcode"
+      ],
+      "title" : "Quit Xcode"
+    },
+    {
+      "cmdChar" : "Q",
+      "cmdModifiers" : 2,
+      "identifier" : "NSAlternateQuitMenuItem",
+      "path" : [
+        "Xcode",
+        "Quit and Keep Windows"
+      ],
+      "title" : "Quit and Keep Windows"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_processRequest:",
+      "path" : [
+        "Xcode",
+        "Services",
+        "Activity Monitor"
+      ],
+      "title" : "Activity Monitor"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_processRequest:",
+      "path" : [
+        "Xcode",
+        "Services",
+        "Allocations & Leaks"
+      ],
+      "title" : "Allocations & Leaks"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_processRequest:",
+      "path" : [
+        "Xcode",
+        "Services",
+        "File Activity"
+      ],
+      "title" : "File Activity"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_configureServicesMenu:",
+      "path" : [
+        "Xcode",
+        "Services",
+        "Services Settings…"
+      ],
+      "title" : "Services Settings…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_processRequest:",
+      "path" : [
+        "Xcode",
+        "Services",
+        "System Trace"
+      ],
+      "title" : "System Trace"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_processRequest:",
+      "path" : [
+        "Xcode",
+        "Services",
+        "Time Profile Active Application"
+      ],
+      "title" : "Time Profile Active Application"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_processRequest:",
+      "path" : [
+        "Xcode",
+        "Services",
+        "Time Profile App Under Mouse"
+      ],
+      "title" : "Time Profile App Under Mouse"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_processRequest:",
+      "path" : [
+        "Xcode",
+        "Services",
+        "Time Profile Entire System"
+      ],
+      "title" : "Time Profile Entire System"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "_processRequest:",
+      "path" : [
+        "Xcode",
+        "Services",
+        "Toggle Instruments Recording"
+      ],
+      "title" : "Toggle Instruments Recording"
+    },
+    {
+      "cmdChar" : ",",
+      "cmdModifiers" : 0,
+      "identifier" : "showPreferencesPanel:",
+      "path" : [
+        "Xcode",
+        "Settings…"
+      ],
+      "title" : "Settings…"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "unhideAllApplications:",
+      "path" : [
+        "Xcode",
+        "Show All"
+      ],
+      "title" : "Show All"
+    },
+    {
+      "cmdModifiers" : 0,
+      "identifier" : "showXcodeExtensions:",
+      "path" : [
+        "Xcode",
+        "Xcode Extensions…"
+      ],
+      "title" : "Xcode Extensions…"
+    }
+  ],
+  "inputSource" : "com.apple.keylayout.French",
+  "release" : {
+    "build" : "27A266",
+    "major" : 27,
+    "version" : "27.0"
+  },
+  "schemaVersion" : 2
+}

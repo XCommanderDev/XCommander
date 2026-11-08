@@ -1,0 +1,168 @@
+import Foundation
+import AutographeCore
+
+/// The project's files, for the file picker.
+///
+/// We walk the filesystem ourselves rather than asking Xcode. That is not duplication for
+/// its own sake: Open Quickly exists, but its ranking is Xcode's and we cannot reach it.
+/// Owning the list means owning the ranking — fuzzy scoring over the path, and frecency,
+/// which is what makes the second visit to a file a two-keystroke affair.
+@MainActor
+final class FileIndex {
+
+    private(set) var items: [PickerItem] = []
+    private var root: URL?
+    private var lastScan: Date?
+    /// How often a file has been chosen, and when.
+    ///
+    /// Persisted, because a picker that forgets everything on relaunch never gets to be
+    /// good at its job — the whole value of frecency is that it accumulates.
+    private struct Score: Codable { var count: Int; var last: Date }
+    private var frecency: [String: Score] = [:]
+    private let defaultsKey = "fileFrecency"
+
+    private static let skipped: Set<String> = [
+        ".git", ".build", "build", "DerivedData", "Pods", "Carthage", "node_modules",
+        ".swiftpm", "vendor", ".venv", "__pycache__", ".idea", "xcuserdata",
+    ]
+    private static let interesting: Set<String> = [
+        "swift", "m", "mm", "h", "c", "cpp", "hpp", "metal", "plist", "entitlements",
+        "json", "yml", "yaml", "toml", "md", "txt", "strings", "xcconfig", "sh", "rb", "py",
+    ]
+    private static let maxFiles = 20_000
+
+    init() { loadFrecency() }
+
+    func invalidate() { lastScan = nil }
+
+    /// Rescan when the project changed, or when the last scan is more than a minute old.
+    func refreshIfNeeded(around document: URL?) {
+        let newRoot = document.flatMap(Self.projectRoot(containing:))
+        let stale = lastScan.map { Date().timeIntervalSince($0) > 60 } ?? true
+        guard newRoot != root || stale else { return }
+        root = newRoot
+        lastScan = Date()
+        items = newRoot.map(scan) ?? []
+        rebuildNameIndex()
+    }
+
+    /// Called every time a file is chosen from a picker. Without this call the ranking
+    /// below has no input and the whole mechanism is decoration — which is exactly what it
+    /// was until the wiring was noticed.
+    /// File name → the paths that answer to it.
+    ///
+    /// **For the buffer picker's preview.** An editor tab knows only a file name — see
+    /// `EditorTab` for why there is no path to be had — so the only way to preview one
+    /// without touching Xcode is to look the name up in the list we already walked. Two
+    /// `main.swift` in different targets genuinely cannot be told apart this way, which is
+    /// why this returns every match and the caller says so rather than guessing.
+    private var byName: [String: [String]] = [:]
+
+    private func rebuildNameIndex() {
+        byName.removeAll(keepingCapacity: true)
+        for item in items {
+            guard case .file(let path, _) = PickerTarget.parse(item.id) else { continue }
+            byName[(path as NSString).lastPathComponent, default: []].append(path)
+        }
+    }
+
+    func paths(named name: String) -> [String] { byName[name] ?? [] }
+
+    func note(_ path: String) {
+        let existing = frecency[path]
+        frecency[path] = Score(count: (existing?.count ?? 0) + 1, last: Date())
+        saveFrecency()
+        // The order is baked into `items` at scan time, so refresh it on the next ask.
+        lastScan = nil
+    }
+
+    private func loadFrecency() {
+        guard let data = UserDefaults.standard.data(forKey: defaultsKey),
+              let decoded = try? JSONDecoder().decode([String: Score].self, from: data) else { return }
+        frecency = decoded
+    }
+
+    private func saveFrecency() {
+        guard let data = try? JSONEncoder().encode(frecency) else { return }
+        UserDefaults.standard.set(data, forKey: defaultsKey)
+    }
+
+    /// Walk up from the open document until something says "project": a `.xcodeproj`,
+    /// a `Package.swift`, or a `.git`. The same shape as every editor's project detection.
+    static func projectRoot(containing document: URL) -> URL? {
+        var directory = document.hasDirectoryPath ? document : document.deletingLastPathComponent()
+        let fm = FileManager.default
+        for _ in 0..<12 {
+            let contents = (try? fm.contentsOfDirectory(atPath: directory.path)) ?? []
+            let marks = contents.contains { name in
+                name.hasSuffix(".xcodeproj") || name.hasSuffix(".xcworkspace")
+                    || name == "Package.swift" || name == ".git"
+            }
+            if marks { return directory }
+            let parent = directory.deletingLastPathComponent()
+            if parent == directory { break }
+            directory = parent
+        }
+        return nil
+    }
+
+    private func scan(_ unresolvedRoot: URL) -> [PickerItem] {
+        let fm = FileManager.default
+        // The enumerator yields symlink-resolved paths, so a root that is not resolved makes
+        // every relative label wrong: `/tmp` is a symlink to `/private/tmp`, and a project
+        // opened from `/tmp` labelled its files `scratch/config.json` instead of
+        // `config.json`. Both sides have to agree before they are compared.
+        //
+        // `URL.resolvingSymlinksInPath()` is *not* the way to make them agree: it normalises
+        // `/private/tmp` down to `/tmp` rather than up, so it leaves this exact pair as far
+        // apart as it found them. `realpath(3)` is what the enumerator itself agrees with.
+        let root = Self.canonical(unresolvedRoot)
+        guard let walker = fm.enumerator(at: root,
+                                         includingPropertiesForKeys: [.isDirectoryKey],
+                                         options: [.skipsHiddenFiles]) else { return [] }
+        var found: [(url: URL, relative: String)] = []
+
+        for case let url as URL in walker {
+            if found.count >= Self.maxFiles { break }
+            let name = url.lastPathComponent
+            let isDirectory = (try? url.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory ?? false
+            if isDirectory {
+                // Prune whole trees rather than filtering their contents one file at a time.
+                // A DerivedData directory can be larger than the project it belongs to.
+                if Self.skipped.contains(name) || name.hasSuffix(".xcodeproj")
+                    || name.hasSuffix(".xcworkspace") || name.hasSuffix(".xcassets") {
+                    walker.skipDescendants()
+                }
+                continue
+            }
+            guard Self.interesting.contains(url.pathExtension) else { continue }
+            // A file that is somehow not under the root keeps its full path rather than a
+            // slice taken from the wrong offset.
+            found.append((url, ProjectPath.relative(of: url.path, under: root.path) ?? url.path))
+        }
+
+        return found
+            .sorted { rank($0.url.path) > rank($1.url.path) }
+            .map { file in
+                PickerItem(id: "file:" + file.url.path,
+                           title: file.relative,
+                           detail: file.url.deletingLastPathComponent().lastPathComponent,
+                           icon: .file)
+            }
+    }
+
+    /// The path macOS actually uses, with every symlink resolved — including `/tmp`, `/var`
+    /// and `/etc`, which Foundation's own resolver deliberately leaves alone.
+    private static func canonical(_ url: URL) -> URL {
+        guard let resolved = realpath(url.path, nil) else { return url }
+        defer { free(resolved) }
+        return URL(fileURLWithPath: String(cString: resolved))
+    }
+
+    /// Frecency: how often, decayed by how long ago.
+    private func rank(_ path: String) -> Double {
+        guard let hit = frecency[path] else { return 0 }
+        let hours = max(1, Date().timeIntervalSince(hit.last) / 3600)
+        return Double(hit.count) / hours
+    }
+}

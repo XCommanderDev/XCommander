@@ -1,0 +1,53 @@
+name: Autographe for Xcode
+options:
+  bundleIdPrefix: com.wassimans
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    DEVELOPMENT_TEAM: D3XY49J59H
+    CODE_SIGN_STYLE: Automatic
+    SWIFT_VERSION: "6.0"
+    ENABLE_HARDENED_RUNTIME: YES
+packages:
+  AutographeCore:
+    path: .
+targets:
+  Autographe for Xcode:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources/Companion
+        excludes:
+          - "AutographeAppIcon.icon/**"
+      # Declared as a single file, not scanned as a group: otherwise xcodegen adds
+      # icon.json and pens.png individually and they are copied into Resources as loose
+      # files instead of being compiled by actool.
+      - path: Sources/Companion/AutographeAppIcon.icon
+        type: file
+    dependencies:
+      - package: AutographeCore
+        product: AutographeCore
+      - package: AutographeCore
+        product: CIndexStore
+      # The AX menu walk, shared with the `xcmdr` maintenance tool.
+      - package: AutographeCore
+        product: XcodeMenus
+    info:
+      path: Sources/Companion/Info.plist
+      properties:
+        CFBundleName: Autographe for Xcode
+        CFBundleIdentifier: com.wassimans.AutographeForXcode
+        LSMinimumSystemVersion: "14.0"
+        NSPrincipalClass: NSApplication
+        # A menu-bar app: no Dock icon, no app switcher entry.
+        LSUIElement: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.wassimans.AutographeForXcode
+        # The Icon Composer document, not the asset catalogue's AppIcon: macOS 26 draws it
+        # with the layered treatment, and actool compiles legacy representations from the
+        # same file for the deployment target. Regenerate its layer with tools/icons.sh.
+        ASSETCATALOG_COMPILER_APPICON_NAME: AutographeAppIcon
+        INFOPLIST_KEY_NSHumanReadableCopyright: ""
