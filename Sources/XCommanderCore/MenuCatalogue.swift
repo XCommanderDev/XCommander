@@ -300,6 +300,50 @@ public struct MenuSnapshot: Sendable, Codable {
         return merged
     }
 
+    /// Menus that list the user's own things rather than Xcode's commands, and the word that
+    /// replaces each title when a snapshot leaves this Mac: recent projects, run destinations
+    /// (devices and simulators, which people name after themselves and their family), open
+    /// windows and schemes.
+    ///
+    /// Nothing resolves through these titles: a picker reads the live menu, and
+    /// `CatalogueDiff` already ignores list-shaped identifiers. A shared file loses nothing.
+    static let personalLists: [String: String] = [
+        "_openRecentDocument:": "Recent item",
+        "_userSelectedRunDestinationMenuItem:": "Run destination",
+        "_activateWorkspaceWindowController:": "Window",
+        "_selectScheme:": "Scheme",
+    ]
+
+    /// The word for an entry that names something of the user's, or nil for one of Xcode's.
+    /// `Debug > Attach to Process` lists running processes by name, under whatever identifier
+    /// Xcode gives them, so it goes by path; its placeholder item has no identifier and stays.
+    static func personalWord(for entry: MenuEntry) -> String? {
+        if let word = personalLists[entry.identifier] { return word }
+        if entry.path.count > 2, Array(entry.path.prefix(2)) == ["Debug", "Attach to Process"],
+           !entry.identifier.isEmpty { return "Process" }
+        return nil
+    }
+
+    /// This snapshot with the user's own names replaced by numbered placeholders, for a file
+    /// that will be shared: a fixture in the repository, or a capture attached to an issue.
+    ///
+    /// Items keep their identifier, their menu and their place in it, so counts, audits and
+    /// diffs come out the same. The app's own store on this Mac is never redacted; `xcmdr`
+    /// redacts every snapshot it writes.
+    public func redacted() -> MenuSnapshot {
+        var counters: [String: Int] = [:]
+        var copy = self
+        copy.entries = entries.map { entry in
+            guard let word = Self.personalWord(for: entry) else { return entry }
+            counters[word, default: 0] += 1
+            var redacted = entry
+            redacted.title = "\(word) \(counters[word]!)"
+            redacted.path = Array(entry.path.dropLast()) + [redacted.title]
+            return redacted
+        }
+        return copy
+    }
+
     /// Read a snapshot, refusing one written by a newer app.
     ///
     /// The version is read on its own first. Everything that loads a snapshot — the store,

@@ -60,7 +60,7 @@ What works today:
 - [x] A config file with live reload
 - [x] Keeps working across Xcode updates, with a report when Xcode changes something you use
 
-Still to do before a first release: daily use and bug fixing, then signing, notarization and updates.
+Official builds are signed, notarized and update themselves. What's next: daily use and bug fixing on the way to a beta.
 
 The prototype was built in its own repository under the working name Autographe, and its history was merged into this one in November 2026.
 

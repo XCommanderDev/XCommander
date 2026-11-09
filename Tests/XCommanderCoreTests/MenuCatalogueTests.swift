@@ -382,6 +382,46 @@ struct MenuCatalogueTests {
         #expect(again.release == original.release)
         #expect(CatalogueDiff.between(original, and: again).isEmpty)
     }
+
+    // MARK: - redaction
+
+    @Test("a shared snapshot names no one's projects, devices, windows or schemes")
+    func redactionReplacesPersonalNames() {
+        let snapshot = Self.snapshot([
+            MenuEntry(identifier: "_openRecentDocument:", title: "Secret.xcodeproj",
+                      path: ["File", "Open Recent", "Secret.xcodeproj"]),
+            MenuEntry(identifier: "clearRecentDocuments:", title: "Clear Menu",
+                      path: ["File", "Open Recent", "Clear Menu"]),
+            MenuEntry(identifier: "_userSelectedRunDestinationMenuItem:", title: "Sam’s iPhone",
+                      path: ["Product", "Destination", "Sam’s iPhone"]),
+            MenuEntry(identifier: "_userSelectedRunDestinationMenuItem:", title: "Sam’s iPad",
+                      path: ["Product", "Destination", "Devices", "Sam’s iPad"]),
+            MenuEntry(identifier: "_activateWorkspaceWindowController:", title: "Secret — App.swift",
+                      path: ["Window", "Secret — App.swift"]),
+            MenuEntry(identifier: "_selectScheme:", title: "Secret", path: ["Product", "Scheme", "Secret"]),
+            MenuEntry(identifier: "", title: "Getting Process List…",
+                      path: ["Debug", "Attach to Process", "Getting Process List…"]),
+            MenuEntry(identifier: "attach:", title: "Diary (412)",
+                      path: ["Debug", "Attach to Process", "Diary (412)"]),
+            MenuEntry(identifier: "buildActiveRunContext:", title: "Build", path: ["Product", "Build"]),
+        ])
+        let redacted = snapshot.redacted()
+        let titles = redacted.entries.map(\.title)
+        #expect(titles == ["Recent item 1", "Clear Menu", "Run destination 1", "Run destination 2",
+                           "Window 1", "Scheme 1", "Getting Process List…", "Process 1", "Build"])
+        // The item stays where it was, under its identifier, so audits and diffs don't move.
+        #expect(redacted.entries[3].path == ["Product", "Destination", "Devices", "Run destination 2"])
+        #expect(redacted.entries.map(\.identifier) == snapshot.entries.map(\.identifier))
+        #expect(!titles.joined().contains("Secret") && !titles.joined().contains("Sam"))
+    }
+
+    /// The fixture is public. A capture taken before redaction existed held the maintainer's
+    /// recent projects and device names; this keeps the next one honest.
+    @Test("the checked-in snapshot is already redacted")
+    func fixtureIsRedacted() throws {
+        let fixture = try Self.xcode27()
+        #expect(fixture.redacted().entries == fixture.entries)
+    }
 }
 
 /// The support floor, as the menu bar states it.

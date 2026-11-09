@@ -4,27 +4,37 @@ import Foundation
 import XCommanderCore
 import XcodeMenus
 
-// xcmdr — the maintainer's tool.
+// xcmdr: XCommander and Xcode's menus.
 //
-// Everything a release needs to know about an Xcode, without launching the app or reading a
-// log. It is deliberately the same code the app uses to read menus, so an audit is an audit
-// of what ships.
+// It reads Xcode's menus with the same code the app uses, so what it reports is what ships.
+// Anyone can run it. Contributors use the first group, mostly to report a problem or to help
+// with an Xcode beta; the maintainer uses all of it to check each new Xcode before a release.
 //
+// Look and report (anyone):
 //   xcmdr doctor                     is this machine fit to build and run the app
-//   xcmdr snapshot [-o f] [-c note]  capture the running Xcode's menus
-//   xcmdr audit [--snapshot f]       do the shipped bindings resolve
-//   xcmdr diff <old> <new>           what Apple changed between two snapshots
-//   xcmdr merge <a> <b>              union two captures of one Xcode, taken in two contexts
 //   xcmdr list [--under "A > B"]     browse a menu
 //   xcmdr resolve <identifier>       where does this action live right now
-//   xcmdr popups                     check the toolbar popups Xcode hides commands in
+//   xcmdr run <identifier>           press one menu item, as the app would (drives Xcode)
+//   xcmdr press <button> <id>        press one toolbar popup item (drives Xcode)
 //   xcmdr builds                     which Xcodes this machine has recorded
+//
+// Capture and check an Xcode (contributors on a beta, and the maintainer):
+//   xcmdr snapshot [-o f] [-c note]  capture the running Xcode's menus
+//   xcmdr merge <a> <b>              union two captures of one Xcode, taken in two contexts
+//   xcmdr audit [--snapshot f]       do the shipped bindings resolve
+//   xcmdr diff <old> <new>           what Apple changed between two snapshots
+//   xcmdr popups                     check the toolbar popups Xcode hides commands in
+//
+// Maintainer:
 //   xcmdr reference [--snapshot f]   the website's command reference, as Markdown
+//
+// Every snapshot it writes is redacted (`MenuSnapshot.redacted`): Xcode's menus also list
+// recent projects, device names, windows and schemes, and a capture is made to be shared.
 //
 // With several Xcodes running, `--xcode PATH` says which one; otherwise the app's own rule
 // picks, and the choice is printed.
 //
-// Exit codes: 0 fine, 1 findings the maintainer must look at, 2 could not run.
+// Exit codes: 0 fine, 1 findings to look at, 2 could not run.
 
 let out = FileHandle.standardOutput
 let err = FileHandle.standardError
@@ -62,20 +72,24 @@ let json = args.has("json")
 
 func usage() -> Never {
     emit("""
-    xcmdr — XCommander's maintenance tool
+    xcmdr — XCommander and Xcode's menus
 
-    USAGE
+    LOOK AND REPORT
       xcmdr doctor                          check this machine
-      xcmdr snapshot [-o FILE] [-c NOTE]    capture the running Xcode's menus
-      xcmdr audit [--snapshot FILE]         check every shipped binding
-      xcmdr diff OLD.json NEW.json          what Apple changed
-      xcmdr merge A.json B.json -o OUT      union two captures of the same Xcode
       xcmdr list [--under "Product > Run"]  browse a menu
       xcmdr resolve IDENTIFIER              locate an action
-      xcmdr popups                          check the toolbar popups (opens them)
-      xcmdr press BUTTON IDENTIFIER         press one popup item (drives Xcode)
       xcmdr run IDENTIFIER                  press one menu item (drives Xcode)
+      xcmdr press BUTTON IDENTIFIER         press one popup item (drives Xcode)
       xcmdr builds                          Xcodes recorded on this machine
+
+    CAPTURE AND CHECK AN XCODE
+      xcmdr snapshot [-o FILE] [-c NOTE]    capture the running Xcode's menus (redacted)
+      xcmdr merge A.json B.json -o OUT      union two captures of the same Xcode
+      xcmdr audit [--snapshot FILE]         check every shipped binding
+      xcmdr diff OLD.json NEW.json          what Apple changed
+      xcmdr popups                          check the toolbar popups (opens them)
+
+    MAINTAINER
       xcmdr reference [-o FILE]             the website's command reference page
 
     OPTIONS
@@ -285,7 +299,9 @@ case "snapshot":
         else { fail("could not read Xcode's menus — is it running?") }
         scan = result
     }
-    let snapshot = scan.snapshot
+    // Redacted because a capture is made to be shared (a fixture, an issue), and Xcode's
+    // menus list recent projects and device names along with its commands.
+    let snapshot = scan.snapshot.redacted()
     let destination = args.value("output", "o")
         ?? "Fixtures/Xcode-\(snapshot.release.build).json"
     do {
@@ -443,7 +459,7 @@ case "merge":
     guard first.release.build == second.release.build else {
         fail("these are different Xcodes (\(first.release.build) and \(second.release.build)); merging them would invent a menu neither has")
     }
-    let union = first.merging(second)
+    let union = first.merging(second).redacted()
     let target = args.value("output", "o") ?? args.positional[1]
     do { try union.encoded().write(to: URL(fileURLWithPath: target), options: .atomic) }
     catch { fail("cannot write \(target): \(error)") }

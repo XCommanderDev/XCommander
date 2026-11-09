@@ -2,8 +2,8 @@
 
 Apple ships a new Xcode every year and betas in between, and XCommander depends on things Apple
 never promised to keep stable: menu items, their shortcuts, the layout of Xcode's window. This
-page explains how the app absorbs most changes on its own, and what a maintainer does for the
-rest. The code is in `Sources/XCommanderCore/MenuCatalogue.swift`, `Sources/XcodeMenus/` and
+page explains how the app absorbs most changes on its own, and how you can help when a new
+Xcode comes out. The code is in `Sources/XCommanderCore/MenuCatalogue.swift`, `Sources/XcodeMenus/` and
 `Sources/xcmdr/`.
 
 ## The idea: name commands by their action
@@ -63,85 +63,67 @@ tested, so they're never claimed. There's no upper limit: a beta nobody has test
 work on day one, and usually does, because of the identifiers. The floor is
 `XcodeRelease.minimumMajor`, and the Xcode 27 capture stays in `Fixtures/` as the baseline.
 
-## The maintainer's tool: `xcmdr`
+## The tool: `xcmdr`
 
-`xcmdr` is a command-line tool that uses exactly the same menu scanner as the app, so an audit
-checks what actually ships. Run it with `swift run xcmdr <command>`.
+`xcmdr` is a command-line tool that uses exactly the same menu scanner as the app, so what it
+reports is what ships. Run it with `swift run xcmdr <command>`; `swift run xcmdr help` lists
+everything.
 
 | Command | What it does |
 |---|---|
+| **Look and report** | |
 | `xcmdr doctor` | Checks this machine: permission, which Xcode, window assumptions, leader keys |
+| `xcmdr list --under "Product"` | Browses a menu |
+| `xcmdr resolve IDENTIFIER` | Finds where an action lives |
+| `xcmdr run IDENTIFIER` | Presses one menu item, exactly as the app would |
+| `xcmdr builds` | Lists the Xcode builds recorded on this machine, settled or not |
+| **Capture and check an Xcode** | |
 | `xcmdr snapshot -o FILE -c NOTE` | Captures the running Xcode's menus, with a note about what was on screen |
 | `xcmdr merge A.json B.json -o OUT` | Merges two captures of the same build |
 | `xcmdr audit [--snapshot FILE]` | Checks every shipped binding resolves; exit code 0 means all good |
 | `xcmdr diff OLD.json NEW.json` | Shows what Apple changed between two builds |
-| `xcmdr list --under "Product"` | Browses a menu |
-| `xcmdr resolve IDENTIFIER` | Finds where an action lives |
 | `xcmdr popups` | Checks the toolbar popups (this opens them on screen) |
-| `xcmdr builds` | Lists the Xcode builds recorded on this machine, settled or not |
 
 With two Xcodes running, add `--xcode /Applications/Xcode-beta.app` (or a process ID).
 
-## Checklist for a new Xcode
+**Captures are safe to share.** Xcode's menus also list your recent projects, your devices and
+simulators, your open windows and your schemes. `xcmdr` replaces those names with placeholders
+(`Recent item 1`, `Run destination 3`…) in every file it writes, so a capture says which commands
+your Xcode has and nothing about you. The snapshots the app keeps for itself in
+`~/.config/xcommander/xcode/` are never shared and aren't redacted: send an `xcmdr` capture
+instead.
 
-When Apple ships a beta or a release:
+## Helping with an Xcode beta
 
-**1. Look at it**
+If you run an Xcode beta, you can help XCommander support it before I've installed it myself.
 
-- [ ] Install it next to the current Xcode (`Xcode-beta.app`). Don't replace the current one.
-- [ ] `xcmdr doctor --xcode /Applications/Xcode-beta.app`. Read the window assumptions and the
-      leader keys sections.
+**1. Look at it.** Keep your current Xcode, and install the beta beside it (`Xcode-beta.app`).
+Then:
 
-**2. Capture it.** One scan is one context, so take three:
+```sh
+swift run xcmdr doctor --xcode /Applications/Xcode-beta.app
+```
 
-- [ ] Source editor focused, navigator hidden:
-      `xcmdr snapshot --xcode … -o /tmp/editor.json -c "source editor focused, navigator hidden"`
-- [ ] Navigator, debug area and inspector open:
-      `xcmdr snapshot --xcode … -o /tmp/rich.json -c "navigator, debug area and inspector open"`
-- [ ] Running under the debugger, paused:
-      `xcmdr snapshot --xcode … -o /tmp/paused.json -c "running under the debugger and paused"`
-- [ ] `xcmdr merge /tmp/editor.json /tmp/rich.json -o Fixtures/Xcode-<build>.json`
-- [ ] `xcmdr merge Fixtures/Xcode-<build>.json /tmp/paused.json -o Fixtures/Xcode-<build>.json`
+The window assumptions and leader keys sections are the ones that matter.
 
-**3. Compare it**
+**2. Capture it.** One scan is one context, because Xcode's menus change with what's on screen,
+so take three:
 
-- [ ] `xcmdr audit --snapshot Fixtures/Xcode-<build>.json`
-- [ ] `xcmdr diff Fixtures/Xcode-<previous>.json Fixtures/Xcode-<build>.json`
-- [ ] `xcmdr popups --xcode …`
+```sh
+swift run xcmdr snapshot --xcode … -o /tmp/editor.json -c "source editor focused, navigator hidden"
+swift run xcmdr snapshot --xcode … -o /tmp/rich.json -c "navigator, debug area and inspector open"
+swift run xcmdr snapshot --xcode … -o /tmp/paused.json -c "running under the debugger and paused"
+swift run xcmdr merge /tmp/editor.json /tmp/rich.json -o Fixtures/Xcode-<build>.json
+swift run xcmdr merge Fixtures/Xcode-<build>.json /tmp/paused.json -o Fixtures/Xcode-<build>.json
+```
 
-**4. Rehearse it with the app.** Fixtures prove the code does what it says; only the real app
-shows whether it's true.
+**3. Compare it.**
 
-- [ ] Copy the previous build's snapshot into `~/.config/xcommander/xcode/`, quit Xcode and
-      reopen it (it comes back on the Welcome window, like after an update). `xcmdr builds`
-      should say **unsettled**, and there should be no `CHANGES.md`.
-- [ ] Open a project, focus a source file, switch away and back. It should now be **settled**,
-      with `CHANGES.md` written.
-- [ ] Press the leader right after switching to Xcode: the panel should appear at the usual
-      speed.
-- [ ] With the panel up, drag Xcode's window: the panel follows, including after a relaunch.
+```sh
+swift run xcmdr audit --snapshot Fixtures/Xcode-<build>.json
+swift run xcmdr diff Fixtures/Xcode-27A266.json Fixtures/Xcode-<build>.json
+```
 
-**5. Fix forward**
-
-- [ ] A renamed action: add the new identifier to the command's `MenuRef` alternates.
-- [ ] A command now on a leader's chord: update `LeaderChoice.shadows` **and** its note.
-- [ ] A changed window landmark: update `XcodeAXSchema`.
-- [ ] A command moved into a toolbar popup: make it a `PopupMenuRef`.
-- [ ] Never delete a binding for a command that a supported Xcode still has.
-
-**6. Pin it**
-
-- [ ] Add a test that loads the new fixture, like the existing Xcode 27 one, and run the
-      shipped-binding and leader tests against it.
-- [ ] `swift test` passes.
-
-**7. On a new major version only**
-
-- [ ] Keep the previous fixtures and their tests. The floor stays at Xcode 27.
-- [ ] Mention the new version in the README.
-
-## Helping as a contributor
-
-You don't need to be the maintainer for steps 1–3. If you run an Xcode beta, capturing its menus
-and opening a pull request with the merged fixture and the `audit` and `diff` output lets
-XCommander support a beta before I've installed it.
+Then open a pull request with the merged fixture and the `audit` and `diff` output, or attach
+them to an issue. If the audit found something, a fix usually means adding the new identifier to
+the command's `MenuRef` alternates; the tests will tell you whether it holds.

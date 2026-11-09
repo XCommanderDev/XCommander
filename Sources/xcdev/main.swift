@@ -1,6 +1,6 @@
 import Foundation
 
-// xcdev: the day-to-day developer tool for XCommander.
+// xcdev: build and run XCommander from Terminal. For anyone working on the code.
 //
 //   swift run xcdev run       build the app, sign it and launch it
 //   swift run xcdev stop      quit it
@@ -8,6 +8,8 @@ import Foundation
 //   swift run xcdev bundle    build and sign the app without launching it
 //   swift run xcdev build     just compile
 //   swift run xcdev icons     regenerate the app icon and menu bar mark from Graphics/
+//
+// Release pipeline only (GitHub Actions runs it; you never need to):
 //   swift run xcdev appcast <file>   write Sparkle's update feed from the GitHub releases
 //
 // Add --release to build an optimised app instead of a debug one.
@@ -25,6 +27,8 @@ let usage = """
       bundle   build and sign the app without launching it
       build    just compile
       icons    regenerate the app icon and menu bar mark from Graphics/
+
+    Release pipeline only (GitHub Actions runs it):
       appcast  write Sparkle's update feed to <file>, from the published GitHub releases
     """
 

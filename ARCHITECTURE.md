@@ -42,8 +42,8 @@ Sources/
 ├── XCommanderCore/   Pure logic. No AppKit, no Accessibility. Fully unit-tested.
 ├── XcodeMenus/       Walks Xcode's menu bar over Accessibility. Shared by the app and xcmdr.
 ├── Companion/        The app itself: AppKit, the event tap, windows, Accessibility calls.
-├── xcmdr/            A command-line maintenance tool (scan, audit and diff Xcode's menus).
-├── xcdev/            The developer tool: build, sign and run the app from Terminal, icons, the appcast.
+├── xcmdr/            Command-line tool for Xcode's menus: inspect, capture (redacted), audit, diff.
+├── xcdev/            Build, sign and run the app from Terminal; icons; the appcast (release pipeline only).
 ├── CIndexStore/      C type declarations for Xcode's index store library. No code linked.
 └── CSourceKit/       C type declarations for sourcekitd. No code linked.
 Tests/

@@ -3596,9 +3596,9 @@
       "path" : [
         "File",
         "Open Recent",
-        "Autographe.xcodeproj"
+        "Recent item 1"
       ],
-      "title" : "Autographe.xcodeproj"
+      "title" : "Recent item 1"
     },
     {
       "cmdModifiers" : 0,
@@ -3606,9 +3606,9 @@
       "path" : [
         "File",
         "Open Recent",
-        "AutographeCore"
+        "Recent item 2"
       ],
-      "title" : "AutographeCore"
+      "title" : "Recent item 2"
     },
     {
       "cmdModifiers" : 0,
@@ -3626,9 +3626,9 @@
       "path" : [
         "File",
         "Open Recent",
-        "SPEEM.xcodeproj"
+        "Recent item 3"
       ],
-      "title" : "SPEEM.xcodeproj"
+      "title" : "Recent item 3"
     },
     {
       "cmdModifiers" : 0,
@@ -3636,9 +3636,9 @@
       "path" : [
         "File",
         "Open Recent",
-        "XCommander.xcodeproj"
+        "Recent item 4"
       ],
-      "title" : "XCommander.xcodeproj"
+      "title" : "Recent item 4"
     },
     {
       "cmdModifiers" : 0,
@@ -3646,9 +3646,9 @@
       "path" : [
         "File",
         "Open Recent",
-        "XCommanderCore"
+        "Recent item 5"
       ],
-      "title" : "XCommanderCore"
+      "title" : "Recent item 5"
     },
     {
       "cmdModifiers" : 0,
@@ -5034,9 +5034,9 @@
       "path" : [
         "Product",
         "Destination",
-        "Any Mac (arm64, x86_64)"
+        "Run destination 1"
       ],
-      "title" : "Any Mac (arm64, x86_64)"
+      "title" : "Run destination 1"
     },
     {
       "cmdModifiers" : 0,
@@ -5076,9 +5076,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "SPEEM iPad Air 13 (M3) (mismatched platform) 26.0"
+        "Run destination 2"
       ],
-      "title" : "SPEEM iPad Air 13 (M3) (mismatched platform) 26.0"
+      "title" : "Run destination 2"
     },
     {
       "cmdModifiers" : 0,
@@ -5087,9 +5087,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "Tamim AR (26.2) (mismatched platform) 26.2"
+        "Run destination 3"
       ],
-      "title" : "Tamim AR (26.2) (mismatched platform) 26.2"
+      "title" : "Run destination 3"
     },
     {
       "cmdModifiers" : 0,
@@ -5098,9 +5098,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "Tamim EN (26.2) (mismatched platform) 26.2"
+        "Run destination 4"
       ],
-      "title" : "Tamim EN (26.2) (mismatched platform) 26.2"
+      "title" : "Run destination 4"
     },
     {
       "cmdModifiers" : 0,
@@ -5109,9 +5109,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "Tamim iPad AR (26.2) (mismatched platform) 26.2"
+        "Run destination 5"
       ],
-      "title" : "Tamim iPad AR (26.2) (mismatched platform) 26.2"
+      "title" : "Run destination 5"
     },
     {
       "cmdModifiers" : 0,
@@ -5120,9 +5120,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "Tamim iPad EN (26.2) (mismatched platform) 26.2"
+        "Run destination 6"
       ],
-      "title" : "Tamim iPad EN (26.2) (mismatched platform) 26.2"
+      "title" : "Run destination 6"
     },
     {
       "cmdModifiers" : 0,
@@ -5131,9 +5131,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "Wassim AR (26.2) (mismatched platform) 26.2"
+        "Run destination 7"
       ],
-      "title" : "Wassim AR (26.2) (mismatched platform) 26.2"
+      "title" : "Run destination 7"
     },
     {
       "cmdModifiers" : 0,
@@ -5142,9 +5142,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "Wassim EN (26.2) (mismatched platform) 26.2"
+        "Run destination 8"
       ],
-      "title" : "Wassim EN (26.2) (mismatched platform) 26.2"
+      "title" : "Run destination 8"
     },
     {
       "cmdModifiers" : 0,
@@ -5153,9 +5153,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "Wassim iPad AR (26.2) (mismatched platform) 26.2"
+        "Run destination 9"
       ],
-      "title" : "Wassim iPad AR (26.2) (mismatched platform) 26.2"
+      "title" : "Run destination 9"
     },
     {
       "cmdModifiers" : 0,
@@ -5164,9 +5164,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "Wassim iPad EN (26.2) (mismatched platform) 26.2"
+        "Run destination 10"
       ],
-      "title" : "Wassim iPad EN (26.2) (mismatched platform) 26.2"
+      "title" : "Run destination 10"
     },
     {
       "cmdModifiers" : 0,
@@ -5175,9 +5175,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "Wassim’s iPhone (mismatched platform) 27.0"
+        "Run destination 11"
       ],
-      "title" : "Wassim’s iPhone (mismatched platform) 27.0"
+      "title" : "Run destination 11"
     },
     {
       "cmdModifiers" : 0,
@@ -5186,9 +5186,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad (A16) (18.4) (mismatched platform) 18.4"
+        "Run destination 12"
       ],
-      "title" : "iPad (A16) (18.4) (mismatched platform) 18.4"
+      "title" : "Run destination 12"
     },
     {
       "cmdModifiers" : 0,
@@ -5197,9 +5197,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad (A16) (18.5) (mismatched platform) 18.5"
+        "Run destination 13"
       ],
-      "title" : "iPad (A16) (18.5) (mismatched platform) 18.5"
+      "title" : "Run destination 13"
     },
     {
       "cmdModifiers" : 0,
@@ -5208,9 +5208,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad (A16) (26.0) (mismatched platform) 26.0"
+        "Run destination 14"
       ],
-      "title" : "iPad (A16) (26.0) (mismatched platform) 26.0"
+      "title" : "Run destination 14"
     },
     {
       "cmdModifiers" : 0,
@@ -5219,9 +5219,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad (A16) (26.1) (mismatched platform) 26.1"
+        "Run destination 15"
       ],
-      "title" : "iPad (A16) (26.1) (mismatched platform) 26.1"
+      "title" : "Run destination 15"
     },
     {
       "cmdModifiers" : 0,
@@ -5230,9 +5230,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad (A16) (26.2) (mismatched platform) 26.2"
+        "Run destination 16"
       ],
-      "title" : "iPad (A16) (26.2) (mismatched platform) 26.2"
+      "title" : "Run destination 16"
     },
     {
       "cmdModifiers" : 0,
@@ -5241,9 +5241,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad (A16) (26.4.1) (mismatched platform) 26.4.1"
+        "Run destination 17"
       ],
-      "title" : "iPad (A16) (26.4.1) (mismatched platform) 26.4.1"
+      "title" : "Run destination 17"
     },
     {
       "cmdModifiers" : 0,
@@ -5252,9 +5252,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad (A16) (26.5) (mismatched platform) 26.5"
+        "Run destination 18"
       ],
-      "title" : "iPad (A16) (26.5) (mismatched platform) 26.5"
+      "title" : "Run destination 18"
     },
     {
       "cmdModifiers" : 0,
@@ -5263,9 +5263,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad (A16) (27.0) (mismatched platform) 27.0"
+        "Run destination 19"
       ],
-      "title" : "iPad (A16) (27.0) (mismatched platform) 27.0"
+      "title" : "Run destination 19"
     },
     {
       "cmdModifiers" : 0,
@@ -5274,9 +5274,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Air 11-inch (M3) (18.4) (mismatched platform) 18.4"
+        "Run destination 20"
       ],
-      "title" : "iPad Air 11-inch (M3) (18.4) (mismatched platform) 18.4"
+      "title" : "Run destination 20"
     },
     {
       "cmdModifiers" : 0,
@@ -5285,9 +5285,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Air 11-inch (M3) (18.5) (mismatched platform) 18.5"
+        "Run destination 21"
       ],
-      "title" : "iPad Air 11-inch (M3) (18.5) (mismatched platform) 18.5"
+      "title" : "Run destination 21"
     },
     {
       "cmdModifiers" : 0,
@@ -5296,9 +5296,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Air 11-inch (M3) (26.0) (mismatched platform) 26.0"
+        "Run destination 22"
       ],
-      "title" : "iPad Air 11-inch (M3) (26.0) (mismatched platform) 26.0"
+      "title" : "Run destination 22"
     },
     {
       "cmdModifiers" : 0,
@@ -5307,9 +5307,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Air 11-inch (M3) (26.1) (mismatched platform) 26.1"
+        "Run destination 23"
       ],
-      "title" : "iPad Air 11-inch (M3) (26.1) (mismatched platform) 26.1"
+      "title" : "Run destination 23"
     },
     {
       "cmdModifiers" : 0,
@@ -5318,9 +5318,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Air 11-inch (M3) (26.2) (mismatched platform) 26.2"
+        "Run destination 24"
       ],
-      "title" : "iPad Air 11-inch (M3) (26.2) (mismatched platform) 26.2"
+      "title" : "Run destination 24"
     },
     {
       "cmdModifiers" : 0,
@@ -5329,9 +5329,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Air 11-inch (M4) (26.4.1) (mismatched platform) 26.4.1"
+        "Run destination 25"
       ],
-      "title" : "iPad Air 11-inch (M4) (26.4.1) (mismatched platform) 26.4.1"
+      "title" : "Run destination 25"
     },
     {
       "cmdModifiers" : 0,
@@ -5340,9 +5340,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Air 11-inch (M4) (26.5) (mismatched platform) 26.5"
+        "Run destination 26"
       ],
-      "title" : "iPad Air 11-inch (M4) (26.5) (mismatched platform) 26.5"
+      "title" : "Run destination 26"
     },
     {
       "cmdModifiers" : 0,
@@ -5351,9 +5351,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Air 11-inch (M4) (27.0) (mismatched platform) 27.0"
+        "Run destination 27"
       ],
-      "title" : "iPad Air 11-inch (M4) (27.0) (mismatched platform) 27.0"
+      "title" : "Run destination 27"
     },
     {
       "cmdModifiers" : 0,
@@ -5362,9 +5362,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Air 13-inch (M3) (18.4) (mismatched platform) 18.4"
+        "Run destination 28"
       ],
-      "title" : "iPad Air 13-inch (M3) (18.4) (mismatched platform) 18.4"
+      "title" : "Run destination 28"
     },
     {
       "cmdModifiers" : 0,
@@ -5373,9 +5373,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Air 13-inch (M3) (18.5) (mismatched platform) 18.5"
+        "Run destination 29"
       ],
-      "title" : "iPad Air 13-inch (M3) (18.5) (mismatched platform) 18.5"
+      "title" : "Run destination 29"
     },
     {
       "cmdModifiers" : 0,
@@ -5384,9 +5384,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Air 13-inch (M3) (26.0) (mismatched platform) 26.0"
+        "Run destination 30"
       ],
-      "title" : "iPad Air 13-inch (M3) (26.0) (mismatched platform) 26.0"
+      "title" : "Run destination 30"
     },
     {
       "cmdModifiers" : 0,
@@ -5395,9 +5395,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Air 13-inch (M3) (26.1) (mismatched platform) 26.1"
+        "Run destination 31"
       ],
-      "title" : "iPad Air 13-inch (M3) (26.1) (mismatched platform) 26.1"
+      "title" : "Run destination 31"
     },
     {
       "cmdModifiers" : 0,
@@ -5406,9 +5406,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Air 13-inch (M3) (26.2) (mismatched platform) 26.2"
+        "Run destination 32"
       ],
-      "title" : "iPad Air 13-inch (M3) (26.2) (mismatched platform) 26.2"
+      "title" : "Run destination 32"
     },
     {
       "cmdModifiers" : 0,
@@ -5417,9 +5417,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Air 13-inch (M4) (26.4.1) (mismatched platform) 26.4.1"
+        "Run destination 33"
       ],
-      "title" : "iPad Air 13-inch (M4) (26.4.1) (mismatched platform) 26.4.1"
+      "title" : "Run destination 33"
     },
     {
       "cmdModifiers" : 0,
@@ -5428,9 +5428,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Air 13-inch (M4) (26.5) (mismatched platform) 26.5"
+        "Run destination 34"
       ],
-      "title" : "iPad Air 13-inch (M4) (26.5) (mismatched platform) 26.5"
+      "title" : "Run destination 34"
     },
     {
       "cmdModifiers" : 0,
@@ -5439,9 +5439,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Air 13-inch (M4) (27.0) (mismatched platform) 27.0"
+        "Run destination 35"
       ],
-      "title" : "iPad Air 13-inch (M4) (27.0) (mismatched platform) 27.0"
+      "title" : "Run destination 35"
     },
     {
       "cmdModifiers" : 0,
@@ -5450,9 +5450,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Pro 11-inch (M4) (18.4) (mismatched platform) 18.4"
+        "Run destination 36"
       ],
-      "title" : "iPad Pro 11-inch (M4) (18.4) (mismatched platform) 18.4"
+      "title" : "Run destination 36"
     },
     {
       "cmdModifiers" : 0,
@@ -5461,9 +5461,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Pro 11-inch (M4) (18.5) (mismatched platform) 18.5"
+        "Run destination 37"
       ],
-      "title" : "iPad Pro 11-inch (M4) (18.5) (mismatched platform) 18.5"
+      "title" : "Run destination 37"
     },
     {
       "cmdModifiers" : 0,
@@ -5472,9 +5472,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Pro 11-inch (M4) (26.0) (mismatched platform) 26.0"
+        "Run destination 38"
       ],
-      "title" : "iPad Pro 11-inch (M4) (26.0) (mismatched platform) 26.0"
+      "title" : "Run destination 38"
     },
     {
       "cmdModifiers" : 0,
@@ -5483,9 +5483,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Pro 11-inch (M5) (26.0) (mismatched platform) 26.0"
+        "Run destination 39"
       ],
-      "title" : "iPad Pro 11-inch (M5) (26.0) (mismatched platform) 26.0"
+      "title" : "Run destination 39"
     },
     {
       "cmdModifiers" : 0,
@@ -5494,9 +5494,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Pro 11-inch (M5) (26.1) (mismatched platform) 26.1"
+        "Run destination 40"
       ],
-      "title" : "iPad Pro 11-inch (M5) (26.1) (mismatched platform) 26.1"
+      "title" : "Run destination 40"
     },
     {
       "cmdModifiers" : 0,
@@ -5505,9 +5505,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Pro 11-inch (M5) (26.2) (mismatched platform) 26.2"
+        "Run destination 41"
       ],
-      "title" : "iPad Pro 11-inch (M5) (26.2) (mismatched platform) 26.2"
+      "title" : "Run destination 41"
     },
     {
       "cmdModifiers" : 0,
@@ -5516,9 +5516,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Pro 11-inch (M5) (26.4.1) (mismatched platform) 26.4.1"
+        "Run destination 42"
       ],
-      "title" : "iPad Pro 11-inch (M5) (26.4.1) (mismatched platform) 26.4.1"
+      "title" : "Run destination 42"
     },
     {
       "cmdModifiers" : 0,
@@ -5527,9 +5527,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Pro 11-inch (M5) (26.5) (mismatched platform) 26.5"
+        "Run destination 43"
       ],
-      "title" : "iPad Pro 11-inch (M5) (26.5) (mismatched platform) 26.5"
+      "title" : "Run destination 43"
     },
     {
       "cmdModifiers" : 0,
@@ -5538,9 +5538,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Pro 11-inch (M5) (27.0) (mismatched platform) 27.0"
+        "Run destination 44"
       ],
-      "title" : "iPad Pro 11-inch (M5) (27.0) (mismatched platform) 27.0"
+      "title" : "Run destination 44"
     },
     {
       "cmdModifiers" : 0,
@@ -5549,9 +5549,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Pro 13-inch (M4) (18.4) (mismatched platform) 18.4"
+        "Run destination 45"
       ],
-      "title" : "iPad Pro 13-inch (M4) (18.4) (mismatched platform) 18.4"
+      "title" : "Run destination 45"
     },
     {
       "cmdModifiers" : 0,
@@ -5560,9 +5560,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Pro 13-inch (M4) (18.5) (mismatched platform) 18.5"
+        "Run destination 46"
       ],
-      "title" : "iPad Pro 13-inch (M4) (18.5) (mismatched platform) 18.5"
+      "title" : "Run destination 46"
     },
     {
       "cmdModifiers" : 0,
@@ -5571,9 +5571,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Pro 13-inch (M4) (26.0) (mismatched platform) 26.0"
+        "Run destination 47"
       ],
-      "title" : "iPad Pro 13-inch (M4) (26.0) (mismatched platform) 26.0"
+      "title" : "Run destination 47"
     },
     {
       "cmdModifiers" : 0,
@@ -5582,9 +5582,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Pro 13-inch (M5) (26.0) (mismatched platform) 26.0"
+        "Run destination 48"
       ],
-      "title" : "iPad Pro 13-inch (M5) (26.0) (mismatched platform) 26.0"
+      "title" : "Run destination 48"
     },
     {
       "cmdModifiers" : 0,
@@ -5593,9 +5593,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Pro 13-inch (M5) (26.1) (mismatched platform) 26.1"
+        "Run destination 49"
       ],
-      "title" : "iPad Pro 13-inch (M5) (26.1) (mismatched platform) 26.1"
+      "title" : "Run destination 49"
     },
     {
       "cmdModifiers" : 0,
@@ -5604,9 +5604,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Pro 13-inch (M5) (26.2) (mismatched platform) 26.2"
+        "Run destination 50"
       ],
-      "title" : "iPad Pro 13-inch (M5) (26.2) (mismatched platform) 26.2"
+      "title" : "Run destination 50"
     },
     {
       "cmdModifiers" : 0,
@@ -5615,9 +5615,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Pro 13-inch (M5) (26.4.1) (mismatched platform) 26.4.1"
+        "Run destination 51"
       ],
-      "title" : "iPad Pro 13-inch (M5) (26.4.1) (mismatched platform) 26.4.1"
+      "title" : "Run destination 51"
     },
     {
       "cmdModifiers" : 0,
@@ -5626,9 +5626,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Pro 13-inch (M5) (26.5) (mismatched platform) 26.5"
+        "Run destination 52"
       ],
-      "title" : "iPad Pro 13-inch (M5) (26.5) (mismatched platform) 26.5"
+      "title" : "Run destination 52"
     },
     {
       "cmdModifiers" : 0,
@@ -5637,9 +5637,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad Pro 13-inch (M5) (27.0) (mismatched platform) 27.0"
+        "Run destination 53"
       ],
-      "title" : "iPad Pro 13-inch (M5) (27.0) (mismatched platform) 27.0"
+      "title" : "Run destination 53"
     },
     {
       "cmdModifiers" : 0,
@@ -5648,9 +5648,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad mini (A17 Pro) (18.4) (mismatched platform) 18.4"
+        "Run destination 54"
       ],
-      "title" : "iPad mini (A17 Pro) (18.4) (mismatched platform) 18.4"
+      "title" : "Run destination 54"
     },
     {
       "cmdModifiers" : 0,
@@ -5659,9 +5659,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad mini (A17 Pro) (18.5) (mismatched platform) 18.5"
+        "Run destination 55"
       ],
-      "title" : "iPad mini (A17 Pro) (18.5) (mismatched platform) 18.5"
+      "title" : "Run destination 55"
     },
     {
       "cmdModifiers" : 0,
@@ -5670,9 +5670,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad mini (A17 Pro) (26.0) (mismatched platform) 26.0"
+        "Run destination 56"
       ],
-      "title" : "iPad mini (A17 Pro) (26.0) (mismatched platform) 26.0"
+      "title" : "Run destination 56"
     },
     {
       "cmdModifiers" : 0,
@@ -5681,9 +5681,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad mini (A17 Pro) (26.1) (mismatched platform) 26.1"
+        "Run destination 57"
       ],
-      "title" : "iPad mini (A17 Pro) (26.1) (mismatched platform) 26.1"
+      "title" : "Run destination 57"
     },
     {
       "cmdModifiers" : 0,
@@ -5692,9 +5692,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad mini (A17 Pro) (26.2) (mismatched platform) 26.2"
+        "Run destination 58"
       ],
-      "title" : "iPad mini (A17 Pro) (26.2) (mismatched platform) 26.2"
+      "title" : "Run destination 58"
     },
     {
       "cmdModifiers" : 0,
@@ -5703,9 +5703,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad mini (A17 Pro) (26.4.1) (mismatched platform) 26.4.1"
+        "Run destination 59"
       ],
-      "title" : "iPad mini (A17 Pro) (26.4.1) (mismatched platform) 26.4.1"
+      "title" : "Run destination 59"
     },
     {
       "cmdModifiers" : 0,
@@ -5714,9 +5714,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad mini (A17 Pro) (26.5) (mismatched platform) 26.5"
+        "Run destination 60"
       ],
-      "title" : "iPad mini (A17 Pro) (26.5) (mismatched platform) 26.5"
+      "title" : "Run destination 60"
     },
     {
       "cmdModifiers" : 0,
@@ -5725,9 +5725,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPad mini (A17 Pro) (27.0) (mismatched platform) 27.0"
+        "Run destination 61"
       ],
-      "title" : "iPad mini (A17 Pro) (27.0) (mismatched platform) 27.0"
+      "title" : "Run destination 61"
     },
     {
       "cmdModifiers" : 0,
@@ -5736,9 +5736,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 16 (18.4) (mismatched platform) 18.4"
+        "Run destination 62"
       ],
-      "title" : "iPhone 16 (18.4) (mismatched platform) 18.4"
+      "title" : "Run destination 62"
     },
     {
       "cmdModifiers" : 0,
@@ -5747,9 +5747,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 16 (18.5) (mismatched platform) 18.5"
+        "Run destination 63"
       ],
-      "title" : "iPhone 16 (18.5) (mismatched platform) 18.5"
+      "title" : "Run destination 63"
     },
     {
       "cmdModifiers" : 0,
@@ -5758,9 +5758,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 16 Plus (18.4) (mismatched platform) 18.4"
+        "Run destination 64"
       ],
-      "title" : "iPhone 16 Plus (18.4) (mismatched platform) 18.4"
+      "title" : "Run destination 64"
     },
     {
       "cmdModifiers" : 0,
@@ -5769,9 +5769,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 16 Plus (18.5) (mismatched platform) 18.5"
+        "Run destination 65"
       ],
-      "title" : "iPhone 16 Plus (18.5) (mismatched platform) 18.5"
+      "title" : "Run destination 65"
     },
     {
       "cmdModifiers" : 0,
@@ -5780,9 +5780,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 16 Pro (18.4) (mismatched platform) 18.4"
+        "Run destination 66"
       ],
-      "title" : "iPhone 16 Pro (18.4) (mismatched platform) 18.4"
+      "title" : "Run destination 66"
     },
     {
       "cmdModifiers" : 0,
@@ -5791,9 +5791,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 16 Pro (18.5) (mismatched platform) 18.5"
+        "Run destination 67"
       ],
-      "title" : "iPhone 16 Pro (18.5) (mismatched platform) 18.5"
+      "title" : "Run destination 67"
     },
     {
       "cmdModifiers" : 0,
@@ -5802,9 +5802,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 16 Pro Max (18.4) (mismatched platform) 18.4"
+        "Run destination 68"
       ],
-      "title" : "iPhone 16 Pro Max (18.4) (mismatched platform) 18.4"
+      "title" : "Run destination 68"
     },
     {
       "cmdModifiers" : 0,
@@ -5813,9 +5813,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 16 Pro Max (18.5) (mismatched platform) 18.5"
+        "Run destination 69"
       ],
-      "title" : "iPhone 16 Pro Max (18.5) (mismatched platform) 18.5"
+      "title" : "Run destination 69"
     },
     {
       "cmdModifiers" : 0,
@@ -5824,9 +5824,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 16e (18.4) (mismatched platform) 18.4"
+        "Run destination 70"
       ],
-      "title" : "iPhone 16e (18.4) (mismatched platform) 18.4"
+      "title" : "Run destination 70"
     },
     {
       "cmdModifiers" : 0,
@@ -5835,9 +5835,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 16e (18.5) (mismatched platform) 18.5"
+        "Run destination 71"
       ],
-      "title" : "iPhone 16e (18.5) (mismatched platform) 18.5"
+      "title" : "Run destination 71"
     },
     {
       "cmdModifiers" : 0,
@@ -5846,9 +5846,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 16e (26.0) (mismatched platform) 26.0"
+        "Run destination 72"
       ],
-      "title" : "iPhone 16e (26.0) (mismatched platform) 26.0"
+      "title" : "Run destination 72"
     },
     {
       "cmdModifiers" : 0,
@@ -5857,9 +5857,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 16e (26.1) (mismatched platform) 26.1"
+        "Run destination 73"
       ],
-      "title" : "iPhone 16e (26.1) (mismatched platform) 26.1"
+      "title" : "Run destination 73"
     },
     {
       "cmdModifiers" : 0,
@@ -5868,9 +5868,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 16e (26.2) (mismatched platform) 26.2"
+        "Run destination 74"
       ],
-      "title" : "iPhone 16e (26.2) (mismatched platform) 26.2"
+      "title" : "Run destination 74"
     },
     {
       "cmdModifiers" : 0,
@@ -5879,9 +5879,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 17 (26.0) (mismatched platform) 26.0"
+        "Run destination 75"
       ],
-      "title" : "iPhone 17 (26.0) (mismatched platform) 26.0"
+      "title" : "Run destination 75"
     },
     {
       "cmdModifiers" : 0,
@@ -5890,9 +5890,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 17 (26.1) (mismatched platform) 26.1"
+        "Run destination 76"
       ],
-      "title" : "iPhone 17 (26.1) (mismatched platform) 26.1"
+      "title" : "Run destination 76"
     },
     {
       "cmdModifiers" : 0,
@@ -5901,9 +5901,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 17 (26.2) (mismatched platform) 26.2"
+        "Run destination 77"
       ],
-      "title" : "iPhone 17 (26.2) (mismatched platform) 26.2"
+      "title" : "Run destination 77"
     },
     {
       "cmdModifiers" : 0,
@@ -5912,9 +5912,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 17 (26.4.1) (mismatched platform) 26.4.1"
+        "Run destination 78"
       ],
-      "title" : "iPhone 17 (26.4.1) (mismatched platform) 26.4.1"
+      "title" : "Run destination 78"
     },
     {
       "cmdModifiers" : 0,
@@ -5923,9 +5923,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 17 (26.5) (mismatched platform) 26.5"
+        "Run destination 79"
       ],
-      "title" : "iPhone 17 (26.5) (mismatched platform) 26.5"
+      "title" : "Run destination 79"
     },
     {
       "cmdModifiers" : 0,
@@ -5934,9 +5934,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 17 (27.0) (mismatched platform) 27.0"
+        "Run destination 80"
       ],
-      "title" : "iPhone 17 (27.0) (mismatched platform) 27.0"
+      "title" : "Run destination 80"
     },
     {
       "cmdModifiers" : 0,
@@ -5945,9 +5945,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 17 Pro (26.0) (mismatched platform) 26.0"
+        "Run destination 81"
       ],
-      "title" : "iPhone 17 Pro (26.0) (mismatched platform) 26.0"
+      "title" : "Run destination 81"
     },
     {
       "cmdModifiers" : 0,
@@ -5956,9 +5956,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 17 Pro (26.1) (mismatched platform) 26.1"
+        "Run destination 82"
       ],
-      "title" : "iPhone 17 Pro (26.1) (mismatched platform) 26.1"
+      "title" : "Run destination 82"
     },
     {
       "cmdModifiers" : 0,
@@ -5967,9 +5967,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 17 Pro (26.2) (mismatched platform) 26.2"
+        "Run destination 83"
       ],
-      "title" : "iPhone 17 Pro (26.2) (mismatched platform) 26.2"
+      "title" : "Run destination 83"
     },
     {
       "cmdModifiers" : 0,
@@ -5978,9 +5978,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 17 Pro (26.4.1) (mismatched platform) 26.4.1"
+        "Run destination 84"
       ],
-      "title" : "iPhone 17 Pro (26.4.1) (mismatched platform) 26.4.1"
+      "title" : "Run destination 84"
     },
     {
       "cmdModifiers" : 0,
@@ -5989,9 +5989,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 17 Pro (26.5) (mismatched platform) 26.5"
+        "Run destination 85"
       ],
-      "title" : "iPhone 17 Pro (26.5) (mismatched platform) 26.5"
+      "title" : "Run destination 85"
     },
     {
       "cmdModifiers" : 0,
@@ -6000,9 +6000,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 17 Pro Max (26.0) (mismatched platform) 26.0"
+        "Run destination 86"
       ],
-      "title" : "iPhone 17 Pro Max (26.0) (mismatched platform) 26.0"
+      "title" : "Run destination 86"
     },
     {
       "cmdModifiers" : 0,
@@ -6011,9 +6011,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 17 Pro Max (26.1) (mismatched platform) 26.1"
+        "Run destination 87"
       ],
-      "title" : "iPhone 17 Pro Max (26.1) (mismatched platform) 26.1"
+      "title" : "Run destination 87"
     },
     {
       "cmdModifiers" : 0,
@@ -6022,9 +6022,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 17 Pro Max (26.2) (mismatched platform) 26.2"
+        "Run destination 88"
       ],
-      "title" : "iPhone 17 Pro Max (26.2) (mismatched platform) 26.2"
+      "title" : "Run destination 88"
     },
     {
       "cmdModifiers" : 0,
@@ -6033,9 +6033,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 17 Pro Max (26.4.1) (mismatched platform) 26.4.1"
+        "Run destination 89"
       ],
-      "title" : "iPhone 17 Pro Max (26.4.1) (mismatched platform) 26.4.1"
+      "title" : "Run destination 89"
     },
     {
       "cmdModifiers" : 0,
@@ -6044,9 +6044,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 17 Pro Max (26.5) (mismatched platform) 26.5"
+        "Run destination 90"
       ],
-      "title" : "iPhone 17 Pro Max (26.5) (mismatched platform) 26.5"
+      "title" : "Run destination 90"
     },
     {
       "cmdModifiers" : 0,
@@ -6055,9 +6055,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 17e (26.4.1) (mismatched platform) 26.4.1"
+        "Run destination 91"
       ],
-      "title" : "iPhone 17e (26.4.1) (mismatched platform) 26.4.1"
+      "title" : "Run destination 91"
     },
     {
       "cmdModifiers" : 0,
@@ -6066,9 +6066,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 17e (26.5) (mismatched platform) 26.5"
+        "Run destination 92"
       ],
-      "title" : "iPhone 17e (26.5) (mismatched platform) 26.5"
+      "title" : "Run destination 92"
     },
     {
       "cmdModifiers" : 0,
@@ -6077,9 +6077,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 17e (27.0) (mismatched platform) 27.0"
+        "Run destination 93"
       ],
-      "title" : "iPhone 17e (27.0) (mismatched platform) 27.0"
+      "title" : "Run destination 93"
     },
     {
       "cmdModifiers" : 0,
@@ -6088,9 +6088,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 18 Pro (mismatched platform) 27.0"
+        "Run destination 94"
       ],
-      "title" : "iPhone 18 Pro (mismatched platform) 27.0"
+      "title" : "Run destination 94"
     },
     {
       "cmdModifiers" : 0,
@@ -6099,9 +6099,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone 18 Pro Max (mismatched platform) 27.0"
+        "Run destination 95"
       ],
-      "title" : "iPhone 18 Pro Max (mismatched platform) 27.0"
+      "title" : "Run destination 95"
     },
     {
       "cmdModifiers" : 0,
@@ -6110,9 +6110,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone Air (26.0) (mismatched platform) 26.0"
+        "Run destination 96"
       ],
-      "title" : "iPhone Air (26.0) (mismatched platform) 26.0"
+      "title" : "Run destination 96"
     },
     {
       "cmdModifiers" : 0,
@@ -6121,9 +6121,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone Air (26.1) (mismatched platform) 26.1"
+        "Run destination 97"
       ],
-      "title" : "iPhone Air (26.1) (mismatched platform) 26.1"
+      "title" : "Run destination 97"
     },
     {
       "cmdModifiers" : 0,
@@ -6132,9 +6132,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone Air (26.2) (mismatched platform) 26.2"
+        "Run destination 98"
       ],
-      "title" : "iPhone Air (26.2) (mismatched platform) 26.2"
+      "title" : "Run destination 98"
     },
     {
       "cmdModifiers" : 0,
@@ -6143,9 +6143,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone Air (26.4.1) (mismatched platform) 26.4.1"
+        "Run destination 99"
       ],
-      "title" : "iPhone Air (26.4.1) (mismatched platform) 26.4.1"
+      "title" : "Run destination 99"
     },
     {
       "cmdModifiers" : 0,
@@ -6154,9 +6154,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone Air (26.5) (mismatched platform) 26.5"
+        "Run destination 100"
       ],
-      "title" : "iPhone Air (26.5) (mismatched platform) 26.5"
+      "title" : "Run destination 100"
     },
     {
       "cmdModifiers" : 0,
@@ -6165,9 +6165,9 @@
         "Product",
         "Destination",
         "Incompatible",
-        "iPhone Air (27.0) (mismatched platform) 27.0"
+        "Run destination 101"
       ],
-      "title" : "iPhone Air (27.0) (mismatched platform) 27.0"
+      "title" : "Run destination 101"
     },
     {
       "cmdChar" : "É",
@@ -6186,9 +6186,9 @@
       "path" : [
         "Product",
         "Destination",
-        "My Mac 26.6.2"
+        "Run destination 102"
       ],
-      "title" : "My Mac 26.6.2"
+      "title" : "Run destination 102"
     },
     {
       "cmdChar" : "$",
@@ -6507,9 +6507,9 @@
       "path" : [
         "Product",
         "Scheme",
-        "XCommander"
+        "Scheme 1"
       ],
-      "title" : "XCommander"
+      "title" : "Scheme 1"
     },
     {
       "cmdModifiers" : 0,
@@ -6517,9 +6517,9 @@
       "path" : [
         "Product",
         "Scheme",
-        "XCommanderCore"
+        "Scheme 2"
       ],
-      "title" : "XCommanderCore"
+      "title" : "Scheme 2"
     },
     {
       "cmdModifiers" : 0,
@@ -7486,9 +7486,9 @@
       "identifier" : "_activateWorkspaceWindowController:",
       "path" : [
         "Window",
-        "XCommander — 0 mach_msg2_trap"
+        "Window 1"
       ],
-      "title" : "XCommander — 0 mach_msg2_trap"
+      "title" : "Window 1"
     },
     {
       "cmdModifiers" : 0,

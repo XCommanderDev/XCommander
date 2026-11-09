@@ -14,7 +14,7 @@ let package = Package(
         .library(name: "XCommanderCore", targets: ["XCommanderCore"]),
         .library(name: "CIndexStore", targets: ["CIndexStore"]),
         .library(name: "CSourceKit", targets: ["CSourceKit"]),
-        // The AX menu walk, shared by the app and the maintainer's CLI so that both see
+        // The AX menu walk, shared by the app and xcmdr so that both see
         // exactly the same menu bar. An audit of something other than what ships is worthless.
         .library(name: "XcodeMenus", targets: ["XcodeMenus"]),
         .executable(name: "Companion", targets: ["Companion"]),

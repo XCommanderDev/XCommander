@@ -24,8 +24,8 @@ internals.
   problems.
 - **[Configuration](configuration.md)**: the `config.toml` format, for users and for working on
   the config code.
-- **[Surviving Xcode upgrades](xcode-upgrades.md)**: how the app absorbs Xcode changes, and the
-  checklist for a new Xcode.
+- **[Surviving Xcode upgrades](xcode-upgrades.md)**: how the app absorbs Xcode changes, the
+  `xcmdr` tool, and how to help with an Xcode beta.
 - **[Decisions](decisions.md)**: why things are the way they are.
 
 ## A first week with the code
@@ -36,7 +36,7 @@ two: read the files, read their tests, change something, watch a test fail, put 
 | Day | Read | Try |
 |---|---|---|
 | 1 | `Companion/main.swift`, `AppDelegate.applicationDidFinishLaunching`, `MenuBarController` | Run the app, change the text of a menu item |
-| 2 | `EventTap.swift`, `AppDelegate.handleKey`, `EventBridge`, `KeyIdentity` | Log every key the tap sees while Xcode is in front |
+| 2 | `EventTap.swift`, `AppDelegate.handleKey`, `EventBridge`, `KeyIdentity` | Write a test that feeds `KeymapSession` a sequence and checks each decision |
 | 3 | `KeymapSession`, `Keymap`, `DefaultKeymap` and their tests | Add a binding, then add a test for it |
 | 4 | `OverlayController`, `WindowTracker` | Change the panel's delay or position |
 | 5 | `XcodeContext`, `CommandExecutor`, `MenuScanner` | Bind a menu item that isn't bound yet, found with `xcmdr list` |
