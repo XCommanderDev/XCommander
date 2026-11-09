@@ -5,7 +5,7 @@
 Press <kbd>⌥</kbd><kbd>↩</kbd> in Xcode and a which-key panel shows what comes next: a mnemonic tree of commands for menus, panes, navigators and buffers.
 
 > [!IMPORTANT]
-> XCommander is a work in progress, not a product yet. It works, I use it every day, and it still has rough edges. There is nothing to download: you build it yourself for now.
+> XCommander is an early alpha. It works, I use it every day, and it still has rough edges. [Download it](https://github.com/XCommanderDev/XCommander/releases) (signed and notarized), then follow [Getting started](https://xcommander.dev/docs/getting-started). The [documentation](https://xcommander.dev/docs) has a hands-on tour and the full command reference.
 
 ## Why
 
@@ -87,6 +87,7 @@ Official builds are published on this repository's [Releases](https://github.com
 
 ## Follow along
 
+- Documentation: [xcommander.dev/docs](https://xcommander.dev/docs)
 - Build log: [xcommander.dev/weblog](https://xcommander.dev/weblog/) ([RSS](https://xcommander.dev/weblog.rss))
 - Mastodon: [@xcommander@mastodon.social](https://mastodon.social/@xcommander)
 

@@ -19,6 +19,7 @@ import XcodeMenus
 //   xcmdr resolve <identifier>       where does this action live right now
 //   xcmdr popups                     check the toolbar popups Xcode hides commands in
 //   xcmdr builds                     which Xcodes this machine has recorded
+//   xcmdr reference [--snapshot f]   the website's command reference, as Markdown
 //
 // With several Xcodes running, `--xcode PATH` says which one; otherwise the app's own rule
 // picks, and the choice is printed.
@@ -75,6 +76,7 @@ func usage() -> Never {
       xcmdr press BUTTON IDENTIFIER         press one popup item (drives Xcode)
       xcmdr run IDENTIFIER                  press one menu item (drives Xcode)
       xcmdr builds                          Xcodes recorded on this machine
+      xcmdr reference [-o FILE]             the website's command reference page
 
     OPTIONS
       --snapshot FILE   audit against a file instead of the running Xcode
@@ -589,6 +591,22 @@ case "builds":
         // Unsettled means no scan with an editor focused yet: nothing is hidden or reported.
         let settled = snapshot.isSettled ? "settled" : "unsettled"
         emit("\(build)  Xcode \(snapshot.release.version)  \(snapshot.entries.count) items  \(settled)  last seen \(snapshot.capturedAt)")
+    }
+
+// MARK: - reference
+
+case "reference":
+    let (registry, keymap) = DefaultKeymap.build()
+    let snapshot = snapshotSource(args, context: "xcmdr reference")
+    let page = ReferencePage(registry: registry, keymap: keymap,
+                             catalogue: MenuCatalogue(snapshot),
+                             xcodeVersion: snapshot.release.version).render()
+    if let path = args.value("output", "o") {
+        do { try page.write(toFile: path, atomically: true, encoding: .utf8) }
+        catch { fail("cannot write \(path): \(error)") }
+        err.write("wrote \(path)\n".data(using: .utf8)!)
+    } else {
+        emit(page)
     }
 
 case "help", "--help", "-h":

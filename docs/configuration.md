@@ -1,5 +1,7 @@
 # Configuration
 
+> For users, the same guide is on the website: [xcommander.dev/docs/configuration](https://xcommander.dev/docs/configuration). This page adds how it works inside.
+
 XCommander works without any configuration. When you want to change a binding, add your own, or
 pick another leader key, you write a small TOML file. Changes apply as soon as you save: no
 rebuild and no relaunch.
@@ -58,6 +60,18 @@ There are about 160 commands. To print all of them, with what they do and their 
 (With `swift run xcdev`, that's `~/Library/Caches/XCommander/XCommander.app/Contents/MacOS/Companion`.)
 
 The commands themselves are defined in `Sources/XCommanderCore/DefaultKeymap.swift`.
+
+The website's [command reference](https://xcommander.dev/docs/commands) is generated from that
+file. After changing the keymap, regenerate it and commit the page in the website repository:
+
+```sh
+swift run xcmdr reference --snapshot ~/.config/xcommander/xcode/<build>.json \
+    -o ../Website/user/pages/02.docs/03.commands/docs.md
+```
+
+`--snapshot` points at the menus your own Xcode recorded (`swift run xcmdr builds` lists them), so
+the reference shows Xcode's menu paths as they really are. Without it, `xcmdr` reads the running
+Xcode.
 
 ## When a file has a mistake
 
