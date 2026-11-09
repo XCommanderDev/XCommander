@@ -23,10 +23,13 @@ category per area: `app`, `tap`, `menus`, `executor`, `panes`, `navigator`, `con
 ```sh
 swift run xcdev logs                   # everything, live, including debug messages
 
-log stream --predicate 'subsystem == "dev.xcommander.XCommander" AND category == "executor"' --level debug
+/usr/bin/log stream --predicate 'subsystem == "dev.xcommander.XCommander" AND category == "executor"' --level debug
 
-log show --last 10m --predicate 'subsystem == "dev.xcommander.XCommander"'   # what already happened
+/usr/bin/log show --last 10m --predicate 'subsystem == "dev.xcommander.XCommander"'   # what already happened
 ```
+
+Write `/usr/bin/log` in full: in zsh, the default shell on macOS, a bare `log` is a built-in
+command that has nothing to do with the system log.
 
 `.debug` messages only appear in a live stream. `.notice` and above are kept, so `log show` can
 read them afterwards. If a value shows up as `<private>`, the log line forgot

@@ -3,6 +3,8 @@
 This is the map I wish I'd had when I started. It explains how XCommander is put together,
 where each piece lives, and why it's shaped the way it is. If you're new to the codebase, read
 this first, then pick a guide from [`docs/`](docs/README.md) for the area you want to work on.
+For a shorter, illustrated tour, see [How it works](https://xcommander.dev/docs/how-it-works) on
+the website.
 
 ## The one-paragraph version
 
@@ -41,6 +43,7 @@ Sources/
 ├── XcodeMenus/       Walks Xcode's menu bar over Accessibility. Shared by the app and xcmdr.
 ├── Companion/        The app itself: AppKit, the event tap, windows, Accessibility calls.
 ├── xcmdr/            A command-line maintenance tool (scan, audit and diff Xcode's menus).
+├── xcdev/            The developer tool: build, sign and run the app from Terminal, icons, the appcast.
 ├── CIndexStore/      C type declarations for Xcode's index store library. No code linked.
 └── CSourceKit/       C type declarations for sourcekitd. No code linked.
 Tests/

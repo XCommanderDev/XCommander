@@ -42,8 +42,8 @@ struct ReferencePage {
             *XCommander* are ones Xcode doesn't have, done by XCommander itself. The **id** is what \
             you write in your [configuration file](../configuration) to bind a command to other keys.
 
-            If a key does nothing, your Xcode may not have that command: the which-key panel only \
-            shows the commands your Xcode offers.
+            If a key beeps, Xcode has that command greyed out right now, as it would be in the menu. \
+            The which-key panel leaves out keys for commands your version of Xcode doesn't have.
 
             """)
 
@@ -134,7 +134,18 @@ struct ReferencePage {
 
     /// The longer of the command's two names: "find file in project" over "find file".
     private func describe(_ command: Command) -> String {
-        let text = command.searchText.count > command.title.count ? command.searchText : command.title
+        var text = command.searchText.count > command.title.count ? command.searchText : command.title
+        text = text.split(separator: " ", omittingEmptySubsequences: false).map { word in
+            switch word.lowercased() {
+            case "xcode": "Xcode"
+            case "xcommander": "XCommander"
+            default: String(word)
+            }
+        }.joined(separator: " ")
+        // A first word that is itself an example of case, like camelCase or snake_case, keeps
+        // its spelling. Everything else starts with a capital, like a sentence.
+        let first = text.prefix { $0 != " " }
+        if first.contains(where: { $0.isUppercase || $0 == "_" }) { return escape(text) }
         return escape(text.prefix(1).uppercased() + text.dropFirst())
     }
 
