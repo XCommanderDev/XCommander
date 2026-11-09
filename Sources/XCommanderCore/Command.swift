@@ -4,7 +4,9 @@ import Foundation
 public enum CommandAction: Hashable, Sendable {
     /// Tier 1 — synthesise a shortcut Xcode already has. ~40 µs.
     case shortcut(KeyEvent)
-    /// Tier 1 when the item has a shortcut, tier 2 (`AXPress`, ~1 ms) when it does not.
+    /// Pressed with `AXPress` (~1 ms), silently. Only if Xcode refuses the press does the
+    /// executor fall back to posting the item's shortcut, which makes macOS flash the menu
+    /// title (see `CommandExecutor` and the shortcut entry in docs/decisions.md).
     ///
     /// Names the item by `AXIdentifier`, not by menu path: Xcode 27 renamed four of the
     /// items bound below and moved none of them, and an identifier does not care.

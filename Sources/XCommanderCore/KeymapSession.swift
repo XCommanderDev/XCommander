@@ -24,7 +24,8 @@ public enum CancelReason: Hashable, Sendable {
     /// A key that the current node does not bind. Swallowed rather than passed on, so a
     /// stray keystroke never lands in the user's source file.
     case unbound(KeyEvent)
-    /// Xcode stopped being frontmost, the mouse was clicked, the tap was interrupted.
+    /// Xcode stopped being frontmost, or the tap was interrupted. (The tap sees keys only, so
+    /// a mouse click doesn't end a sequence.)
     case abandoned
     /// Nothing resolved the sequence for `timeout` seconds, so it gave up.
     case timedOut

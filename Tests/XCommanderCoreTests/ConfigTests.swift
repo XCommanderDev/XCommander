@@ -132,6 +132,9 @@ struct ConfigDecoderTests {
     func escapeIsSacred() {
         let (_, problems) = decode("version = 1\n[keys]\n\"ESC\" = \"quit.companion\"")
         #expect(problems.errors.first?.message.contains("ESC cannot be bound") == true)
+        // Not later in a sequence either: the session cancels on Esc before the keymap sees it.
+        let (_, later) = decode("version = 1\n[keys]\n\"m ESC\" = \"make.clean\"")
+        #expect(later.errors.first?.message.contains("ESC cannot be bound") == true)
     }
 
     @Test("an unknown section is a typo, and the message says what exists")
