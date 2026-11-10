@@ -43,7 +43,8 @@ Apple ships a new Xcode every year, with betas in between, and XCommander has to
 - **Commands are found by the action behind a menu item, not by its title or position.** A renamed or moved menu item keeps working, and a beta nobody has tested works on day one.
 - **XCommander supports Xcode 27 and later.** Earlier versions aren't tested, so they aren't supported. There is no upper limit.
 - **When a new Xcode removes a command you had bound, its key is hidden** rather than left doing nothing, and XCommander writes a short report saying what changed.
-- **A release and a beta can run side by side.** XCommander talks to the one in front.
+- **A release and a beta can run side by side.** XCommander talks to the one in front. One copy of XCommander serves all of them: there's no separate build for an Xcode beta.
+- **Your config survives Xcode updates.** It names XCommander's commands, never Xcode's menu items.
 
 All of this is built. [docs/xcode-upgrades.md](docs/xcode-upgrades.md) explains how, and has the checklist I follow when Apple ships a new Xcode.
 

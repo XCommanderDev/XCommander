@@ -24,8 +24,9 @@ internals.
   problems.
 - **[Configuration](configuration.md)**: the `config.toml` format, for users and for working on
   the config code.
-- **[Surviving Xcode upgrades](xcode-upgrades.md)**: how the app absorbs Xcode changes, the
-  `xcmdr` tool, and how to help with an Xcode beta.
+- **[Surviving Xcode upgrades](xcode-upgrades.md)**: how the app absorbs Xcode changes, why one
+  install serves every Xcode, what happens to your config, every case and what to do, the `xcmdr`
+  tool, and how to help with an Xcode beta.
 - **[Decisions](decisions.md)**: why things are the way they are.
 
 ## A first week with the code

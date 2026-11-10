@@ -86,6 +86,16 @@ library costs one feature, not the app.
 bindings are missing from the menus. Nothing is hidden or reported until a scan with a source
 editor focused. See [Surviving Xcode upgrades](xcode-upgrades.md).
 
+### One release line for every Xcode, and one install
+
+**Why:** commands are found by identifier, snapshots are kept per Xcode build, and a fix for a new
+Xcode only adds names. So one build serves the release and every beta at once, and versions follow
+XCommander's own features, not Apple's calendar. Two installed copies would share the bundle ID,
+the Accessibility grant, the config folder and the leader key, so the answer to "try a newer
+build" is the prerelease channel or a build from source, never a second copy.
+**Cost:** a renamed action stays broken on that Xcode until a release reaches users, and a config
+can't work around it. That's why updates shipped before the first public build.
+
 ### Configuration in a TOML file, applied whole or not at all
 
 **Why:** `~/.config` is where developers keep their tool settings, and a file can be shared and

@@ -56,6 +56,92 @@ matters.
 **6. Old XCommander, new files.** Snapshots carry a schema version. An older XCommander refuses
 to read, or overwrite, a snapshot written by a newer one.
 
+## Three Xcodes on one Mac, step by step
+
+Say you have the release (`Xcode.app`), the second beta (`Xcode-beta.app`) and the first beta
+(`Xcode-beta-1.app`), and one copy of XCommander.
+
+1. You bring the second beta forward. `XcodeTarget.choose` picks it by process, because it's the
+   one in front.
+2. XCommander reads its menus again in the background. It keeps one index per running Xcode, so
+   switching back to the release later costs nothing.
+3. `⌥↩ m m` looks for `buildActiveRunContext:` in **that** Xcode's menus and presses it. Nothing
+   in that lookup knows which version it's talking to; the running Xcode answers "is it here?"
+   for itself.
+4. The scan is merged into the second beta's own snapshot. Three builds, three files, never
+   merged together.
+5. If the second beta dropped a command you have a key for, nothing is pressed. Once that build
+   has settled, the key is hidden, **only while the second beta is in front**. In the release
+   and the first beta it still shows and still works.
+6. When the second beta first settles, it's compared with the build before it and `CHANGES.md`
+   is written. The lost key is listed first, and the menu bar says one line about it.
+
+### The keymap and the snapshots are different things
+
+- **The keymap** says which key runs which command: the shipped table plus your `config.toml`.
+  It's never learnt from Xcode.
+- **The snapshots** say what each Xcode build has been seen to offer, learnt from Xcode, one file
+  per build.
+
+The snapshots are kept even though the menus are read every time, for two reasons. One read only
+shows what was on screen, so only the accumulated snapshot can tell "not available right now"
+from "this Xcode doesn't have it". And after an update the old Xcode is gone, so its snapshot is
+the only thing left to compare with.
+
+## Your config and Xcode changes
+
+Your `config.toml` names XCommander's command ids, like `make.build`, and nothing else. It never
+names Xcode's menu titles, paths or identifiers. The link from `make.build` to Xcode's menu
+lives in `DefaultKeymap.swift`. So:
+
+| Apple… | Your config |
+|---|---|
+| renames or moves a menu item | Nothing to do: the identifier still matches |
+| renames the action itself | Nothing to change. The fix is a new alternate on the command, and it reaches you in an update. Until then the key does nothing on that Xcode, and you can't point it at the new identifier yourself; you can only put another command on it |
+| removes a command | Your binding stays. The key is hidden only while an Xcode without the command is in front |
+
+The report reads **your** keymap, not the shipped one: a key you unbound isn't reported as lost,
+and a key you added is.
+
+## One XCommander for every Xcode
+
+There's no XCommander release per Xcode, and no "XCommander for the Xcode beta". One build serves
+every Xcode from 27 up, the release and its betas at the same time, and a fix for a new Xcode
+only adds names, so it can't break an older one. XCommander's version numbers follow its own
+features. A prerelease (`1.1.0-beta.1`) is a prerelease of XCommander, not of Xcode.
+
+Keep **one copy** installed. Two copies would share the bundle ID, so they'd share one
+Accessibility grant, one update channel and one `~/.config/xcommander/` folder, and both would
+watch for the same leader key. To try a newer build, either install a prerelease (after that,
+updates offer you prereleases and finals), or build from source and quit the installed copy while
+it runs.
+
+## Every case, and what to do
+
+| Situation | What XCommander does | What you see | If it goes wrong |
+|---|---|---|---|
+| Several Xcodes, any number running | Acts on the one in front; otherwise the one last in front; otherwise the most recently launched | Keys act on the Xcode you're using | Report it: one rule decides this everywhere |
+| Xcode older than 27 | Below the floor | A message at first run and in the menu bar | Update Xcode |
+| Xcode relaunches after an update | Drops the old process's menus and re-attaches to the window | Nothing to do | `⌥↩ q r` |
+| Updated Xcode reopens on its Welcome window | The build isn't settled, so nothing is hidden or reported | Every key still shows | — |
+| You open a project and click into a file | The build settles, is compared with the previous one, and `CHANGES.md` is written if anything changed | A report; a menu bar line only if you lost a key or your leader now hides an Xcode shortcut | No report after a few sessions: report it with your Xcode version |
+| Apple renamed or moved a command | Still found by its identifier | The key works; maybe listed under titles that changed | — |
+| A command only shows in some situations (debugging, editor focused) | Snapshots accumulate, so "missing now" isn't "removed" | The key shows; pressing it elsewhere does nothing | — |
+| Apple removed a command you use | Nothing is pressed; once settled, the key is hidden on that build | The key disappears on that Xcode only; listed first in `CHANGES.md` | Nothing to fix. Reuse the key for another command if you like |
+| Apple renamed the action behind a command | Like a removal, until an update adds the new name | Same as a removal | Wait for the update, or **Report a Bug…** |
+| Apple moved a command into a toolbar popup | Found only once XCommander knows it's a popup | The key may stop working | Report it |
+| Apple put a shortcut on your leader key | Your leader hides it while Xcode is in front | A menu bar line and a note in `CHANGES.md` | Choose another leader in Settings or `config.toml` |
+| Apple changed the window's layout | After a pane command fails in a project window, XCommander checks its assumptions | A "may have changed" note and one menu bar line | Report it |
+| An older XCommander installed after a newer one | Refuses snapshots from the newer one rather than overwriting them; hides nothing | Every key shows; no reports | Reinstall the newer one, or delete `~/.config/xcommander/xcode/` |
+| A typo in `config.toml` | The whole file is checked first; nearest match suggested | The last good keymap stays; Settings shows the error | Fix and save |
+| `~/.config/xcommander/xcode/` deleted or damaged | Rebuilt from Xcode | Nothing hidden until a build settles again | You lose the baseline, so the next update writes no report |
+
+If nothing above fits: `⌥↩ q r` re-reads the menus and reloads your config; then quit and reopen
+XCommander and Xcode; then delete `~/.config/xcommander/xcode/`; then use **Report a Bug…** in
+the menu and attach `CHANGES.md` if there is one. Contributors can add `xcmdr doctor`, and
+`⌥↩ h c`, which checks every binding against the Xcode in front and writes the result to the log
+(`swift run xcdev logs`).
+
 ## Support policy
 
 XCommander supports **Xcode 27 and later**, and nothing earlier: older versions are never

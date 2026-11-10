@@ -73,6 +73,14 @@ swift run xcmdr reference --snapshot ~/.config/xcommander/xcode/<build>.json \
 the reference shows Xcode's menu paths as they really are. Without it, `xcmdr` reads the running
 Xcode.
 
+## When Xcode changes
+
+Your file names command ids, never Xcode's menu items, so an Xcode update doesn't make you edit
+it. A renamed or moved menu item keeps working. If Apple removes a command, your binding stays
+and its key is hidden only while an Xcode without it is in front. If Apple renames the action
+behind a command, the fix comes in an XCommander update; you can't point a key at Xcode's new
+name yourself. See [Surviving Xcode upgrades](xcode-upgrades.md#your-config-and-xcode-changes).
+
 ## When a file has a mistake
 
 XCommander never applies half a file. It parses and checks the whole thing into a new keymap,
