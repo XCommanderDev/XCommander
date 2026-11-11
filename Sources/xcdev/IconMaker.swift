@@ -8,7 +8,8 @@ import UniformTypeIdentifiers
 ///
 /// - The app icon is an Icon Composer document. It's copied as is: it already is the design,
 ///   and macOS draws it with its own geometry.
-/// - The menu bar mark is rendered from the hat SVG as a template image (see `makeMenuBarMark`).
+/// - The menu bar mark is rendered from the same artwork, hat and sabres, as a template image
+///   (see `makeMenuBarMark`).
 /// - The `.icns` for a DMG's volume icon is compiled from the app icon by `actool`.
 ///
 /// Needs `rsvg-convert` to render the SVG: `brew install librsvg`.
@@ -16,7 +17,7 @@ struct IconMaker {
     let project: Project
 
     let iconSource = "Graphics/XCommanderAppIconDefault.icon"
-    let hatSource = "Graphics/X-hat-black-on-white2.svg"
+    let markSource = "Graphics/XCommander-black.svg"
     let iconDestination = "Sources/Companion/XCommanderAppIcon.icon"
     let markDestination = "Sources/Companion/Assets.xcassets/MenuBarMark.imageset"
 
@@ -33,7 +34,7 @@ struct IconMaker {
         try? FileManager.default.removeItem(at: destination)
         try FileManager.default.copyItem(at: project.path(iconSource), to: destination)
 
-        print("Menu bar mark: rendering \(hatSource)")
+        print("Menu bar mark: rendering \(markSource)")
         try makeMenuBarMark(work: work)
 
         print("DMG icon: compiling Design/XCommander.icns")
@@ -57,21 +58,22 @@ struct IconMaker {
     ///    grey, so it's opaque. Using alpha alone would give a solid hat with no ⌘. Multiplying
     ///    alpha by darkness turns the light details into holes the menu bar can show through.
     /// 2. **Fill the trim.** The thin white line along the hat's edge is lovely at 1024 pixels
-    ///    and just makes the hat look faint at 13 points. It's one long hole, so every hole wider
-    ///    than half the hat is filled. The ⌘ and the crossbones are small and stay cut out.
-    /// 3. **Size it for the menu bar.** The hat is 2.3 times wider than tall. In the usual 18 pt
-    ///    square it would be 8 pt high, much smaller than the icons next to it, so the canvas is
-    ///    31 × 18 pt and the hat ends up about 13 pt high.
+    ///    and just makes the hat look faint at menu bar size. It's one long hole, so every hole
+    ///    wider than half the artwork is filled. The ⌘ and the lines down the blades are small and
+    ///    stay cut out.
+    /// 3. **Size it for the menu bar.** The artwork fills the usual 18 pt height, and the canvas
+    ///    is as wide as its proportions need (about 21 pt), rounded down so it never overflows.
     private func makeMenuBarMark(work: URL) throws {
         let rendered = work.appending(path: "hat.png")
         try shell("rsvg-convert", "-w", "2048", "-h", "2048", "-f", "png",
-                  "-o", rendered.path, project.path(hatSource).path)
+                  "-o", rendered.path, project.path(markSource).path)
 
         var mask = try Mask(inkFrom: rendered)
         mask.cropToInk()
         mask.fillHoles(widerThan: mask.width / 2)
 
-        let canvasWidth = 31, canvasHeight = 18
+        let canvasHeight = 18
+        let canvasWidth = Int(Double(canvasHeight) * Double(mask.width) / Double(mask.height))
         let markset = project.path(markDestination)
         for scale in [1, 2] {
             let name = scale == 1 ? "mark.png" : "mark@\(scale)x.png"
@@ -212,7 +214,7 @@ struct Mask {
         let targetHeight = max(1, Int((Double(height) * Double(targetWidth) / Double(width)).rounded()))
 
         // Scale the mask down with a Lanczos filter (vImage's high-quality resampling). It
-        // keeps the ⌘ and the crossbones crisp; Core Graphics' interpolation blurs them at this
+        // keeps the ⌘ crisp; Core Graphics' interpolation blurs them at this
         // size.
         var scaledPixels = [UInt8](repeating: 0, count: targetWidth * targetHeight)
         var sourcePixels = pixels

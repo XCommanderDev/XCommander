@@ -171,15 +171,15 @@ final class MenuBarController {
         return brandMark(opacity: opacity, description: status.explanation)
     }
 
-    /// The hat from the app icon, without its tile, as a **template** image — the idiomatic
+    /// The app icon's artwork, hat and sabres without the tile, as a **template** image — the idiomatic
     /// menu-bar image on macOS. The system discards a template's colours and uses its alpha
     /// as a mask, so the mark goes black on a light bar, white on a dark one, and tints under
     /// a tinted wallpaper.
     ///
     /// The *whole* app icon can never do this. A template's alpha is its shape, and the
     /// icon's alpha is a filled rounded rectangle, so it renders as a blank white square.
-    /// `xcdev icons` renders the hat from `Graphics/X-hat-black-on-white2.svg` and cuts the
-    /// light ⌘ and crossbones out of it, so the bar draws them in its own colour.
+    /// `xcdev icons` renders it from `Graphics/XCommander-black.svg` and cuts the light ⌘ out
+    /// of it, so the bar draws it in its own colour.
     private func brandMark(opacity: CGFloat, description: String) -> NSImage? {
         guard let mark = NSImage(named: "MenuBarMark") else { return nil }
         guard opacity < 1 else {
