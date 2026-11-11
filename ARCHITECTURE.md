@@ -84,7 +84,7 @@ This is the heart of the app. Follow it once in the code and everything else mak
     ▼
  KeymapSession.press (Core/KeymapSession.swift)
     │  Returns one of:
-    ├─ .passThrough  → not ours, Xcode gets the key
+    ├─ .passThrough  → not ours, the key goes to which ever app is in front
     ├─ .awaiting     → swallow; OverlayController shows the which-key panel after ~350 ms
     ├─ .cancelled    → swallow; hide the panel (Esc, unbound key, timeout)
     └─ .fired(id)    → swallow; run the command on the next run loop turn
