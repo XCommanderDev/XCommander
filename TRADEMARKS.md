@@ -17,7 +17,7 @@ The XCommander source code is free software under the [GPLv3](LICENSE). The lice
 
 ## Artwork
 
-The hat artwork and app icon are © 2026 Wassim Mansouri, all rights reserved. That covers the files in `Graphics/`, the icon in `Sources/Companion/XCommanderAppIcon.icon` and the images generated from them. They're in this repository so the official app can be built from source. They're not under the GPLv3, and a fork that's distributed needs its own icon.
+The artwork (the hat over crossed sabres) and the app icon are © 2026 Wassim Mansouri, all rights reserved. That covers the files in `Graphics/`, the icon in `Sources/Companion/XCommanderAppIcon.icon` and the images generated from them. They're in this repository so the official app can be built from source. They're not under the GPLv3, and a fork that's distributed needs its own icon.
 
 ## Official builds
 
