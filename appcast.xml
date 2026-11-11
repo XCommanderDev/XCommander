@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+  <channel>
+    <title>XCommander</title>
+    <link>https://xcommander.dev</link>
+    <description>Updates for XCommander</description>
+    <language>en</language>
+    <item>
+      <title>XCommander 0.1.0-alpha.4</title>
+      <link>https://github.com/XCommanderDev/XCommander/releases/tag/v0.1.0-alpha.4</link>
+      <pubDate>Wed, 11 Nov 2026 12:09:44 +0000</pubDate>
+      <sparkle:version>7</sparkle:version>
+      <sparkle:shortVersionString>0.1.0-alpha.4</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <sparkle:channel>prerelease</sparkle:channel>
+      <description><![CDATA[<p>A new look: the hat now sits over two crossed sabres that form the X.</p>
+<blockquote>
+<p><strong>Still an early alpha.</strong> Expect rough edges and bugs. If something breaks, use <strong>Report a Bug…</strong> in the menu bar; it fills in your versions for you.</p>
+</blockquote>
+<h2>What's new</h2>
+<ul>
+<li>New app icon, menu bar icon and disk image icon. The ⌘ on the hat is bigger, so the menu bar icon is easier to read.</li>
+</ul>
+<p><strong>Coming from 0.1.0-alpha.3?</strong> Choose <strong>Check for Updates…</strong> in the menu bar, or wait for the daily check. <strong>From 0.1.0-alpha.1?</strong> Download this one by hand; that build can't update itself.</p>
+<h2>Install</h2>
+<ol>
+<li>Download <code>XCommander.dmg</code> below and drag XCommander into Applications.</li>
+<li>Open it, and grant <strong>Accessibility</strong> when asked (System Settings → Privacy &amp; Security → Accessibility). XCommander needs it to read Xcode's menus and press them for you.</li>
+<li>In Xcode, press <strong>⌥↩</strong> (Option-Return) and the which-key panel shows what comes next.</li>
+</ol>
+<p><strong>Needs:</strong> Xcode 27 or later, macOS 14 or later.<br>
+<strong>Optional:</strong> <a href="https://github.com/BurntSushi/ripgrep">ripgrep</a> (<code>brew install ripgrep</code>) for project-wide search with a preview.</p>
+<p>Signed with my Developer ID and notarized by Apple. To check your download: <code>shasum -a 256 XCommander.dmg</code> should match <code>XCommander.dmg.sha256</code>. (<code>sparkle-update.json</code> is for the updater; you don't need it.)</p>
+<h2>Privacy</h2>
+<p>XCommander only acts while Xcode is in front. Its one network request is the daily update check, which reads a feed on xcommander.dev and sends nothing about you.</p>]]></description>
+      <enclosure url="https://github.com/XCommanderDev/XCommander/releases/download/v0.1.0-alpha.4/XCommander.dmg" length="4175640" type="application/octet-stream" sparkle:edSignature="dSJXP2x0ZYGjg+aIXopUux3NYp3KIhzWEQ5k0Le+YDhKIGyGJgrNscD3aWZtPB5/Kc6XcMWuqtvvjWO3AVwzDQ=="/>
+    </item>
+    <item>
+      <title>XCommander 0.1.0-alpha.3</title>
+      <link>https://github.com/XCommanderDev/XCommander/releases/tag/v0.1.0-alpha.3</link>
+      <pubDate>Mon, 09 Nov 2026 08:36:01 +0000</pubDate>
+      <sparkle:version>6</sparkle:version>
+      <sparkle:shortVersionString>0.1.0-alpha.3</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <sparkle:channel>prerelease</sparkle:channel>
+      <description><![CDATA[<p>A small fix, and XCommander now has documentation.</p>
+<blockquote>
+<p><strong>Still an early alpha.</strong> Expect rough edges and bugs. If something breaks, use <strong>Report a Bug…</strong> in the menu bar; it fills in your versions for you.</p>
+</blockquote>
+<h2>What's new</h2>
+<ul>
+<li><strong>Documentation at <a href="https://xcommander.dev/docs" rel="nofollow">xcommander.dev/docs</a>:</strong> getting started, everyday use, the full command reference, the configuration file, troubleshooting, and how XCommander works under the hood.</li>
+</ul>
+<h2>Fixed</h2>
+<ul>
+<li>The configuration file accepted <kbd>Esc</kbd> inside a key sequence, like <code>"m ESC"</code>, but <kbd>Esc</kbd> always cancels a sequence, so that binding could never run. XCommander now reports it as an error in your configuration, saying why.</li>
+</ul>
+<p><strong>Coming from 0.1.0-alpha.2?</strong> Choose <strong>Check for Updates…</strong> in the menu bar, or wait for the daily check. <strong>From 0.1.0-alpha.1?</strong> Download this one by hand; that build can't update itself.</p>
+<h2>Install</h2>
+<ol>
+<li>Download <code>XCommander.dmg</code> below and drag XCommander into Applications.</li>
+<li>Open it, and grant <strong>Accessibility</strong> when asked (System Settings → Privacy &amp; Security → Accessibility). XCommander needs it to read Xcode's menus and press them for you.</li>
+<li>In Xcode, press <strong>⌥↩</strong> (Option-Return) and the which-key panel shows what comes next.</li>
+</ol>
+<p><strong>Needs:</strong> Xcode 27 or later, macOS 14 or later.<br>
+<strong>Optional:</strong> <a href="https://github.com/BurntSushi/ripgrep">ripgrep</a> (<code>brew install ripgrep</code>) for project-wide search with a preview.</p>
+<p>Signed with my Developer ID and notarized by Apple. To check your download: <code>shasum -a 256 XCommander.dmg</code> should match <code>XCommander.dmg.sha256</code>. (<code>sparkle-update.json</code> is for the updater; you don't need it.)</p>
+<h2>Privacy</h2>
+<p>XCommander only acts while Xcode is in front. Its one network request is the daily update check, which reads a feed on xcommander.dev and sends nothing about you.</p>]]></description>
+      <enclosure url="https://github.com/XCommanderDev/XCommander/releases/download/v0.1.0-alpha.3/XCommander.dmg" length="3805931" type="application/octet-stream" sparkle:edSignature="zdRflKMkynez2dwB7mkJBukZfuuA54hgYfkgi79kot6M2nSREeV9+cMRkepqSRs5Xjf5o2W4JV2qgRVRyu0zBQ=="/>
+    </item>
+    <item>
+      <title>XCommander 0.1.0-alpha.2</title>
+      <link>https://github.com/XCommanderDev/XCommander/releases/tag/v0.1.0-alpha.2</link>
+      <pubDate>Sun, 08 Nov 2026 17:12:51 +0000</pubDate>
+      <sparkle:version>5</sparkle:version>
+      <sparkle:shortVersionString>0.1.0-alpha.2</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <sparkle:channel>prerelease</sparkle:channel>
+      <description><![CDATA[<p>XCommander now updates itself.</p>
+<blockquote>
+<p><strong>Still an early alpha.</strong> Expect rough edges and bugs. If something breaks, use <strong>Report a Bug…</strong> in the menu bar; it fills in your versions for you.</p>
+</blockquote>
+<h2>What's new</h2>
+<ul>
+<li><strong>In-app updates with <a href="https://sparkle-project.org" rel="nofollow">Sparkle</a>.</strong> Once a day XCommander checks for a newer release. When there is one, a line appears in its menu (no window popping up over Xcode); click it to read what changed and install. You can also use <strong>Check for Updates…</strong> at any time, or turn the daily check off in Settings.</li>
+<li>If you're running an alpha or beta, you're offered alphas and betas as well as final releases. Everyone else only gets final releases.</li>
+<li>Every update is checked against my signing key and my Apple Developer ID before it's installed.</li>
+<li>The preview setting now says what it does: it depends on the window's width, not its height.</li>
+</ul>
+<p><strong>Coming from 0.1.0-alpha.1?</strong> That build can't install updates, so please download this one by hand, one last time. Quit XCommander, drag the new one into Applications and replace the old one. Your Accessibility permission carries over.</p>
+<h2>Install</h2>
+<ol>
+<li>Download <code>XCommander.dmg</code> below and drag XCommander into Applications.</li>
+<li>Open it, and grant <strong>Accessibility</strong> when asked (System Settings → Privacy &amp; Security → Accessibility). XCommander needs it to read Xcode's menus and press them for you.</li>
+<li>In Xcode, press <strong>⌥↩</strong> (Option-Return) and the which-key panel shows what comes next.</li>
+</ol>
+<p><strong>Needs:</strong> Xcode 27 or later, macOS 14 or later.<br>
+<strong>Optional:</strong> <a href="https://github.com/BurntSushi/ripgrep">ripgrep</a> (<code>brew install ripgrep</code>) for project-wide search with a preview.</p>
+<p>Signed with my Developer ID and notarized by Apple. To check your download: <code>shasum -a 256 XCommander.dmg</code> should match <code>XCommander.dmg.sha256</code>. (<code>sparkle-update.json</code> is for the updater; you don't need it.)</p>
+<h2>Privacy</h2>
+<p>XCommander only acts while Xcode is in front. Its one network request is the daily update check, which reads a feed on xcommander.dev and sends nothing about you.</p>]]></description>
+      <enclosure url="https://github.com/XCommanderDev/XCommander/releases/download/v0.1.0-alpha.2/XCommander.dmg" length="3805698" type="application/octet-stream" sparkle:edSignature="bOI+/Xm45kL7LVAyTJtmaDv0YKal8lKGMJJ9CG+/ni3KAJbWntjjLF4rWMTRWfjXFAMhntFwSr4/w7P9AgD8Dg=="/>
+    </item>
+  </channel>
+</rss>
